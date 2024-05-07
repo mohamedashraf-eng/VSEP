@@ -31,7 +31,7 @@
 ## Overview 
 FOTA (Firmware Over-The-Air) is a cutting-edge repository for managing firmware updates over the air. The repository facilitates seamless and secure firmware updates for embedded devices, ensuring your devices are always up to date with the latest features and fixes.
 
-![FOTA Demo](insert_demo_gif_or_screenshot_here)
+<!-- ![FOTA Demo](insert_demo_gif_or_screenshot_here) -->
 
 ## Key Features
 
