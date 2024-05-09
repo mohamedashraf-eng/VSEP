@@ -1,10 +1,10 @@
 
 <p align="center">
-  <a href="https://ibb.co/d0qZWCC"><img src="https://i.ibb.co/BVxkzWW/image-2024-05-09-193413918.png" alt="image-2024-05-09-193413918" border="2"/></a>
+  <a href="https://ibb.co/d0qZWCC"><img src="https://i.ibb.co/BVxkzWW/image-2024-05-09-193413918.png" alt="image-2024-05-09-193413918" border="4"/></a>
 </p>
 <div align="center">
 
-# VehiSync Enhance Project
+<!-- # VehiSync Enhance Project -->
 
 </div>
 
