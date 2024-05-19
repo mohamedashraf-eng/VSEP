@@ -3,11 +3,13 @@ set(
 
     ${target_app_swc}/core/main.c
     ${target_app_swc}/startup_stm32f103c8tx.c
-    ${target_app_swc}/core/bootloader_prg.c
+    ${target_app_swc}/core/simple_vehicle_ops.c
+    ${hal_drivers}/src/stm32f1xx_hal_tim.c
+    ${hal_drivers}/src/stm32f1xx_hal_tim_ex.c
+    ${target_app_swc}/core/stm32f1xx_it.c
     ${target_app_swc}/core/system_stm32f1xx.c
     ${target_app_swc}/core/stm32f1xx_hal_msp.c
-    ${target_app_swc}/core/stm32f1xx_it.c
-    ${target_app_swc}/core/crc.c
+    ${target_app_swc}/core/tim.c
     ${target_app_swc}/core/gpio.c
     ${target_app_swc}/core/rtc.c
     ${target_app_swc}/core/syscalls.c
@@ -19,9 +21,9 @@ set(
     target_app_swc_includes
 
     ${target_app_swc}/core
+    ${hal_drivers}/include
     ${common_platform_includes}
     ${common_asset_includes}
-    ${hal_drivers}/include
 )
 
 set(

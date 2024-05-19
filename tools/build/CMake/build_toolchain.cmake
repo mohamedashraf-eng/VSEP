@@ -8,14 +8,10 @@ set(CMAKE_CXX_FLAGS        "${COMMON_FLAGS} ${STM32F103C8_FLAGS}")
 set(CMAKE_C_COMPILER       ${TOOLCHAIN_DIR}/bin/arm-eabi-gcc)
 set(CMAKE_CXX_COMPILER     ${TOOLCHAIN_DIR}/bin/arm-eabi-gcc)
 set(CMAKE_AR               ${TOOLCHAIN_DIR}/bin/arm-eabi-ar)
+set(COMPILER_OBJCOPY       ${TOOLCHAIN_DIR}/bin/arm-eabi-objcopy)
+set(COMPILER_OBJDUMP       ${TOOLCHAIN_DIR}/bin/arm-eabi-objdump)
 
-if(SOFTWARE_COMPONENT STREQUAL "bootloader_swc")
-    set(LINKER_FLAGS "-Wl,--gc-sections -Wl,-Map=bootloader_swc.map -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group")
-elseif(SOFTWARE_COMPONENT STREQUAL "target_app_swc")
-    set(LINKER_FLAGS "-Wl,--gc-sections -Wl,-Map=target_app_swc.map -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group")
-else()
-    message(FATAL_ERROR "Unknown SOFTWARE_COMPONENT: ${SOFTWARE_COMPONENT}")
-endif()
+set(LINKER_FLAGS "-Wl,--gc-sections -Wl,-Map=${SOFTWARE_COMPONENT}.map -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group -MMD -MP")
 
 set(CMAKE_EXE_LINKER_FLAGS "${LINKER_FLAGS}")
 

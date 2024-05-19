@@ -1,29 +1,22 @@
 import logging
-import yaml
-import json
 import os
 from os import urandom
 import argparse
 #
-from Crypto.Cipher import AES
-from Crypto.Hash import CMAC, HMAC, SHA256, SHA512
-from Crypto.Protocol.KDF import PBKDF2
 import hashlib
 from intelhex import IntelHex
 
 # Configure logging
-log_filename = "main.log"
 log_format = (
     "%(asctime)s - %(levelname)s - %(message)s - %(pathname)s:%(lineno)d - %(funcName)s"
 )
-logging.basicConfig(filename=log_filename,
+logging.basicConfig(
                     level=logging.INFO, format=log_format)
 
 class prj_foem_firmware:
     def __init__(self, firmware_fp):
         self.__firmware_fp = firmware_fp
-        self.__firmware_hex = []
-        self.__firmware_in_json = None
+        self.__firmware_hex_fp = None
         self.__firmware_in_bin = None
         self.__firmware_size = None
         self.__hmac_secret_key = b"mohamedAshraf"
@@ -31,8 +24,8 @@ class prj_foem_firmware:
         self.__cmac_salt = b"mohamedashraf"
         self.__ecc_salt = b"mohamedashraf"
 
-        self.__firmware_hex_fetch()
-        self.__firmware_in_json = json.dumps(self.__firmware_hex)
+        # self.__firmware_hex_fetch()
+        # self.__firmware_cvt2hex()
         self.__firmware_cvt2bin()
 
     def __firmware_hex_fetch(self):
@@ -43,22 +36,18 @@ class prj_foem_firmware:
         except FileNotFoundError:
             logging.error(f"Error: File '{self.__firmware_fp}' not found.")
 
-    def __firmware_cvt2bin(self):
-        # output = os.path.splitext(os.path.basename(hex_fp))[0]
+    def __firmware_cvt2hex(self):
+        ih = IntelHex(self.__firmware_fp)
+        
+        ih.tofile("UpdatedFirmware.hex", format='hex')
+        
+        self.__firmware_hex_fp = "./UpdatedFirmware.hex"
 
-        # Load the Intel HEX file
+    def __firmware_cvt2bin(self):
         ih = IntelHex(self.__firmware_fp)
 
-        # Convert to binary and save
         ih.tobinfile("UpdatedFirmware.bin")
         self.__firmware_fp_bin = "./UpdatedFirmware.bin"
-    # def __calculate_sha256(self):
-    #     sha256_obj = SHA256.new()
-    #     #sha256_hash = hashlib.sha256(self.__firmware_in_bin).digest()
-    #     for line in self.__firmware_hex:
-    #         sha256_obj.update(str(line).encode('utf-8'))
-
-    #     return sha256_obj.digest()
     
     def __calculate_sha256(self):
         sha256_hash = hashlib.sha256()

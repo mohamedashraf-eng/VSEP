@@ -1,6 +1,8 @@
 set(
     hal_drivers_sources_list
 
+    ${hal_drivers}/src/stm32f1xx_hal_tim.c
+    ${hal_drivers}/src/stm32f1xx_hal_tim_ex.c
     ${hal_drivers}/src/stm32f1xx_hal_cortex.c
     ${hal_drivers}/src/stm32f1xx_hal_crc.c
     ${hal_drivers}/src/stm32f1xx_hal_dma.c
@@ -14,8 +16,6 @@ set(
     ${hal_drivers}/src/stm32f1xx_hal_rcc.c
     ${hal_drivers}/src/stm32f1xx_hal_rtc_ex.c
     ${hal_drivers}/src/stm32f1xx_hal_rtc.c
-    ${hal_drivers}/src/stm32f1xx_hal_tim_ex.c
-    ${hal_drivers}/src/stm32f1xx_hal_tim.c
     ${hal_drivers}/src/stm32f1xx_hal_uart.c
     ${hal_drivers}/src/stm32f1xx_hal.c
 )

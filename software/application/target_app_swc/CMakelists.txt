@@ -26,24 +26,6 @@ if(MODE STREQUAL "COMPILING")
   target_compile_definitions(target_app_swc PRIVATE ${target_app_swc_defines})
   target_link_libraries(target_app_swc PRIVATE ${target_app_swc_libs})
 
-  # Output paths for .hex and .bin files
-  set(HEX_FILE "${CMAKE_BINARY_DIR}/../output/build/cf4a_gp_targetapp.hex")
-  set(BIN_FILE "${CMAKE_BINARY_DIR}/../output/build/cf4a_gp_targetapp.bin")
-
-  # Command to generate .hex file
-  add_custom_command(TARGET target_app_swc POST_BUILD
-      COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:target_app_swc> ${HEX_FILE}
-      COMMENT "Generating .hex file"
-  )
-
-  # Command to generate .bin file
-  add_custom_command(TARGET target_app_swc POST_BUILD
-      COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:target_app_swc> ${BIN_FILE}
-      COMMENT "Generating .bin file"
-  )
-  install(FILES ${HEX_FILE} DESTINATION ${CMAKE_BINARY_DIR}/../output/build RENAME cf4a_gp_targetapp.hex)
-  install(FILES ${BIN_FILE} DESTINATION ${CMAKE_BINARY_DIR}/../output/build RENAME cf4a_gp_targetapp.bin)
-
   # Installation
   install( PROGRAMS $<TARGET_FILE:target_app_swc>  PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ DESTINATION ${CMAKE_BINARY_DIR}/../output/build RENAME cf4a_gp_targetapp.out)
   install( FILES    $<TARGET_FILE:target_app_swc>.map DESTINATION ${CMAKE_BINARY_DIR}/../output/build RENAME cf4a_gp_targetapp.map  )

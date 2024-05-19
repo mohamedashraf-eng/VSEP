@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2023 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -18,14 +18,15 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "crc.h"
 #include "rtc.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "bootloader_intf.h"
+#include "simple_vehicle_ops.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -39,7 +40,12 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+void _delay_us(uint16 delay) {
+    __HAL_TIM_SET_COUNTER(&htim4, 0);
+    while(__HAL_TIM_GET_COUNTER(&htim4) < delay);
+}
 
+#define _DELAY_MS(_D) for(uint16 i = 0; i < 1000u; ++i) _delay_us(_D)
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -87,19 +93,31 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_CRC_Init();
   MX_USART1_UART_Init();
+  MX_TIM3_Init();
   MX_USART2_UART_Init();
+  MX_TIM4_Init();
+  MX_TIM2_Init();
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
+  __disable_irq();
 
+  HAL_TIM_Base_Start(&htim4);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+  HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_3);
+
+  vehicle_init();
+
+  __enable_irq();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-  {
-	  BL_enBootManager();
+  { 
+	  CheckIfDistanceInValidRange(GetUltraSonicDistance());
+//	  _DELAY_MS(5);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
