@@ -1,0 +1,54 @@
+# CMake Version Check
+cmake_minimum_required(VERSION 3.14)
+
+# Project
+project(bootloader_swc 
+        LANGUAGES C CXX
+        VERSION "1.0.0"
+        DESCRIPTION "bootloader_swc")
+
+set(SOFTWARE_COMPONENT "bootloader_swc")
+##############################################################################
+# Include Common Compilation Settings                                       #
+##############################################################################
+
+include(tools/cmake/bootloader_swc_compile.cmake)
+
+##############################################################################
+# Build Configuration                                                        #
+##############################################################################
+
+# Compilation Mode: Only build the library
+if(MODE STREQUAL "COMPILING")
+  add_executable(bootloader_swc ${bootloader_swc_sources_list})
+  target_compile_options(bootloader_swc PRIVATE ${bootloader_swc_compile_options})
+  target_include_directories(bootloader_swc PRIVATE ${bootloader_swc_includes})
+  target_compile_definitions(bootloader_swc PRIVATE ${bootloader_swc_defines})
+  target_link_libraries(bootloader_swc PRIVATE ${bootloader_swc_libs})
+
+  # Output paths for .hex and .bin files
+  set(HEX_FILE "${CMAKE_BINARY_DIR}/../output/build/cf4a_gp_bootloader.hex")
+  set(BIN_FILE "${CMAKE_BINARY_DIR}/../output/build/cf4a_gp_bootloader.bin")
+
+  # Command to generate .hex file
+  add_custom_command(TARGET bootloader_swc POST_BUILD
+      COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:bootloader_swc> ${HEX_FILE}
+      COMMENT "Generating .hex file"
+  )
+
+  # Command to generate .bin file
+  add_custom_command(TARGET bootloader_swc POST_BUILD
+      COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:bootloader_swc> ${BIN_FILE}
+      COMMENT "Generating .bin file"
+  )
+  install(FILES ${HEX_FILE} DESTINATION ${CMAKE_BINARY_DIR}/../output/build RENAME cf4a_gp_bootloader.hex)
+  install(FILES ${BIN_FILE} DESTINATION ${CMAKE_BINARY_DIR}/../output/build RENAME cf4a_gp_bootloader.bin)
+
+  # Installation
+  install( PROGRAMS $<TARGET_FILE:bootloader_swc>  PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ DESTINATION ${CMAKE_BINARY_DIR}/../output/build RENAME cf4a_gp_bootloader.out)
+  install( FILES    $<TARGET_FILE:bootloader_swc>.map DESTINATION ${CMAKE_BINARY_DIR}/../output/build RENAME cf4a_gp_bootloader.map)
+
+elseif (MODE STREQUAL "TESTING")
+  include(tools/cmake/bootloader_swc_tests.cmake)
+  add_executable(bootloader_swc_test ${bootloader_swc_tests_sources_list})
+endif()
