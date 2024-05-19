@@ -1,4 +1,2 @@
-[submodule "wiki"]
-	path = wiki
-	url = https://github.com/mohamedashraf-eng/VSEP.wiki.git
-	branch = main
+[submodule "VSEP.wiki"]
+	path = VSEP.wiki
