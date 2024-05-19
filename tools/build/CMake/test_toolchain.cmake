@@ -1,4 +1,4 @@
-set(COMMON_FLAGS "-Og -g -Wall")
+set(COMMON_FLAGS "-Og -g -Wall --coverage")
 
 set(CMAKE_C_FLAGS          "${COMMON_FLAGS}")
 set(CMAKE_CXX_FLAGS        "${COMMON_FLAGS}")
@@ -7,7 +7,13 @@ set(CMAKE_C_COMPILER       gcc)
 set(CMAKE_CXX_COMPILER     g++)
 set(CMAKE_AR               ar)
 
-set(CMAKE_EXE_LINKER_FLAGS "-Wl,-Map,test_swc.map")
+if(SOFTWARE_COMPONENT STREQUAL "bootloader_swc")
+    set(CMAKE_EXE_LINKER_FLAGS "-Wl,-Map,test_bootloader_swc.map")
+elseif(SOFTWARE_COMPONENT STREQUAL "target_app_swc")
+    set(CMAKE_EXE_LINKER_FLAGS "-Wl,-Map,test_target_app_swc.map")
+else()
+    message(FATAL_ERROR "Unknown SOFTWARE_COMPONENT: ${SOFTWARE_COMPONENT}")
+endif()
 
 set(CMAKE_C_CREATE_STATIC_LIBRARY "<CMAKE_AR> -crs <TARGET> <LINK_FLAGS> <OBJECTS>")
 
