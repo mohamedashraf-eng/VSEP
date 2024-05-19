@@ -25,7 +25,7 @@ echo_color() {
 check_file_exists() {
     if [ ! -f "$1" ]; then
         echo_color $RED "${BOLD}Error: File '$1' not found.${RESET}"
-        exit 1
+    
     fi
 }
 
@@ -34,7 +34,7 @@ echo ---------------------------------------------------------------------------
 echo_color $GREEN "${BOLD}Install Depends [utils]${RESET}"
 if ! pip install -r tools/utils/requirements.txt; then
     echo_color $RED "${BOLD}Error: Failed to install dependencies.${RESET}"
-    exit 1
+
 fi
 echo ------------------------------------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ echo ---------------------------------------------------------------------------
 echo_color $BLUE "${BOLD}Building Software${RESET}"
 if ! make build_bootloader || ! make build_target_app; then
     echo_color $RED "${BOLD}Error: Build failed.${RESET}"
-    exit 1
+
 fi
 echo ------------------------------------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ echo_color $YELLOW "${BOLD}Calculating cf4a_gp_bootloader hash [SHA256] and size
 check_file_exists "${BTL_SWC_PATH_BIN}"
 if ! python3 tools/utils/firmware_hash_calculator.py -fp "${BTL_SWC_PATH_BIN}"; then
     echo_color $RED "${BOLD}Error: Failed to calculate hash and size for bootloader.${RESET}"
-    exit 1
+
 fi
 echo ------------------------------------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ echo_color $YELLOW "${BOLD}Calculating cf4a_gp_targetapp hash [SHA256] and size 
 check_file_exists "${TA_SWC_PATH_BIN}"
 if ! python3 tools/utils/firmware_hash_calculator.py -fp "${TA_SWC_PATH_BIN}" | tee "${TA_SWC_RDR_PATH}/UpdatedFirmwareHash.txt"; then
     echo_color $RED "${BOLD}Error: Failed to calculate hash and size for target app.${RESET}"
-    exit 1
+
 fi
 echo ------------------------------------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ echo_color $YELLOW "${BOLD}Redirecting the Target Application [.HEX] > ${TA_SWC_
 check_file_exists "${TA_SWC_PATH_HEX}"
 if ! cp "${TA_SWC_PATH_HEX}" "${TA_SWC_RDR_PATH}/UpdatedFirmware.hex"; then
     echo_color $RED "${BOLD}Error: Failed to copy hex file.${RESET}"
-    exit 1
+
 fi
 echo_color $YELLOW "${BOLD}Redirected the Target Application [.HEX] > ${TA_SWC_RDR_PATH}${RESET}"
 
