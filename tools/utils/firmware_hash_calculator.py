@@ -133,5 +133,3 @@ if __name__ == '__main__':
     myFirmware = prj_foem_firmware(file_path)
     print(f'size: {myFirmware.get_size()}')
     print(f'SHA256-Hash: {myFirmware.get_sha256()}')
-    # print(f'CMAC Of Hash: {myFirmware.get_cmac()}')
-    # print(f'HMAC Of Hash: {myFirmware.get_hmac().hex()}')

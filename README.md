@@ -53,6 +53,10 @@ FOTA (Firmware Over-The-Air) is a cutting-edge repository for managing firmware 
 
 ## Usage  
 
+1. First you need to build the project components  
+```c
+make build_bootloader && make build_target_app
+```
 
 ## Configuration  
 
