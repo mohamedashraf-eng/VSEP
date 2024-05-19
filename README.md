@@ -53,12 +53,13 @@ FOTA (Firmware Over-The-Air) is a cutting-edge repository for managing firmware 
 
 ## Usage  
 
-1. First you need to build the project components  
+Run the build script and let the magic happen
 ```c
-make build_bootloader && make build_target_app
+source ./build.sh
 ```
 
-## Configuration  
+For the fota record output, the target app firmware output with hash will be redirected at `website/fota/firmwares` directory.
+
 
 
 ## Contributing  
