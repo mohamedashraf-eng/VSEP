@@ -2,10 +2,10 @@ import serial
 import serial.tools.list_ports
 
 def start_app_procedure(ser):
-    ser.write(b'S')
+    ser.write(b's')
 
 def stop_app_procedure(ser):
-    ser.write(b's') 
+    ser.write(b'S') 
 
 if __name__ == '__main__':
     port = '/dev/ttyUSB0'
