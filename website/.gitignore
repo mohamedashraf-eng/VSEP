@@ -1,3 +1,6 @@
 Scripts/
 Lib/
 pyvenv.cfg
+
+/firmwares/UpdatedFirmware.txt
+/firmwares/UpdatedFirmware.hex
