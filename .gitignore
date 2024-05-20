@@ -4,8 +4,4 @@ tools/build/CMake/output
 .vscode/settings.json
 Testing
 tools/build/IDEs/CCS/Debug
-/website/Lib
-/website/Scripts
-/website/fota/firmwares/UpdatedFirmware.hex
-/website/fota/firmwares/UpdatedFirmware.txt
 *.prefs
