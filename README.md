@@ -50,6 +50,8 @@ FOTA (Firmware Over-The-Air) is a cutting-edge repository for managing firmware 
 - **Flexible Integration**: Easily integrate FOTA functionality into your existing firmware and device management systems.
 
 ## Quick Start  
+- First you need to see devcontainer wiki
+- Run the devcontainer on the workspace
 
 ## Usage  
 
@@ -59,8 +61,6 @@ source ./build.sh
 ```
 
 For the fota record output, the target app firmware output with hash will be redirected at `website/fota/firmwares` directory.
-
-
 
 ## Contributing  
 We welcome contributions to the FOTA project! If you'd like to contribute, please follow these guidelines.
