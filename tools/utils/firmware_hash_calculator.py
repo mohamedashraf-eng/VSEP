@@ -19,10 +19,6 @@ class prj_foem_firmware:
         self.__firmware_bin_fp = self.__firmware_hex_fp
         self.__firmware_size = None
 
-        # self.__firmware_hex_fetch()
-        # self.__firmware_cvt2hex()
-        # self.__firmware_cvt2bin()
-
     def __firmware_hex_fetch(self):
         try:
             with open(self.__firmware_hex_fp, "r") as hex_file:
@@ -31,27 +27,21 @@ class prj_foem_firmware:
         except FileNotFoundError:
             logging.error(f"Error: File '{self.__firmware_hex_fp}' not found.")
 
-    def __firmware_cvt2hex(self):
-        ih = IntelHex(self.__firmware_hex_fp)
-        
-        ih.tofile("UpdatedFirmware.hex", format='hex')
-        
-        self.__firmware_hex_fp = "./UpdatedFirmware.hex"
-
-    def __firmware_cvt2bin(self):
-        ih = IntelHex(self.__firmware_hex_fp)
+    def __cvtHex2Bin(self, hex_fp):
+        ih = IntelHex(hex_fp)
 
         ih.tobinfile("UpdatedFirmware.bin")
-        self.__firmware_hex_fp_bin = "./UpdatedFirmware.bin"
-    
-    def __calculate_sha256(self):
+        self.__firmware_bin_fp = "./UpdatedFirmware.bin"
+        
+    @staticmethod
+    def __calculate_sha256(fp__):
         sha256_hash = hashlib.sha256()
-        with open(self.__firmware_bin_fp, "rb") as f:
+        with open(fp__, "rb") as f:
             # Read the file in chunks of 4096 bytes
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
-        return str(sha256_hash.hexdigest())
-
+        return sha256_hash.hexdigest()
+    
     def __firmware_calculate_size(self):
         try:
             with open(self.__firmware_bin_fp, "rb") as bin_fp:
@@ -69,12 +59,13 @@ class prj_foem_firmware:
             logging.error(f"Error: File '{self.__firmware_bin_fp}' not found.")
             return None
 
-    def get_sha256(self):
-        return self.__calculate_sha256()
-
-    def get_size(self):
-        return self.__firmware_calculate_size()
-
+    def run(self):
+        self.__cvtHex2Bin(self.__firmware_hex_fp)
+        print(f"Hash(SHA256): {self.__calculate_sha256(self.__firmware_hex_fp)}")
+        print(f"Size(Bytes): {self.__firmware_calculate_size()}")
+        #
+        os.remove(self.__firmware_bin_fp)
+        
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-fp', '--file_path', type=str,
@@ -82,6 +73,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     file_path = args.file_path
 
-    myFirmware = prj_foem_firmware(file_path)
-    # print(f'{myFirmware.get_size()}')
-    print(f'{myFirmware.get_sha256()}')
+    myFirmware = prj_foem_firmware(file_path)   
+    myFirmware.run()
+    
