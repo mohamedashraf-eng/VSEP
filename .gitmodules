@@ -2,3 +2,7 @@
 	path = VSEP.wiki
 	url = https://github.com/mohamedashraf-eng/VSEP.wiki.git
 	branch = main
+[submodule "tools/frameworks/CMock"]
+	path = tools/frameworks/CMock
+	url = https://github.com/ThrowTheSwitch/CMock/tree/9192a950897929d948027421e30a372b1770469b
+	branch = main
