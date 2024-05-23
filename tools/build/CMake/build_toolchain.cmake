@@ -7,11 +7,11 @@ set(STM32F103C8_FLAGS "-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -nostdlib -nosta
 set(CMAKE_C_FLAGS          "${COMMON_FLAGS} ${STM32F103C8_FLAGS}")
 set(CMAKE_CXX_FLAGS        "${COMMON_FLAGS} ${STM32F103C8_FLAGS}")
 
-set(CMAKE_C_COMPILER       ${TOOLCHAIN_DIR}/bin/arm-eabi-gcc)
-set(CMAKE_CXX_COMPILER     ${TOOLCHAIN_DIR}/bin/arm-eabi-gcc)
-set(CMAKE_AR               ${TOOLCHAIN_DIR}/bin/arm-eabi-ar)
-set(COMPILER_OBJCOPY       ${TOOLCHAIN_DIR}/bin/arm-eabi-objcopy)
-set(COMPILER_OBJDUMP       ${TOOLCHAIN_DIR}/bin/arm-eabi-objdump)
+set(CMAKE_C_COMPILER       ${TOOLCHAIN_DIR}/bin/arm-none-eabi-gcc)
+set(CMAKE_CXX_COMPILER     ${TOOLCHAIN_DIR}/bin/arm-none-eabi-g++)
+set(CMAKE_AR               ${TOOLCHAIN_DIR}/bin/arm-none-eabi-ar)
+set(COMPILER_OBJCOPY       ${TOOLCHAIN_DIR}/arm-none-eabi/bin/objcopy)
+set(COMPILER_OBJDUMP       ${TOOLCHAIN_DIR}/arm-none-eabi/bin/objdump)
 
 set(LINKER_FLAGS "-Wl,--gc-sections -Wl,-Map=${SOFTWARE_COMPONENT}.map -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group -MMD -MP")
 
