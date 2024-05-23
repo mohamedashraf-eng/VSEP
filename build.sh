@@ -45,16 +45,16 @@ echo ---------------------------------------------------------------------------
 
 # Run hash calculator on output [Bootloader SWC]
 echo_color $YELLOW "${BOLD}Calculating cf4a_gp_bootloader hash [SHA256] and size [BYTES].${RESET}"
-check_file_exists "${BTL_SWC_PATH_BIN}"
-if ! python3 tools/utils/firmware_hash_calculator.py -fp "${BTL_SWC_PATH_BIN}"; then
+check_file_exists "${BTL_SWC_PATH_HEX}"
+if ! python3 tools/utils/firmware_hash_calculator.py -fp "${BTL_SWC_PATH_HEX}"; then
     echo_color $RED "${BOLD}Error: Failed to calculate hash and size for bootloader.${RESET}"
 fi
 echo ------------------------------------------------------------------------------------------------------
 
 # Run hash calculator on output [Target App SWC]
 echo_color $YELLOW "${BOLD}Calculating cf4a_gp_targetapp hash [SHA256] and size [BYTES].${RESET}"
-check_file_exists "${TA_SWC_PATH_BIN}"
-if ! python3 tools/utils/firmware_hash_calculator.py -fp "${TA_SWC_PATH_BIN}" | tee "${TA_SWC_RDR_PATH}/UpdatedFirmwareHash.txt"; then
+check_file_exists "${TA_SWC_PATH_HEX}"
+if ! python3 tools/utils/firmware_hash_calculator.py -fp "${TA_SWC_PATH_HEX}" | tee "${TA_SWC_RDR_PATH}/UpdatedFirmwareHash.txt"; then
     echo_color $RED "${BOLD}Error: Failed to calculate hash and size for target app.${RESET}"
 fi
 echo ------------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ check_file_exists "${TA_SWC_PATH_HEX}"
 if ! cp "${TA_SWC_PATH_HEX}" "${TA_SWC_RDR_PATH}/UpdatedFirmware.hex"; then
     echo_color $RED "${BOLD}Error: Failed to copy hex file.${RESET}"
 fi
-echo_color $YELLOW "${BOLD}Redirected the Target Application [.HEX] > ${TA_SWC_RDR_PATH}${RESET}"
+echo_color $YELLOW "${BOLD}Redirected the Target Application [.HEX] > ${TA_SWC_RDR_PATH}/"UpdatedFirmware.hex"${RESET}"
 
-echo_color $YELLOW "${BOLD}Redirected the Target Application [.HASH] > ${TA_SWC_RDR_PATH}${RESET}"
+echo_color $YELLOW "${BOLD}Redirected the Target Application [.HASH] > ${TA_SWC_RDR_PATH}/"UpdatedFirmware.txt"${RESET}"
 echo ------------------------------------------------------------------------------------------------------

@@ -32,9 +32,8 @@ class prj_foem_firmware:
 
         ih.tobinfile("UpdatedFirmware.bin")
         self.__firmware_bin_fp = "./UpdatedFirmware.bin"
-        
-    @staticmethod
-    def __calculate_sha256(fp__):
+
+    def __calculate_sha256(self, fp__):
         sha256_hash = hashlib.sha256()
         with open(fp__, "rb") as f:
             # Read the file in chunks of 4096 bytes
@@ -61,7 +60,7 @@ class prj_foem_firmware:
 
     def run(self):
         self.__cvtHex2Bin(self.__firmware_hex_fp)
-        print(f"Hash(SHA256): {self.__calculate_sha256(self.__firmware_hex_fp)}")
+        print(f"Hash(SHA256): {self.__calculate_sha256(self.__firmware_bin_fp)}")
         print(f"Size(Bytes): {self.__firmware_calculate_size()}")
         #
         os.remove(self.__firmware_bin_fp)
