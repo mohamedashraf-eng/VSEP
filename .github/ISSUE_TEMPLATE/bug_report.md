@@ -1,38 +1,46 @@
----
-name: Bug report
-about: Create a report to help us improve
-title: "[BUG]: "
-labels: bug
-assignees: mohamedashraf-eng
-
----
-
-**Describe the bug**
-A clear and concise description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
-**Additional context**
-Add any other context about the problem here.
+name: Bug Report
+description: Report a bug.
+title: "[Bug]: "
+labels: ["bug"]
+projects: ["vsep"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this bug report!
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details
+      description: How can we get in touch with you if we need more information?
+      placeholder: e.g., email or Discord username
+    validations:
+      required: true
+  - type: textarea
+    id: describe-issue
+    attributes:
+      label: Describe the Issue
+      description: Please provide detailed information,screenshots about the issue and steps to reproduce it.
+      placeholder: Describe the issue you encountered
+      value: "A bug occurred!"
+    validations:
+      required: true
+  - type: dropdown
+    id: env
+    attributes:
+      label: Environment
+      description: What was your development environment?
+      options:
+        - VSEP devcontainer
+        - Windows
+        - Linux
+        - macOS
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Log Output
+      description: Please copy and paste any relevant log output. It will be automatically formatted into code, so there's no need for backticks.
+      render: shell
