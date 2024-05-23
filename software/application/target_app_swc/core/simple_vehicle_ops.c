@@ -414,22 +414,7 @@ uint8 GetUltraSonicDistance(void) {
 }
 
 void buzzerngy(uint8_t distance) {
-    static uint8 delay = 15;
-
-    if(distance <= (USS_THRESHOLD_DISTANCE_CM + 10u)) delay = 10;
-    else if(distance <= (USS_THRESHOLD_DISTANCE_CM + 8u))  delay = 8;
-    else if(distance <= (USS_THRESHOLD_DISTANCE_CM + 6u))  delay = 6;
-    else if(distance <= (USS_THRESHOLD_DISTANCE_CM + 4u))  delay = 4;
-    else if(distance <= (USS_THRESHOLD_DISTANCE_CM + 2u))  delay = 2;
-    else if(distance <= (USS_THRESHOLD_DISTANCE_CM - 1u))  delay = 0;
-
-	if (distance <= (USS_THRESHOLD_DISTANCE_CM + 10u)) {
-        BuzzerUUUUUH();
-        DELAY_MS(delay);
-        (0 != delay) ? BuzzerNO() : 0;
-    } else {
-        BuzzerNO();
-    }
+	BuzzerUUUUUH();
 }
 
 boolean CheckIfDistanceInValidRange(uint8 distance) {

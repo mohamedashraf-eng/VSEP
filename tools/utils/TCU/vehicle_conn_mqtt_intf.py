@@ -6,7 +6,7 @@
 
     @attention
 """
-from btl_intf import btl_ttl_intf
+from vehicle_conn_btl_intf import btl_ttl_intf
 import paho.mqtt.client as mqtt
 from enum import Enum
 import queue

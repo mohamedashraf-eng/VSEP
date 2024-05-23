@@ -1,6 +1,8 @@
-# set(COMMON_FLAGS "-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -mfloat-abi=soft -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -Og -ffunction-sections -fdata-sections -g -gdwarf-3 -gstrict-dwarf -Wall")
+# Common flags
 set(COMMON_FLAGS "-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -Og -ffunction-sections -fdata-sections -g -gdwarf-3 -gstrict-dwarf -Wall")
-set(STM32F103C8_FLAGS "-mthumb-interwork -march=armv7-m -mfix-cortex-m3-ldrd -mlittle-endian -mthumb -mcpu=cortex-m3 -mfloat-abi=soft -mfpu=vfp -msoft-float -nostdlib -nostartfiles -fno-exceptions -fno-common")
+
+# STM32F103C8 specific flags
+set(STM32F103C8_FLAGS "-mcpu=cortex-m3 -mthumb -mfloat-abi=soft -nostdlib -nostartfiles -fno-exceptions -fno-common -mfix-cortex-m3-ldrd")
 
 set(CMAKE_C_FLAGS          "${COMMON_FLAGS} ${STM32F103C8_FLAGS}")
 set(CMAKE_CXX_FLAGS        "${COMMON_FLAGS} ${STM32F103C8_FLAGS}")
