@@ -7,7 +7,7 @@ WORKSPACE_DIR := $(CURDIR)
 # Define Common Macros
 ####################################
 MAXIMUM_CPU_CORES?=$(shell grep -c ^processor /proc/cpuinfo)
-COMPILER_NAME=gcc-arm-eabi-10.3-2021.10-x86_64-linux
+COMPILER_NAME=gcc-arm-none-eabi-10.3-2021.10-x86_64-linux
 
 ####################################
 # Define Common Dirs
