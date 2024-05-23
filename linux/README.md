@@ -3,7 +3,12 @@
 This guide provides step-by-step instructions to build a Yocto image for the Raspberry Pi 3B+.
 
 ## Usage  
-You can run the script `build_yocto_rpi.sh` and it will do all below steps required.
+You can run the script `build_yocto_rpi.sh` and it will do all below steps required by running:  
+
+```bash
+source ./build_yocto_rpi.sh && \
+cd yocto/poky_dunfell
+```
 
 ## Prerequisites
 
