@@ -3,5 +3,11 @@ tools/build/CMake/Test/
 tools/build/CMake/output
 .vscode/settings.json
 Testing
-tools/build/IDEs/CCS/Debug
+tools/build/IDE/BootloaderX/build/build
+tools/build/IDE/TargetAppX/build/build
+
+tools/build/IDE/BootloaderX/build/build
+tools/build/IDE/TargetAppX/build/build
+tools/build/IDE/output
+
 *.prefs
