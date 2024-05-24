@@ -74,6 +74,26 @@ if(MODE STREQUAL "COMPILING")
   endif()
 
 elseif (MODE STREQUAL "TESTING")
-  include(tools/cmake/bootloader_swc_tests.cmake)
-  add_executable(bootloader_swc_test ${bootloader_swc_tests_sources_list})
+    include(tools/cmake/bootloader_swc_tests.cmake)
+    add_library(bootloader_swc ${bootloader_swc_ut_sources_list})
+    target_compile_options(bootloader_swc PRIVATE ${bootloader_swc_tests_compile_options})
+    target_include_directories(bootloader_swc PRIVATE ${bootloader_swc_tests_includes})
+    target_compile_definitions(bootloader_swc PRIVATE ${bootloader_swc_tests_defines})
+endif()
+
+if(MODE STREQUAL "TESTING")
+  # Execute CMock script
+  execute_process(
+    COMMAND ruby ${CMOCK_SCRIPT} -o${CMOCK_CONFIG_FILE} ${bootloader_swc_mock_header_files}
+    OUTPUT_VARIABLE CMOCK_OUTPUT
+    WORKING_DIRECTORY ${MOCK_FILE_PATH}  #  /workspace/tools/build/CMake/Test/software/application/bootloader_swc
+  )
+  message("CMock output: ${CMOCK_OUTPUT}")
+
+  # Testing Mode: Build the library and test executable
+  add_executable(bootloader_swc_test ${bootloader_swc_tests_sources_list} ${unity_common_sources})
+  target_compile_definitions(bootloader_swc_test PRIVATE ${bootloader_swc_tests_defines})
+  target_compile_options(bootloader_swc_test PRIVATE ${bootloader_swc_tests_compile_options})
+  target_include_directories(bootloader_swc_test PRIVATE ${bootloader_swc_tests_includes} ${unity_common_includes})
+  target_link_libraries(bootloader_swc_test PRIVATE bootloader_swc)
 endif()

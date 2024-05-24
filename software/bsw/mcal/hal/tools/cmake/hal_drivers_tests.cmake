@@ -6,14 +6,14 @@ set(
     # Any mocked file will be under ${MOCK_FILE_PATH}/mocks/mock_headerFileName.c
     # ${MOCK_FILE_PATH}/mocks/mock_Det.c
     # Include Test Runners 
-    ${hal_drivers}/tests/unit/test_runners/test_runner.c
     ${hal_drivers}/tests/unit/test_runners/test_main.c
+    ${hal_drivers}/tests/unit/test_runners/test_runner.c
 )
 
 set(
     hal_drivers_ut_sources_list
     
-    ${hal_drivers}/src
+    ${hal_drivers}/src/stm32f1xx_hal_uart.c
 )
 
 set (
