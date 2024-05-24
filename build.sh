@@ -154,45 +154,45 @@ echo "--------------------------------------------------------------------------
 # Redirect the output of Target Application
 if [ "$ide" == "1" ]; then 
     check_file_exists "${IDE_TA_SWC_PATH_HEX}"
-    check_file_exists "${IDE_BTL_SWC_PATH_HEX}"
+    check_file_exists "${IDE_BTL_SWC_PATH_BIN}"
     if ! cp "${IDE_TA_SWC_PATH_HEX}" "${TA_SWC_RDR_PATH}/UpdatedFirmware.hex"; then
         echo_color $RED "${BOLD}Error: Failed to copy application hex file.${RESET}"
         exit 1
     else
         echo_color $YELLOW "${BOLD}Redirected the Target Application [.HEX] > ${TA_SWC_RDR_PATH}/UpdatedFirmware.hex${RESET}"
     fi
-    if ! cp "${IDE_TA_SWC_PATH_HEX}" "${FLASH_UTIL_RDR_PATH}/TargetApplication.hex"; then
-        echo_color $RED "${BOLD}Error: Failed to copy application hex file.${RESET}"
+    if ! cp "${IDE_TA_SWC_PATH_BIN}" "${FLASH_UTIL_RDR_PATH}/TargetApplication.bin"; then
+        echo_color $RED "${BOLD}Error: Failed to copy application bin file.${RESET}"
         exit 1
     else
-        echo_color $YELLOW "${BOLD}Redirected the Target Application [.HEX] > ${FLASH_UTIL_RDR_PATH}/TargetApplication.hex${RESET}"
+        echo_color $YELLOW "${BOLD}Redirected the Target Application [.BIN] > ${FLASH_UTIL_RDR_PATH}/TargetApplication.bin${RESET}"
     fi
-    if ! cp "${IDE_BTL_SWC_PATH_HEX}" "${FLASH_UTIL_RDR_PATH}/Bootloader.hex"; then
-        echo_color $RED "${BOLD}Error: Failed to copy bootloader hex file.${RESET}"
+    if ! cp "${IDE_BTL_SWC_PATH_BIN}" "${FLASH_UTIL_RDR_PATH}/Bootloader.bin"; then
+        echo_color $RED "${BOLD}Error: Failed to copy bootloader bin file.${RESET}"
         exit 1
     else
-        echo_color $YELLOW "${BOLD}Redirected the Bootloader [.HEX] > ${FLASH_UTIL_RDR_PATH}/Bootloader.hex${RESET}"
+        echo_color $YELLOW "${BOLD}Redirected the Bootloader [.BIN] > ${FLASH_UTIL_RDR_PATH}/Bootloader.bin${RESET}"
     fi
 else
     check_file_exists "${CMAKE_TA_SWC_PATH_HEX}"
-    check_file_exists "${CMAKE_BTL_SWC_PATH_HEX}"
+    check_file_exists "${CMAKE_BTL_SWC_PATH_BIN}"
     if ! cp "${CMAKE_TA_SWC_PATH_HEX}" "${TA_SWC_RDR_PATH}/UpdatedFirmware.hex"; then
         echo_color $RED "${BOLD}Error: Failed to copy application hex file.${RESET}"
         exit 1
     else
         echo_color $YELLOW "${BOLD}Redirected the Target Application [.HEX] > ${TA_SWC_RDR_PATH}/UpdatedFirmware.hex${RESET}"
     fi
-    if ! cp "${CMAKE_TA_SWC_PATH_HEX}" "${FLASH_UTIL_RDR_PATH}/TargetApplication.hex"; then
-        echo_color $RED "${BOLD}Error: Failed to copy application hex file.${RESET}"
+    if ! cp "${CMAKE_TA_SWC_PATH_BIN}" "${FLASH_UTIL_RDR_PATH}/TargetApplication.bin"; then
+        echo_color $RED "${BOLD}Error: Failed to copy application bin file.${RESET}"
         exit 1
     else
-        echo_color $YELLOW "${BOLD}Redirected the Target Application [.HEX] > ${FLASH_UTIL_RDR_PATH}/TargetApplication.hex${RESET}"
+        echo_color $YELLOW "${BOLD}Redirected the Target Application [.BIN] > ${FLASH_UTIL_RDR_PATH}/TargetApplication.BIN${RESET}"
     fi
-    if ! cp "${CMAKE_BTL_SWC_PATH_HEX}" "${FLASH_UTIL_RDR_PATH}/Bootloader.hex"; then
-        echo_color $RED "${BOLD}Error: Failed to copy bootloader hex file.${RESET}"
+    if ! cp "${CMAKE_BTL_SWC_PATH_BIN}" "${FLASH_UTIL_RDR_PATH}/Bootloader.bin"; then
+        echo_color $RED "${BOLD}Error: Failed to copy bootloader bin file.${RESET}"
         exit 1
     else
-        echo_color $YELLOW "${BOLD}Redirected the Bootloader [.HEX] > ${FLASH_UTIL_RDR_PATH}/Bootloader.hex${RESET}"
+        echo_color $YELLOW "${BOLD}Redirected the Bootloader [.BIN] > ${FLASH_UTIL_RDR_PATH}/Bootloader.bin${RESET}"
     fi
 fi
 echo "------------------------------------------------------------------------------------------------------"
