@@ -13,7 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = bootloaderX3
+TARGET = cf4a_gp_bootloader
 
 
 ######################################
@@ -61,7 +61,7 @@ C_SOURCES =  \
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c \
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c \
 ../Core/Src/system_stm32f1xx.c \
-../../../software/application/target_app_swc/core/bootloader_prg.c
+../../../../../software/application/bootloader_swc/core/bootloader_prg.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -123,10 +123,10 @@ C_INCLUDES =  \
 -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy \
 -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include \
 -I../Drivers/CMSIS/Include \
--I../../../common/asset \
--I../../../software/application/target_app_swc/core/bootloader_intf.h
--I../../../software/application/target_app_swc/core/bootloader_cfg.h
--I../../../software/application/target_app_swc/core/bootloader_prv.h
+-I../../../../../software/common/asset \
+-I../../../../../software/application/bootloader_swc/core/bootloader_intf.h \
+-I../../../../../software/application/bootloader_swc/core/bootloader_cfg.h \
+-I../../../../../software/application/bootloader_swc/core/bootloader_prv.h
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

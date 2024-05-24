@@ -13,7 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = TargetApplication
+TARGET = cf4a_gp_targetapp
 
 
 ######################################
@@ -60,7 +60,7 @@ C_SOURCES =  \
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rtc.c \
 ../Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rtc_ex.c \
 ../Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/system_stm32f1xx.c \
-../../../software/application/target_app_swc/core/simple_vehicle_ops.c
+../../../../../software/application/target_app_swc/core/simple_vehicle_ops.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -123,8 +123,8 @@ C_INCLUDES =  \
 -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include \
 -I../Drivers/CMSIS/Include \
 -I../Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates \
--I../../../common/asset \
--I../../../software/application/target_app_swc/core/simple_vehicle_ops.h
+-I../../../../../software/common/asset \
+-I../../../../../software/application/target_app_swc/core/simple_vehicle_ops.h
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
