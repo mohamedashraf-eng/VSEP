@@ -17,6 +17,8 @@ include(tools/cmake/hal_drivers_compile.cmake)
 # Extract Module Path in build/CMake/Test/                                   #
 ##############################################################################
 
+extract_module_path(hal_drivers MOCK_FILE_PATH)
+
 ##############################################################################
 # Build Configuration                                                        #
 ##############################################################################
@@ -33,4 +35,21 @@ elseif (MODE STREQUAL "TESTING")
   target_compile_options(hal_drivers PRIVATE ${hal_drivers_tests_compile_options})
   target_include_directories(hal_drivers PRIVATE ${hal_drivers_tests_includes})
   target_compile_definitions(hal_drivers PRIVATE ${hal_drivers_tests_defines})
+endif()
+
+if(MODE STREQUAL "TESTING")
+  # Execute CMock script
+  execute_process(
+    COMMAND ruby ${CMOCK_SCRIPT} -o${CMOCK_CONFIG_FILE} ${hal_drivers_mock_header_files}
+    OUTPUT_VARIABLE CMOCK_OUTPUT
+    WORKING_DIRECTORY ${MOCK_FILE_PATH}  #  /workspace/tools/build/CMake/Test/software/bsw/mcal/hal_drivers
+  )
+  message("CMock output: ${CMOCK_OUTPUT}")
+
+  # Testing Mode: Build the library and test executable
+  add_executable(hal_drivers_test ${hal_drivers_tests_sources_list} ${unity_common_sources})
+  target_compile_definitions(hal_drivers_test PRIVATE ${hal_drivers_tests_defines})
+  target_compile_options(hal_drivers_test PRIVATE ${hal_drivers_tests_compile_options})
+  target_include_directories(hal_drivers_test PRIVATE ${hal_drivers_tests_includes} ${unity_common_includes})
+  target_link_libraries(hal_drivers_test PRIVATE hal_drivers)
 endif()

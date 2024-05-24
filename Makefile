@@ -1,6 +1,5 @@
 include Makefile.variables
 
-
 ##############################################################################
 # Shell Colors                                                               #
 ##############################################################################
@@ -55,54 +54,47 @@ CMAKE_TEST_VARIABLES += -DSW_DIR=$(SW_DIR)
 CMAKE_TEST_VARIABLES += -DMODE=TESTING
 CMAKE_TEST_VARIABLES += -DBUILD_TESTS_DIR=$(BUILD_TESTS_DIR)
 
-
 # Test directories
 TEST_DIRS := $(wildcard $(BUILD_TESTS_DIR)/software/*/*/*)
 
 # Find test programs
 TEST_PROGRAMS := $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*_test))
 
-unit_test_bootloader_swc:
+bootloader_unit_test:
 ifeq ($(rebuild),1)
 	-@rm -rf $(BUILD_TESTS_DIR)
 	-@rm -rf $(UNIT_TESTS_INSTALL_DIR)
 endif
-	@rm -f $(UNIT_TESTS_INSTALL_DIR)/test_results.txt 
+	@rm -f $(UNIT_TESTS_INSTALL_DIR)/bootloader_test_result.txt 
 	@make check_dependencies
 	@make build_test
 	@make test
 	@make coverage
 	@echo ""
 	@echo "${HEADRS}--------- TEST SUMMERY -------${NC}"
-	@ruby $(UNITY_ROOT)/auto/parse_output.rb -xml $(UNIT_TESTS_INSTALL_DIR)/test_results.txt
-	@mv $(WORKSPACE_DIR)/report.xml $(UNIT_TESTS_INSTALL_DIR)/test_results.xml
+	@ruby $(UNITY_ROOT)/auto/parse_output.rb -xml $(UNIT_TESTS_INSTALL_DIR)/bootloader_test_result.txt
+	@mv $(WORKSPACE_DIR)/report.xml $(UNIT_TESTS_INSTALL_DIR)/bootloader_test_result.xml
 
-unit_test_target_app_swc:
+targetapp_unit_test:
 ifeq ($(rebuild),1)
 	-@rm -rf $(BUILD_TESTS_DIR)
 	-@rm -rf $(UNIT_TESTS_INSTALL_DIR)
 endif
-	@rm -f $(UNIT_TESTS_INSTALL_DIR)/test_results.txt 
+	@rm -f $(UNIT_TESTS_INSTALL_DIR)/targetapp_test_result.txt 
 	@make check_dependencies
 	@make build_test
 	@make test
 	@make coverage
 	@echo ""
 	@echo "${HEADRS}--------- TEST SUMMERY -------${NC}"
-	@ruby $(UNITY_ROOT)/auto/parse_output.rb -xml $(UNIT_TESTS_INSTALL_DIR)/test_results.txt
-	@mv $(WORKSPACE_DIR)/report.xml $(UNIT_TESTS_INSTALL_DIR)/test_results.xml
+	@ruby $(UNITY_ROOT)/auto/parse_output.rb -xml $(UNIT_TESTS_INSTALL_DIR)/targetapp_test_result.txt
+	@mv $(WORKSPACE_DIR)/report.xml $(UNIT_TESTS_INSTALL_DIR)/targetapp_test_result.xml
 
 ##############################################################################
 # Build Test files                                                           #
 ##############################################################################
-build_bootloader_swc_test:
-	@mkdir -p $(BUILD_TESTS_DIR)
-	@echo "BUILD_DIR=$(BUILD_TESTS_DIR)"
-	cd $(BUILD_TESTS_DIR)/ && \
-	cmake -S $(CURDIR) -B $(BUILD_TESTS_DIR) $(CMAKE_TEST_VARIABLES)  ;\
-	make -j$(MAXIMUM_CPU_CORES) ;
 
-build_target_app_swc_test:
+build_test:
 	@mkdir -p $(BUILD_TESTS_DIR)
 	@echo "BUILD_DIR=$(BUILD_TESTS_DIR)"
 	cd $(BUILD_TESTS_DIR)/ && \
