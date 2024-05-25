@@ -840,7 +840,7 @@ __LOCAL_INLINE __en_blErrStatus_t __enWriteToAddr(const uint8* pArg_u8Data, cons
  *
  */
 #if (BL_SECURE_BOOT == BL_SECURE_BOOT_ON)
-#	include "wolfssl/wolfcrypt/sha256.h"
+//#	include "wolfssl/wolfcrypt/sha256.h"
 #	define __SHA_CONTUPDATE_BUFFER() do {                                              \
 			uint32_t local_u32FlashAddrIterator = APP_START_ADDR;                      \
 			uint8_t local_u8Sha256Buffer[__SHA256_BUFFER_SIZE];	                       \

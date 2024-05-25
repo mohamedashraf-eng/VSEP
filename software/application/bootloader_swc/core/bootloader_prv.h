@@ -92,7 +92,7 @@
 #define __BTL_LOG_ST_UART_HANDLE_DEF() 	 extern UART_HandleTypeDef __BTL_LOG_ST_UART_HANDLE
 
 #define PIPE_BUFFER_MAX_SIZE ( (uint16) (512) )
-#define DBG_BUFFER_MAX_SIZE  ( (uint8) 	(128) )
+#define DBG_BUFFER_MAX_SIZE  ( (uint8) 	(512) )
 /** @defgroup debugging configurations */
 #define DBG_PORT_UART  ( (0x00U) )
 #define DBG_PORT_CAN   ( (0x01U) )
