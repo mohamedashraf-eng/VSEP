@@ -15,8 +15,8 @@ logging.basicConfig(
 )
 
 OUTPUT_BIN_FILE_STD = ""
-DUMMY_APP_BIN_FP = r"G:\WX_CAREER\Grad Project\src\vehicle_intf\testing\Application\TargetApplication\Debug\TargetApplication.bin"
-# DUMMY_APP_BIN_FP = r"./TargetApplication.bin"
+# DUMMY_APP_BIN_FP = r"G:\WX_CAREER\Grad Project\src\vehicle_intf\testing\Application\TargetApplication\Debug\TargetApplication.bin"
+DUMMY_APP_BIN_FP = r"G:\WX_CAREER\GP_F\tools\utils\Flashers\TargetApplication.bin"
 
 class btl_ttl_intf(object):
     class BtlCommands(Enum):
@@ -280,7 +280,7 @@ class btl_ttl_intf(object):
             print(f"Packet sent ({packet[0]}):")
             self.__write_to_serial_until(packet[0], 1)
 
-            # time.sleep(0.4)
+            time.sleep(0.2)
             for Data in packet[1:]:
                 self.__write_to_serial_until(Data, len(packet) - 1)
 
