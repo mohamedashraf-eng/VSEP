@@ -377,7 +377,7 @@ __en_blErrStatus_t __enPipeListen(void) {
 	memset(local_u8PipeListenrBuffer, 0, PIPE_BUFFER_MAX_SIZE);
 	
 	/* Start listening for the packet */
-	BL_DBG_SEND("Waitsing for the packet length.");
+	BL_DBG_SEND("Waiting for the packet length.");
 	if( (HAL_OK != PIPE_LISTEN((uint8*)&local_u8PipeListenrBuffer[0], 1u)) ) {
 		BL_LOG_SEND(LOGL_INFO, "Bad message");
 		BL_DBG_SEND("The pipe listner is not ok.");
