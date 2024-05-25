@@ -1,7 +1,7 @@
 /**
 ******************************************************************************
-* @file           : bootloader_cfg.h
-* @brief          : Bootloader Configurations
+* @file           : fee_intf.h
+* @brief          : Flash EEPROM Emulator Interface
 ******************************************************************************
 * @attention
 *
@@ -32,94 +32,57 @@
 * SW Version           : 1.0.0
 * =============================================================================
 */
-#ifndef __BOOTLOADER_CFG_H__
-#define __BOOTLOADER_CFG_H__
+#ifndef __FEE_INTF_H__
+#define __FEE_INTF_H__
 
-/** @brief Vendor specific ID */
-#define BOOTLOADER_VENDOR_ID                       (1332)
-#define BOOTLOADER_MODULE_ID                       (120)
-/** @brief Program based version */
-#define BOOTLOADER_SW_MAJOR_VERSION                (1)
-#define BOOTLOADER_SW_MINOR_VERSION                (0)
-#define BOOTLOADER_SW_PATCH_VERSION                (0)
+#include "Std_Types.h"
+#include "main.h"
 
 /**
 * ===============================================================================================
-*   > Bootloader Communication Pipe Interface CFG
+*   > Public Macros
 * ===============================================================================================
 */
 
-/** 
- * @brief Communication pipe for the bootloader
- * @arguments
- *	@arg BL_COMM_OVER_CAN
- *	@arg BL_COMM_OVER_UART
-*/
-#define BL_COMM_PIPE	BL_COMM_OVER_UART
-/** 
- * @brief Communication type for the bootloader
- * @arguments
- *	@arg BL_COMM_SYNC
- *	@arg BL_COMM_ASYNC
-*/
-#define BL_COMM_TYPE	BL_COMM_SYNC
+#define FEE_START_ADDRESS       (0x08007000)
+#define FEE_PAGE_SIZE           (0x400U)
+#define FEE_BUFFER_LEN          (FEE_PAGE_SIZE/2u)
 
 /**
 * ===============================================================================================
-*   > Bootloader Internal CFG
+*   > Public Structs
 * ===============================================================================================
 */
-
-/** 
- * @brief MCU application start address
- * @attention DON'T CHANGE THIS LINE !!!!!
- * 
-*/
-#define APP_START_ADDR	( (uint32) (0x08008000UL) )
-
-/** 
- * @brief Communication type for the bootloader
- * @arguments
- *	@arg BL_SECURE_BOOT_ON
- *	@arg BL_SECURE_BOOT_OFF
-*/
-#define BL_SECURE_BOOT_OFF 			(0u)
-#define BL_SECURE_BOOT_ON 			(1u)
-#define BL_SECURE_BOOT  BL_SECURE_BOOT_OFF
-
-/** 
- * @brief Pipe listner timeout in milliseconds
-*/
-#define PIPE_TIMEOUT_MS       (20000u)
 
 /**
 * ===============================================================================================
-*   > Bootloader Debugging & Logging CFG
+*   > Public Enums
 * ===============================================================================================
 */
 
-/** 
- * @brief ECU application start address
- *  @arguments
- *  	@arg DBG_PORT_UART
- *  	@arg DBG_PORT_CAN
+/**
+* ===============================================================================================
+*   > Public Datatypes
+* ===============================================================================================
 */
-#define BL_DBG_PORT DBG_PORT_UART
-/** 
- * @brief Light Weight Debugging 
- * @note defining the LWD enables the functionality automatically
+
+
+/**
+* ===============================================================================================
+*   > Public Functions Declaration
+* ===============================================================================================
 */
-#define LWD
 
-// #define BL_LOG_PORT DBG_PORT_UART
+#ifdef __cplusplus 
+extern "c" {
+#endif /* __cplusplus */
 
-#endif /* __BOOTLOADER_CFG_H__ */
+HAL_StatusTypeDef FEE_Write(uint32 Arg_u32Address, uint16* pArg_u16Data, uint32 Arg_u32DSize);
+__NORETURN FEE_Read(uint32 Arg_u32Address, uint16* pArg_u16Data, uint32 Arg_u32DSize);
+__NORETURN FEE_WriteData(uint32 Arg_u32Address, void* pArg_u16Data, uint32 Arg_u32DSize);
+__NORETURN FEE_ReadData(uint32 Arg_u32Address, void* pArg_u16Data, uint32 Arg_u32DSize);
 
-
-
-
-
-
-
-
-
+#ifdef __cplusplus 
+}
+#endif /* __cplusplus */
+#endif /* __FEE_INTF_H__ */

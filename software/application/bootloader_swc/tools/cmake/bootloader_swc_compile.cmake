@@ -13,6 +13,7 @@ set(
     ${bootloader_swc}/core/syscalls.c
     ${bootloader_swc}/core/sysmem.c
     ${bootloader_swc}/core/usart.c
+    ${bootloader_swc}/core/fee_prg.c
 )
 
 set(
