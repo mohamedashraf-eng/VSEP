@@ -85,7 +85,7 @@
 */
 #define BL_SECURE_BOOT_OFF 			(0u)
 #define BL_SECURE_BOOT_ON 			(1u)
-#define BL_SECURE_BOOT  BL_SECURE_BOOT_OFF
+#define BL_SECURE_BOOT  BL_SECURE_BOOT_ON
 
 /** 
  * @brief Pipe listner timeout in milliseconds

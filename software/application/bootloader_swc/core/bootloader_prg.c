@@ -50,6 +50,7 @@
 *   > Private Macros
 * ===============================================================================================
 */
+#define BL_SECURE_BOOT  BL_SECURE_BOOT_ON
 
 #if (BL_COMM_PIPE >= 0x00)
 #	if(BL_COMM_PIPE == BL_COMM_OVER_UART)
@@ -126,6 +127,35 @@ __BTL_DBG_ST_CAN_HANDLE_DEF();
 #		define BL_DBG_SEND(DBG_MSG, ...)
 #endif /* (BL_DBG_PORT > 0x00) */
 
+#define SHA256_BUFFER_SIZE ( (uint8) (1024) )
+#define __COMPARE_HASHES strcmp
+
+/**
+ * @brief Function to use WOLFCRYPT (WC) library to calculate SHA256 hash on existant application
+ * @param[1] LDCB256 (Local Digest Buffer Context for SHA256)
+ *
+ */
+#if (BL_SECURE_BOOT == BL_SECURE_BOOT_ON)
+#include "wolfssl/wolfcrypt/sha256.h"
+#define __SHA256_CONT_UPDATE_BUFFER(ctx) do {                                       \
+    uint32_t flashAddr = APP_START_ADDR;                                            \
+    uint8_t buffer[SHA256_BUFFER_SIZE];                                             \
+    while (flashAddr != APP_FIRMWARE_LAST_ADDR) {                                   \
+        for (uint8_t i = 0; i < SHA256_BUFFER_SIZE; ++i) {                          \
+            buffer[i] = *(uint8_t*)flashAddr++;                                     \
+        }                                                                           \
+        wc_Sha256Update(ctx, buffer, sizeof(buffer));                               \
+    }                                                                               \
+} while (0)
+
+// Macro to calculate the SHA-256 hash of the application in flash memory
+#define __CALCULATE_APP_HASH(hash) ({                                               \
+    wc_Sha256 shaCtx;                                                               \
+    wc_InitSha256(&shaCtx);                                                         \
+    __SHA256_CONT_UPDATE_BUFFER(&shaCtx);                                           \
+    wc_Sha256Final(&shaCtx, hash);                                                  \
+})
+#endif /* BL_SECURE_BOOT */
 /**
 * ===============================================================================================
 *   > Global Private Types
@@ -155,6 +185,7 @@ __STATIC const __st_blVersion_t global_stMyBootLoaderVersion = {
 #define __READ_FLAG_APP_TO_BL_ADDR() 	 HAL_RTCEx_BKUPRead(&hrtc, __FLAG_APP_TO_BL_ADDR)
 
 __STATIC sha256_t global_tApplicationHash;
+__STATIC sha256_t global_tCtxApplicationHash;
 
 /**
 * ===============================================================================================
@@ -194,6 +225,25 @@ __STATIC void __bl_vLogWrt(const uint8 Arg_u8LogLevel, const uint8 * pArg_u8LogM
 #endif
 
 __STATIC __NORETURN __vCheckForAppValidity(void) {
+/**
+ * Read the storead hash digest
+ * Calculate once per power cycle (The SHA256 for the existant SW)
+ * If matched then SW is valid else not valid
+ */
+#if (BL_SECURE_BOOT == BL_SECURE_BOOT_ON)
+	static flag_t once_per_power_cycle = FALSE;
+	if( (FALSE == once_per_power_cycle) ) {
+		FEE_ReadData(APP_FIRMWARE_SHA256_FEE_ADDR, global_tApplicationHash, 32u);
+		__CALCULATE_APP_HASH(global_tCtxApplicationHash);
+
+		if( (0 == __COMPARE_HASHES(global_tApplicationHash, global_tCtxApplicationHash)) ) {
+			__WRITE_FLAG_VALID_APP_ADDR(TRUE);
+		} else {
+			__WRITE_FLAG_VALID_APP_ADDR(FALSE);
+		}
+		once_per_power_cycle = TRUE;
+	}
+#else
 	uint32 local_u32ResetVectorAddrValue = *((uint32*)APP_START_ADDR + 4);
 
 	if (local_u32ResetVectorAddrValue != 0xFFFFFFFFUL) {
@@ -201,6 +251,7 @@ __STATIC __NORETURN __vCheckForAppValidity(void) {
 	} else {
 		__WRITE_FLAG_VALID_APP_ADDR(FALSE);
 	}
+#endif /* BL_SECURE_BOOT */
 }
 
 __STATIC __NORETURN __vPipeEcho(const uint8* pArg_u8TxBuffer, uint8 Arg_u8Length) {
@@ -832,34 +883,6 @@ __LOCAL_INLINE __en_blErrStatus_t __enWriteToAddr(const uint8* pArg_u8Data, cons
 * ===============================================================================================
 */
 
-#define SHA256_BUFFER_SIZE ( (uint8) (32u) )
-#define __COMPARE_HASHES strcmp
-
-/**
- * @brief Function to use WOLFCRYPT (WC) library to calculate SHA256 hash on existant application
- * @param[1] LDCB256 (Local Digest Buffer Context for SHA256)
- *
- */
-#include "wolfssl/wolfcrypt/sha256.h"
-#define SHA256_CONT_UPDATE_BUFFER(ctx) do {                                         \
-    uint32_t flashAddr = APP_START_ADDR;                                            \
-    uint8_t buffer[SHA256_BUFFER_SIZE];                                             \
-    while (*(uint32_t*)flashAddr != 0xFFFFFFFFUL) {                                 \
-        for (uint8_t i = 0; i < SHA256_BUFFER_SIZE; ++i) {                          \
-            buffer[i] = *(uint8_t*)flashAddr++;                                     \
-        }                                                                           \
-        wc_Sha256Update(ctx, buffer, sizeof(buffer));                               \
-    }                                                                               \
-} while (0)
-
-// Macro to calculate the SHA-256 hash of the application in flash memory
-#define CALCULATE_APP_HASH(hash) ({                                                 \
-    wc_Sha256 shaCtx;                                                               \
-    wc_InitSha256(&shaCtx);                                                         \
-    SHA256_CONT_UPDATE_BUFFER(&shaCtx);                                             \
-    wc_Sha256Final(&shaCtx, hash);                                                  \
-})
-
 /**
  * @brief 
  * @details
@@ -876,6 +899,17 @@ __NORETURN BL_enBootManager(void) {
 	BL_LOG_SEND(LOGL_INFO, "Bootloader manager started, looking for a valid application");
 	BL_DBG_SEND("Started the boot manager");
 
+	__STATIC uint32 is_not_clean_flash = 0xDEADBEEF;
+
+	FEE_ReadData(APP_FIRMWARE_SHA256_FEE_ADDR+35u, &is_not_clean_flash, sizeof(uint32));
+
+	/*First time */
+	if( (0xDEADBEEF != is_not_clean_flash) ) {
+		__CALCULATE_APP_HASH(global_tApplicationHash);
+		FEE_WriteData(APP_FIRMWARE_SHA256_FEE_ADDR, global_tApplicationHash, 32u);
+		FEE_WriteData(APP_FIRMWARE_SHA256_FEE_ADDR+35u, 0xDEADBEEF, sizeof(uint32));
+	}
+
 	if(FALSE == __READ_FLAG_APP_TO_BL_ADDR()) {
 		__vCheckForAppValidity();
 	} else;
@@ -888,8 +922,6 @@ __NORETURN BL_enBootManager(void) {
 	} else {
 #if (BL_SECURE_BOOT == BL_SECURE_BOOT_OFF)
 		BL_LOG_SEND(LOGL_INFO, "Found appllication, started to jump");
-		CALCULATE_APP_HASH(global_tApplicationHash);
-		FEE_WriteData(APP_FIRMWARE_SHA256_FEE_ADDR, global_tApplicationHash, 32u);
 		__vJumpToApplication();
 #elif (BL_SECURE_BOOT == BL_SECURE_BOOT_ON)
 		BL_LOG_SEND(LOGL_INFO, "Found appllication, started to validate");
@@ -898,10 +930,10 @@ __NORETURN BL_enBootManager(void) {
 		if( (TRUE == __READ_FLAG_VALID_APP_ADDR()) ) {
 			BL_LOG_SEND(LOGL_INFO, "Calculating hash digest");
 			BL_DBG_SEND("Calculating application hash.");
-			__STATIC sha256_t local_tApplicationHash;
-			__CALCULATE_APP_HASH(local_tApplicationHash);
+			__CALCULATE_APP_HASH(global_tCtxApplicationHash);
+
 			/* Calculate hash */
-			if ( (TRUE == __COMPARE_HASHES(local_tApplicationHash, global_tApplicationHash)) ) {
+			if ( (TRUE == __COMPARE_HASHES(global_tCtxApplicationHash, global_tApplicationHash)) ) {
 				BL_LOG_SEND(LOGL_INFO, "Applicaton is valid");
 				BL_DBG_SEND("Valid hash");
 				/* Jump to the application */
