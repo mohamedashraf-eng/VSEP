@@ -1,0 +1,5 @@
+var DISQUSWIDGETS;
+
+if (typeof DISQUSWIDGETS != 'undefined') {
+    DISQUSWIDGETS.displayCount({"text":{"and":"and","comments":{"zero":"0 Comments","multiple":"{num} Comments","one":"1 Comment"}},"counts":[{"id":"3007 https:\/\/stm32f4-discovery.net\/?p=3007","comments":16},{"id":"722 http:\/\/stm32f4-discovery.net\/?p=722","comments":571},{"id":"3015 https:\/\/stm32f4-discovery.net\/?p=3015","comments":62},{"id":"2843 http:\/\/stm32f4-discovery.net\/?p=2843","comments":52}]});
+}

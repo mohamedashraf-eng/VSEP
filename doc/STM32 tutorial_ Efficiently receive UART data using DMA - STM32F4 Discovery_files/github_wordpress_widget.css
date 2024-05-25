@@ -1,0 +1,14 @@
+.github_wordpress_image_holder{
+	padding:0px; 
+	margin:0px;
+}
+
+a#githubrepshow{
+	cursor:hand; 
+	cursor:pointer
+}
+
+ul#githublist{
+	text-align:left;
+	list-style: none;
+}

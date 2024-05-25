@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<!-- saved from url=(0093)https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/ -->
+<html class="js" lang="en-US" prefix="og: http://ogp.me/ns#"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/f.txt"></script><script src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/cb=gapi.loaded_1" async=""></script><script src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/cb=gapi(1).loaded_0" async=""></script>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="profile" href="https://gmpg.org/xfn/11">
+  <link rel="pingback" href="https://stm32f4-discovery.net/xmlrpc.php">
+
+  <title>STM32 tutorial: Efficiently receive UART data using DMA - STM32F4 Discovery</title>
+<script type="text/javascript" async="" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/platform.js.download" gapi_processed="true"></script><script id="twitter-wjs" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/widgets.js.download"></script><script>document.documentElement.className = document.documentElement.className.replace("no-js","js");</script>
+
+<!-- This site is optimized with the Yoast SEO plugin v9.0.3 - https://yoast.com/wordpress/plugins/seo/ -->
+<link rel="canonical" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/">
+<meta property="og:locale" content="en_US">
+<meta property="og:type" content="article">
+<meta property="og:title" content="STM32 tutorial: Efficiently receive UART data using DMA - STM32F4 Discovery">
+<meta property="og:description" content="Latest updates and examples are available at my official Github repository. STM32 + UART + DMA RX + unknown length This repository may give you information about how to read data on UART by using DMA when number of bytes to receive is not known in advance. In STM32 microcontroller family, U(S)ART reception can work in different modes: Polling mode (no DMA, no IRQ): Application must poll for status bits to check if new character has been received and read...">
+<meta property="og:url" content="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/">
+<meta property="og:site_name" content="STM32F4 Discovery">
+<meta property="article:tag" content="asynchronous">
+<meta property="article:tag" content="direct memory access">
+<meta property="article:tag" content="dma">
+<meta property="article:tag" content="idle line">
+<meta property="article:tag" content="stm32">
+<meta property="article:tag" content="stm32 family">
+<meta property="article:tag" content="stm32f4">
+<meta property="article:tag" content="stm32f7">
+<meta property="article:tag" content="tutorial">
+<meta property="article:tag" content="usart">
+<meta property="article:tag" content="usart idle">
+<meta property="article:section" content="ARM Cortex-M">
+<meta property="article:published_time" content="2017-07-05T22:21:12+00:00">
+<meta property="article:modified_time" content="2019-11-30T08:59:30+00:00">
+<meta property="og:updated_time" content="2019-11-30T08:59:30+00:00">
+<script type="application/ld+json">{"@context":"https:\/\/schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"@id":"https:\/\/stm32f4-discovery.net\/","name":"Home"}},{"@type":"ListItem","position":2,"item":{"@id":"https:\/\/stm32f4-discovery.net\/2017\/07\/stm32-tutorial-efficiently-receive-uart-data-using-dma\/","name":"STM32 tutorial: Efficiently receive UART data using DMA"}}]}</script>
+<!-- / Yoast SEO plugin. -->
+
+<link rel="dns-prefetch" href="https://s0.wp.com/">
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com/">
+<link rel="dns-prefetch" href="https://secure.gravatar.com/">
+<link rel="dns-prefetch" href="https://s.w.org/">
+<link rel="alternate" type="application/rss+xml" title="STM32F4 Discovery » Feed" href="https://stm32f4-discovery.net/feed/">
+<link rel="alternate" type="application/rss+xml" title="STM32F4 Discovery » Comments Feed" href="https://stm32f4-discovery.net/comments/feed/">
+<link rel="alternate" type="application/rss+xml" title="STM32F4 Discovery » STM32 tutorial: Efficiently receive UART data using DMA Comments Feed" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/feed/">
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/11\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/11\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/stm32f4-discovery.net\/wp-includes\/js\/wp-emoji-release.min.js?ver=3eb89aa84467809899fb675862dc483a"}};
+			!function(e,a,t){var n,r,o,i=a.createElement("canvas"),p=i.getContext&&i.getContext("2d");function s(e,t){var a=String.fromCharCode;p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,e),0,0);e=i.toDataURL();return p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,t),0,0),e===i.toDataURL()}function c(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(o=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},r=0;r<o.length;r++)t.supports[o[r]]=function(e){if(!p||!p.fillText)return!1;switch(p.textBaseline="top",p.font="600 32px Arial",e){case"flag":return s([55356,56826,55356,56819],[55356,56826,8203,55356,56819])?!1:!s([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]);case"emoji":return!s([55358,56760,9792,65039],[55358,56760,8203,9792,65039])}return!1}(o[r]),t.supports.everything=t.supports.everything&&t.supports[o[r]],"flag"!==o[r]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[o[r]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(n=t.source||{}).concatemoji?c(n.concatemoji):n.wpemoji&&n.twemoji&&(c(n.twemoji),c(n.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script><script src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/wp-emoji-release.min.js.download" type="text/javascript" defer=""></script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel="stylesheet" id="crayon-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/crayon.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="crayon-theme-keil-uvision-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/keil-uvision.css" type="text/css" media="all">
+<link rel="stylesheet" id="crayon-font-monaco-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/monaco.css" type="text/css" media="all">
+<link rel="stylesheet" id="cptch_stylesheet-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/front_end_style.css" type="text/css" media="all">
+<link rel="stylesheet" id="dashicons-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/dashicons.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="cptch_desktop_style-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/desktop_style.css" type="text/css" media="all">
+<link rel="stylesheet" id="contact-form-7-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/styles.css" type="text/css" media="all">
+<link rel="stylesheet" id="cookie-law-info-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/cookie-law-info-public.css" type="text/css" media="all">
+<link rel="stylesheet" id="cookie-law-info-gdpr-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/cookie-law-info-gdpr.css" type="text/css" media="all">
+<link rel="stylesheet" id="disqus_rcw-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/disqus_rcw.css" type="text/css" media="all">
+<link rel="stylesheet" id="wpdm-font-awesome-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/all.css" type="text/css" media="all">
+<link rel="stylesheet" id="wpdm-bootstrap-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/bootstrap.css" type="text/css" media="all">
+<link rel="stylesheet" id="wpdm-front-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/front.css" type="text/css" media="all">
+<link rel="stylesheet" id="github-profile-display-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/github_wordpress_widget.css" type="text/css" media="all">
+<link rel="stylesheet" id="responsive-lightbox-swipebox-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/swipebox.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="wp-polls-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/polls-css.css" type="text/css" media="all">
+<style id="wp-polls-inline-css" type="text/css">
+.wp-polls .pollbar {
+	margin: 1px;
+	font-size: 6px;
+	line-height: 8px;
+	height: 8px;
+	background-image: url('https://stm32f4-discovery.net/wp-content/plugins/wp-polls/images/default/pollbg.gif');
+	border: 1px solid #c8c8c8;
+}
+
+</style>
+<link rel="stylesheet" id="yt4wp_sess-front-end-css-base-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/yt4wp-frontend.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="fancy-css-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/jquery.fancybox.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="hueman-main-style-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/main.min.css" type="text/css" media="all">
+<style id="hueman-main-style-inline-css" type="text/css">
+body { font-size:1.00rem; }@media only screen and (min-width: 720px) {
+        .nav > li { font-size:1.00rem; }
+      }.container-inner { max-width: 1500px; }::selection { background-color: #3b8dbd; }
+::-moz-selection { background-color: #3b8dbd; }a,a+span.hu-external::after,.themeform label .required,#flexslider-featured .flex-direction-nav .flex-next:hover,#flexslider-featured .flex-direction-nav .flex-prev:hover,.post-hover:hover .post-title a,.post-title a:hover,.sidebar.s1 .post-nav li a:hover i,.content .post-nav li a:hover i,.post-related a:hover,.sidebar.s1 .widget_rss ul li a,#footer .widget_rss ul li a,.sidebar.s1 .widget_calendar a,#footer .widget_calendar a,.sidebar.s1 .alx-tab .tab-item-category a,.sidebar.s1 .alx-posts .post-item-category a,.sidebar.s1 .alx-tab li:hover .tab-item-title a,.sidebar.s1 .alx-tab li:hover .tab-item-comment a,.sidebar.s1 .alx-posts li:hover .post-item-title a,#footer .alx-tab .tab-item-category a,#footer .alx-posts .post-item-category a,#footer .alx-tab li:hover .tab-item-title a,#footer .alx-tab li:hover .tab-item-comment a,#footer .alx-posts li:hover .post-item-title a,.comment-tabs li.active a,.comment-awaiting-moderation,.child-menu a:hover,.child-menu .current_page_item > a,.wp-pagenavi a{ color: #3b8dbd; }input[type="submit"],.themeform button[type="submit"],.sidebar.s1 .sidebar-top,.sidebar.s1 .sidebar-toggle,#flexslider-featured .flex-control-nav li a.flex-active,.post-tags a:hover,.sidebar.s1 .widget_calendar caption,#footer .widget_calendar caption,.author-bio .bio-avatar:after,.commentlist li.bypostauthor > .comment-body:after,.commentlist li.comment-author-admin > .comment-body:after{ background-color: #3b8dbd; }.post-format .format-container { border-color: #3b8dbd; }.sidebar.s1 .alx-tabs-nav li.active a,#footer .alx-tabs-nav li.active a,.comment-tabs li.active a,.wp-pagenavi a:hover,.wp-pagenavi a:active,.wp-pagenavi span.current{ border-bottom-color: #3b8dbd!important; }.sidebar.s2 .post-nav li a:hover i,
+.sidebar.s2 .widget_rss ul li a,
+.sidebar.s2 .widget_calendar a,
+.sidebar.s2 .alx-tab .tab-item-category a,
+.sidebar.s2 .alx-posts .post-item-category a,
+.sidebar.s2 .alx-tab li:hover .tab-item-title a,
+.sidebar.s2 .alx-tab li:hover .tab-item-comment a,
+.sidebar.s2 .alx-posts li:hover .post-item-title a { color: #82b965; }
+.sidebar.s2 .sidebar-top,.sidebar.s2 .sidebar-toggle,.post-comments,.jp-play-bar,.jp-volume-bar-value,.sidebar.s2 .widget_calendar caption{ background-color: #82b965; }.sidebar.s2 .alx-tabs-nav li.active a { border-bottom-color: #82b965; }
+.post-comments::before { border-right-color: #82b965; }
+      .search-expand,
+              #nav-topbar.nav-container { background-color: #26272b}@media only screen and (min-width: 720px) {
+                #nav-topbar .nav ul { background-color: #26272b; }
+              }.is-scrolled #header .nav-container.desktop-sticky,
+              .is-scrolled #header .search-expand { background-color: #26272b; background-color: rgba(38,39,43,0.90) }.is-scrolled .topbar-transparent #nav-topbar.desktop-sticky .nav ul { background-color: #26272b; background-color: rgba(38,39,43,0.95) }#header { background-color: #33363b; }
+@media only screen and (min-width: 720px) {
+  #nav-header .nav ul { background-color: #33363b; }
+}
+        .is-scrolled #header #nav-mobile { background-color: #454e5c; background-color: rgba(69,78,92,0.90) }#nav-header.nav-container, #main-header-search .search-expand { background-color: ; }
+@media only screen and (min-width: 720px) {
+  #nav-header .nav ul { background-color: ; }
+}
+        img { -webkit-border-radius: 6px; border-radius: 6px; }body { background-color: #eaeaea; }
+</style>
+<link rel="stylesheet" id="hueman-font-awesome-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/font-awesome.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="social-logos-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/social-logos.min.css" type="text/css" media="all">
+<link rel="stylesheet" id="jetpack_css-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/jetpack.css" type="text/css" media="all">
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/jquery.js.download"></script><style type="text/css" id="operaUserStyle">
+  video {
+    filter: -opera-shader(url(data:text/plain;base64,Ly8gaHR0cHM6Ly9naXRodWIuY29tL0dQVU9wZW4tRWZmZWN0cy9GaWRlbGl0eUZYLUNBUwovLyB2MwoKdW5pZm9ybSBzaGFkZXIgaUNodW5rOwp1bmlmb3JtIGZsb2F0MiBpQ2h1bmtTaXplOwp1bmlmb3JtIGZsb2F0MiBpTW91c2U7CnVuaWZvcm0gZmxvYXQgaUFyZ3NbMV07Cgpjb25zdCBmbG9hdCBFUFNJT04gPSAwLjE7CmNvbnN0IGZsb2F0IFZfTUlOID0gMDsKY29uc3QgZmxvYXQgVl9MT1cgPSAwLjI1Owpjb25zdCBmbG9hdCBWX01FRCA9IDAuNTsKY29uc3QgZmxvYXQgVl9ISUdIID0gMC43NTsKY29uc3QgZmxvYXQgVl9NQVggPSAxOwoKY29uc3QgZmxvYXQgVEhSRVNIT0xEX0FSRUEgPSA4MDAgKiA2MDA7CmNvbnN0IGZsb2F0IE1JTl9BUkVBID0gNDAwICogMTAwOwpjb25zdCBmbG9hdCBNSU5fU1RSSVAgPSAyMDsKY29uc3QgZmxvYXQgTUFSR0lOID0gMTsKCmZsb2F0MyBwaXhlbChpbnQgeCwgaW50IHksIGZsb2F0MiB4eSkgewogICAgcmV0dXJuIGlDaHVuay5ldmFsKHh5ICsgZmxvYXQyKHgsIHkpKS5yZ2I7Cn0KCmZsb2F0MyBzaGFycGVuKGZsb2F0MiB4eSkgewogICAgZmxvYXQzIGYgPQogICAgICAgIHBpeGVsKC0xLCAtMSwgeHkpICogIDEgKwogICAgICAgIHBpeGVsKCAwLCAtMSwgeHkpICogLTEgKwogICAgICAgIHBpeGVsKCAxLCAtMSwgeHkpICogIDEgKwoKICAgICAgICBwaXhlbCgtMSwgMCwgeHkpICogLTEgICsKICAgICAgICBwaXhlbCggMCwgMCwgeHkpICogLTEgICsKICAgICAgICBwaXhlbCggMSwgMCwgeHkpICogLTEgICsKCiAgICAgICAgcGl4ZWwoLTEsIDEsIHh5KSAqIDEgICArCiAgICAgICAgcGl4ZWwoIDAsIDEsIHh5KSAqIC0xICArCiAgICAgICAgcGl4ZWwoIDEsIDEsIHh5KSAqIDE7CiAgICByZXR1cm4gZiAvIC0xOwp9CgpmbG9hdDQgUkdYMihmbG9hdDIgeHkpIHsKICAgIGZsb2F0NCBjb2xvciA9IGlDaHVuay5ldmFsKHh5KTsKCiAgICBpZiAoaUNodW5rU2l6ZS54ICogaUNodW5rU2l6ZS55IDwgTUlOX0FSRUEpIHsKICAgICAgICByZXR1cm4gY29sb3I7CiAgICB9CgogICAgaWYgKGlDaHVua1NpemUueSA8IE1JTl9TVFJJUCB8fCBpQ2h1bmtTaXplLnggPCBNSU5fU1RSSVApIHsKICAgICAgICByZXR1cm4gY29sb3I7CiAgICB9CgogICAgaWYgKHh5LnggPCBNQVJHSU4gfHwgeHkueCA+IChpQ2h1bmtTaXplLnggLSBNQVJHSU4pIHx8CiAgICAgICAgeHkueSA8IE1BUkdJTiB8fCB4eS55ID4gKGlDaHVua1NpemUueSAtIE1BUkdJTikpIHsKICAgICAgICByZXR1cm4gY29sb3I7CiAgICB9CgogICAgcmV0dXJuIGZsb2F0NChzaGFycGVuKHh5KSwgMSk7Cn0KCmZsb2F0IG1pbjMoZmxvYXQgeCwgZmxvYXQgeSwgZmxvYXQgeikgewogICAgcmV0dXJuIG1pbih4LCBtaW4oeSwgeikpOwp9CgpmbG9hdCBtYXgzKGZsb2F0IHgsIGZsb2F0IHksIGZsb2F0IHopIHsKICAgIHJldHVybiBtYXgoeCwgbWF4KHksIHopKTsKfQoKZmxvYXQgcmNwKGZsb2F0IHYpIHsKICAgIHJldHVybiAxIC8gdjsKfQoKZmxvYXQzIFJHWDMoZmxvYXQyIHh5LCBmbG9hdCBzdHJlbmd0aCkgewogICAgZmxvYXQzIGEgPSBwaXhlbCgtMSwgLTEsIHh5KTsKICAgIGZsb2F0MyBiID0gcGl4ZWwoIDAsIC0xLCB4eSk7CiAgICBmbG9hdDMgYyA9IHBpeGVsKCAxLCAtMSwgeHkpOwoKICAgIGZsb2F0MyBkID0gcGl4ZWwoLTEsIDAsIHh5KTsKICAgIGZsb2F0MyBlID0gcGl4ZWwoIDAsIDAsIHh5KTsKICAgIGZsb2F0MyBmID0gcGl4ZWwoIDEsIDAsIHh5KTsKCiAgICBmbG9hdDMgZyA9IHBpeGVsKC0xLCAxLCB4eSk7CiAgICBmbG9hdDMgaCA9IHBpeGVsKCAwLCAxLCB4eSk7CiAgICBmbG9hdDMgaSA9IHBpeGVsKCAxLCAxLCB4eSk7CgogICAgZmxvYXQgbW5SID0gbWluMyhtaW4zKGQuciwgZS5yLCBmLnIpLCBiLnIsIGgucik7CiAgICBmbG9hdCBtbkcgPSBtaW4zKG1pbjMoZC5nLCBlLmcsIGYuZyksIGIuZywgaC5nKTsKICAgIGZsb2F0IG1uQiA9IG1pbjMobWluMyhkLmIsIGUuYiwgZi5iKSwgYi5iLCBoLmIpOwoKICAgIGZsb2F0IG1uUjIgPSBtaW4zKG1pbjMobW5SLCBhLnIsIGMuciksIGcuciwgaS5yKTsKICAgIGZsb2F0IG1uRzIgPSBtaW4zKG1pbjMobW5HLCBhLmcsIGMuZyksIGcuZywgaS5nKTsKICAgIGZsb2F0IG1uQjIgPSBtaW4zKG1pbjMobW5CLCBhLmIsIGMuYiksIGcuYiwgaS5iKTsKCiAgICBtblIgPSBtblIgKyBtblIyOwogICAgbW5HID0gbW5HICsgbW5HMjsKICAgIG1uQiA9IG1uQiArIG1uQjI7CgogICAgZmxvYXQgbXhSID0gbWF4MyhtYXgzKGQuciwgZS5yLCBmLnIpLCBiLnIsIGgucik7CiAgICBmbG9hdCBteEcgPSBtYXgzKG1heDMoZC5nLCBlLmcsIGYuZyksIGIuZywgaC5nKTsKICAgIGZsb2F0IG14QiA9IG1heDMobWF4MyhkLmIsIGUuYiwgZi5iKSwgYi5iLCBoLmIpOwoKICAgIGZsb2F0IG14UjIgPSBtYXgzKG1heDMobXhSLCBhLnIsIGMuciksIGcuciwgaS5yKTsKICAgIGZsb2F0IG14RzIgPSBtYXgzKG1heDMobXhHLCBhLmcsIGMuZyksIGcuZywgaS5nKTsKICAgIGZsb2F0IG14QjIgPSBtYXgzKG1heDMobXhCLCBhLmIsIGMuYiksIGcuYiwgaS5iKTsKCiAgICBteFIgPSBteFIgKyBteFIyOwogICAgbXhHID0gbXhHICsgbXhHMjsKICAgIG14QiA9IG14QiArIG14QjI7CgogICAgZmxvYXQgcmNwTVIgPSByY3AobXhSKTsKICAgIGZsb2F0IHJjcE1HID0gcmNwKG14Ryk7CiAgICBmbG9hdCByY3BNQiA9IHJjcChteEIpOwoKICAgIGZsb2F0IGFtcFIgPSBzYXR1cmF0ZShtaW4obW5SLCAyIC0gbXhSKSAqIHJjcE1SKTsKICAgIGZsb2F0IGFtcEcgPSBzYXR1cmF0ZShtaW4obW5HLCAyIC0gbXhHKSAqIHJjcE1HKTsKICAgIGZsb2F0IGFtcEIgPSBzYXR1cmF0ZShtaW4obW5CLCAyIC0gbXhCKSAqIHJjcE1CKTsKCiAgICBhbXBSID0gc3FydChhbXBSKTsKICAgIGFtcEcgPSBzcXJ0KGFtcEcpOwogICAgYW1wQiA9IHNxcnQoYW1wQik7CgogICAgZmxvYXQgcGVhayA9IC1yY3AobWl4KDgsIDUsIHN0cmVuZ3RoKSk7CgogICAgZmxvYXQgd1IgPSBhbXBSICogcGVhazsKICAgIGZsb2F0IHdHID0gYW1wRyAqIHBlYWs7CiAgICBmbG9hdCB3QiA9IGFtcEIgKiBwZWFrOwoKICAgIGZsb2F0IHJjcFdlaWdodFIgPSByY3AoMSArIDQgKiB3Uik7CiAgICBmbG9hdCByY3BXZWlnaHRHID0gcmNwKDEgKyA0ICogd0cpOwogICAgZmxvYXQgcmNwV2VpZ2h0QiA9IHJjcCgxICsgNCAqIHdCKTsKCiAgICByZXR1cm4gZmxvYXQzKAogICAgICAgIHNhdHVyYXRlKChiLnIgKiB3UiArIGQuciAqIHdSICsgZi5yICogd1IgKyBoLnIgKiB3UiArIGUucikgKiByY3BXZWlnaHRSKSwKICAgICAgICBzYXR1cmF0ZSgoYi5nICogd0cgKyBkLmcgKiB3RyArIGYuZyAqIHdHICsgaC5nICogd0cgKyBlLmcpICogcmNwV2VpZ2h0RyksCiAgICAgICAgc2F0dXJhdGUoKGIuYiAqIHdCICsgZC5iICogd0IgKyBmLmIgKiB3QiArIGguYiAqIHdCICsgZS5iKSAqIHJjcFdlaWdodEIpKTsKfQoKCmZsb2F0NCBtYWluKGZsb2F0MiB4eSkgewoKICAgIGZsb2F0NCBvcmlnaW5hbENvbG9yID0gaUNodW5rLmV2YWwoeHkpOwogICAgaWYgKG9yaWdpbmFsQ29sb3IuYSA8IDEpIHsKICAgICAgICByZXR1cm4gaUNodW5rLmV2YWwoeHkpOwogICAgfQoKICAgIGZsb2F0IGludGVuc2l0eSA9IGlBcmdzWzBdOwogICAgZmxvYXQgc3RyZW5ndGggPSAwOwogICAgZmxvYXQzIGNvbG9yOwoKICAgIGlmIChpbnRlbnNpdHkgPCBWX01JTiArIEVQU0lPTikgewogICAgICAgIHN0cmVuZ3RoID0gMC4xMDsKICAgICAgICBjb2xvciA9IFJHWDMoeHksIHN0cmVuZ3RoKTsKCiAgICB9IGVsc2UgaWYgKGludGVuc2l0eSA+IFZfTE9XIC0gRVBTSU9OICYmIGludGVuc2l0eSA8IFZfTE9XICsgRVBTSU9OKSB7CiAgICAgICAgc3RyZW5ndGggPSAwLjMzOwogICAgICAgIGNvbG9yID0gUkdYMyh4eSwgc3RyZW5ndGgpOwoKICAgIH0gZWxzZSBpZiAoaW50ZW5zaXR5ID4gVl9NRUQgLSBFUFNJT04gJiYgaW50ZW5zaXR5IDwgVl9NRUQgKyBFUFNJT04pIHsKICAgICAgICBzdHJlbmd0aCA9IDAuNTsKICAgICAgICBjb2xvciA9IFJHWDMoeHksIHN0cmVuZ3RoKTsKCiAgICB9IGVsc2UgaWYgKGludGVuc2l0eSA+IFZfSElHSCAtIEVQU0lPTiAmJiBpbnRlbnNpdHkgPCBWX0hJR0ggKyBFUFNJT04pIHsKICAgICAgICBzdHJlbmd0aCA9IDAuOTk7CiAgICAgICAgY29sb3IgPSBSR1gzKHh5LCBzdHJlbmd0aCk7CgogICAgfSBlbHNlIGlmIChpbnRlbnNpdHkgPiBWX01BWCAtIEVQU0lPTikgewogICAgICAgIHN0cmVuZ3RoID0gMTsKICAgICAgICBjb2xvciA9IFJHWDIoeHkpLnJnYjsKICAgIH0KCiAgICByZXR1cm4gZmxvYXQ0KGNvbG9yLCBvcmlnaW5hbENvbG9yLmEpOwp9) -opera-args(0.75 calc(env(-opera-gx-accent-color-r)/255) calc(env(-opera-gx-accent-color-g)/255) calc(env(-opera-gx-accent-color-b)/255)));
+  }
+
+
+  img {
+    filter: -opera-shader(url(data:text/plain;base64,Ly8gaHR0cHM6Ly9naXRodWIuY29tL0dQVU9wZW4tRWZmZWN0cy9GaWRlbGl0eUZYLUNBUwovLyB2MwoKdW5pZm9ybSBzaGFkZXIgaUNodW5rOwp1bmlmb3JtIGZsb2F0MiBpQ2h1bmtTaXplOwp1bmlmb3JtIGZsb2F0MiBpTW91c2U7CnVuaWZvcm0gZmxvYXQgaUFyZ3NbMV07Cgpjb25zdCBmbG9hdCBFUFNJT04gPSAwLjE7CmNvbnN0IGZsb2F0IFZfTUlOID0gMDsKY29uc3QgZmxvYXQgVl9MT1cgPSAwLjI1Owpjb25zdCBmbG9hdCBWX01FRCA9IDAuNTsKY29uc3QgZmxvYXQgVl9ISUdIID0gMC43NTsKY29uc3QgZmxvYXQgVl9NQVggPSAxOwoKY29uc3QgZmxvYXQgVEhSRVNIT0xEX0FSRUEgPSA4MDAgKiA2MDA7CmNvbnN0IGZsb2F0IE1JTl9BUkVBID0gNDAwICogMTAwOwpjb25zdCBmbG9hdCBNSU5fU1RSSVAgPSAyMDsKY29uc3QgZmxvYXQgTUFSR0lOID0gMTsKCmZsb2F0MyBwaXhlbChpbnQgeCwgaW50IHksIGZsb2F0MiB4eSkgewogICAgcmV0dXJuIGlDaHVuay5ldmFsKHh5ICsgZmxvYXQyKHgsIHkpKS5yZ2I7Cn0KCmZsb2F0MyBzaGFycGVuKGZsb2F0MiB4eSkgewogICAgZmxvYXQzIGYgPQogICAgICAgIHBpeGVsKC0xLCAtMSwgeHkpICogIDEgKwogICAgICAgIHBpeGVsKCAwLCAtMSwgeHkpICogLTEgKwogICAgICAgIHBpeGVsKCAxLCAtMSwgeHkpICogIDEgKwoKICAgICAgICBwaXhlbCgtMSwgMCwgeHkpICogLTEgICsKICAgICAgICBwaXhlbCggMCwgMCwgeHkpICogLTEgICsKICAgICAgICBwaXhlbCggMSwgMCwgeHkpICogLTEgICsKCiAgICAgICAgcGl4ZWwoLTEsIDEsIHh5KSAqIDEgICArCiAgICAgICAgcGl4ZWwoIDAsIDEsIHh5KSAqIC0xICArCiAgICAgICAgcGl4ZWwoIDEsIDEsIHh5KSAqIDE7CiAgICByZXR1cm4gZiAvIC0xOwp9CgpmbG9hdDQgUkdYMihmbG9hdDIgeHkpIHsKICAgIGZsb2F0NCBjb2xvciA9IGlDaHVuay5ldmFsKHh5KTsKCiAgICBpZiAoaUNodW5rU2l6ZS54ICogaUNodW5rU2l6ZS55IDwgTUlOX0FSRUEpIHsKICAgICAgICByZXR1cm4gY29sb3I7CiAgICB9CgogICAgaWYgKGlDaHVua1NpemUueSA8IE1JTl9TVFJJUCB8fCBpQ2h1bmtTaXplLnggPCBNSU5fU1RSSVApIHsKICAgICAgICByZXR1cm4gY29sb3I7CiAgICB9CgogICAgaWYgKHh5LnggPCBNQVJHSU4gfHwgeHkueCA+IChpQ2h1bmtTaXplLnggLSBNQVJHSU4pIHx8CiAgICAgICAgeHkueSA8IE1BUkdJTiB8fCB4eS55ID4gKGlDaHVua1NpemUueSAtIE1BUkdJTikpIHsKICAgICAgICByZXR1cm4gY29sb3I7CiAgICB9CgogICAgcmV0dXJuIGZsb2F0NChzaGFycGVuKHh5KSwgMSk7Cn0KCmZsb2F0IG1pbjMoZmxvYXQgeCwgZmxvYXQgeSwgZmxvYXQgeikgewogICAgcmV0dXJuIG1pbih4LCBtaW4oeSwgeikpOwp9CgpmbG9hdCBtYXgzKGZsb2F0IHgsIGZsb2F0IHksIGZsb2F0IHopIHsKICAgIHJldHVybiBtYXgoeCwgbWF4KHksIHopKTsKfQoKZmxvYXQgcmNwKGZsb2F0IHYpIHsKICAgIHJldHVybiAxIC8gdjsKfQoKZmxvYXQzIFJHWDMoZmxvYXQyIHh5LCBmbG9hdCBzdHJlbmd0aCkgewogICAgZmxvYXQzIGEgPSBwaXhlbCgtMSwgLTEsIHh5KTsKICAgIGZsb2F0MyBiID0gcGl4ZWwoIDAsIC0xLCB4eSk7CiAgICBmbG9hdDMgYyA9IHBpeGVsKCAxLCAtMSwgeHkpOwoKICAgIGZsb2F0MyBkID0gcGl4ZWwoLTEsIDAsIHh5KTsKICAgIGZsb2F0MyBlID0gcGl4ZWwoIDAsIDAsIHh5KTsKICAgIGZsb2F0MyBmID0gcGl4ZWwoIDEsIDAsIHh5KTsKCiAgICBmbG9hdDMgZyA9IHBpeGVsKC0xLCAxLCB4eSk7CiAgICBmbG9hdDMgaCA9IHBpeGVsKCAwLCAxLCB4eSk7CiAgICBmbG9hdDMgaSA9IHBpeGVsKCAxLCAxLCB4eSk7CgogICAgZmxvYXQgbW5SID0gbWluMyhtaW4zKGQuciwgZS5yLCBmLnIpLCBiLnIsIGgucik7CiAgICBmbG9hdCBtbkcgPSBtaW4zKG1pbjMoZC5nLCBlLmcsIGYuZyksIGIuZywgaC5nKTsKICAgIGZsb2F0IG1uQiA9IG1pbjMobWluMyhkLmIsIGUuYiwgZi5iKSwgYi5iLCBoLmIpOwoKICAgIGZsb2F0IG1uUjIgPSBtaW4zKG1pbjMobW5SLCBhLnIsIGMuciksIGcuciwgaS5yKTsKICAgIGZsb2F0IG1uRzIgPSBtaW4zKG1pbjMobW5HLCBhLmcsIGMuZyksIGcuZywgaS5nKTsKICAgIGZsb2F0IG1uQjIgPSBtaW4zKG1pbjMobW5CLCBhLmIsIGMuYiksIGcuYiwgaS5iKTsKCiAgICBtblIgPSBtblIgKyBtblIyOwogICAgbW5HID0gbW5HICsgbW5HMjsKICAgIG1uQiA9IG1uQiArIG1uQjI7CgogICAgZmxvYXQgbXhSID0gbWF4MyhtYXgzKGQuciwgZS5yLCBmLnIpLCBiLnIsIGgucik7CiAgICBmbG9hdCBteEcgPSBtYXgzKG1heDMoZC5nLCBlLmcsIGYuZyksIGIuZywgaC5nKTsKICAgIGZsb2F0IG14QiA9IG1heDMobWF4MyhkLmIsIGUuYiwgZi5iKSwgYi5iLCBoLmIpOwoKICAgIGZsb2F0IG14UjIgPSBtYXgzKG1heDMobXhSLCBhLnIsIGMuciksIGcuciwgaS5yKTsKICAgIGZsb2F0IG14RzIgPSBtYXgzKG1heDMobXhHLCBhLmcsIGMuZyksIGcuZywgaS5nKTsKICAgIGZsb2F0IG14QjIgPSBtYXgzKG1heDMobXhCLCBhLmIsIGMuYiksIGcuYiwgaS5iKTsKCiAgICBteFIgPSBteFIgKyBteFIyOwogICAgbXhHID0gbXhHICsgbXhHMjsKICAgIG14QiA9IG14QiArIG14QjI7CgogICAgZmxvYXQgcmNwTVIgPSByY3AobXhSKTsKICAgIGZsb2F0IHJjcE1HID0gcmNwKG14Ryk7CiAgICBmbG9hdCByY3BNQiA9IHJjcChteEIpOwoKICAgIGZsb2F0IGFtcFIgPSBzYXR1cmF0ZShtaW4obW5SLCAyIC0gbXhSKSAqIHJjcE1SKTsKICAgIGZsb2F0IGFtcEcgPSBzYXR1cmF0ZShtaW4obW5HLCAyIC0gbXhHKSAqIHJjcE1HKTsKICAgIGZsb2F0IGFtcEIgPSBzYXR1cmF0ZShtaW4obW5CLCAyIC0gbXhCKSAqIHJjcE1CKTsKCiAgICBhbXBSID0gc3FydChhbXBSKTsKICAgIGFtcEcgPSBzcXJ0KGFtcEcpOwogICAgYW1wQiA9IHNxcnQoYW1wQik7CgogICAgZmxvYXQgcGVhayA9IC1yY3AobWl4KDgsIDUsIHN0cmVuZ3RoKSk7CgogICAgZmxvYXQgd1IgPSBhbXBSICogcGVhazsKICAgIGZsb2F0IHdHID0gYW1wRyAqIHBlYWs7CiAgICBmbG9hdCB3QiA9IGFtcEIgKiBwZWFrOwoKICAgIGZsb2F0IHJjcFdlaWdodFIgPSByY3AoMSArIDQgKiB3Uik7CiAgICBmbG9hdCByY3BXZWlnaHRHID0gcmNwKDEgKyA0ICogd0cpOwogICAgZmxvYXQgcmNwV2VpZ2h0QiA9IHJjcCgxICsgNCAqIHdCKTsKCiAgICByZXR1cm4gZmxvYXQzKAogICAgICAgIHNhdHVyYXRlKChiLnIgKiB3UiArIGQuciAqIHdSICsgZi5yICogd1IgKyBoLnIgKiB3UiArIGUucikgKiByY3BXZWlnaHRSKSwKICAgICAgICBzYXR1cmF0ZSgoYi5nICogd0cgKyBkLmcgKiB3RyArIGYuZyAqIHdHICsgaC5nICogd0cgKyBlLmcpICogcmNwV2VpZ2h0RyksCiAgICAgICAgc2F0dXJhdGUoKGIuYiAqIHdCICsgZC5iICogd0IgKyBmLmIgKiB3QiArIGguYiAqIHdCICsgZS5iKSAqIHJjcFdlaWdodEIpKTsKfQoKCmZsb2F0NCBtYWluKGZsb2F0MiB4eSkgewoKICAgIGZsb2F0NCBvcmlnaW5hbENvbG9yID0gaUNodW5rLmV2YWwoeHkpOwogICAgaWYgKG9yaWdpbmFsQ29sb3IuYSA8IDEpIHsKICAgICAgICByZXR1cm4gaUNodW5rLmV2YWwoeHkpOwogICAgfQoKICAgIGZsb2F0IGludGVuc2l0eSA9IGlBcmdzWzBdOwogICAgZmxvYXQgc3RyZW5ndGggPSAwOwogICAgZmxvYXQzIGNvbG9yOwoKICAgIGlmIChpbnRlbnNpdHkgPCBWX01JTiArIEVQU0lPTikgewogICAgICAgIHN0cmVuZ3RoID0gMC4xMDsKICAgICAgICBjb2xvciA9IFJHWDMoeHksIHN0cmVuZ3RoKTsKCiAgICB9IGVsc2UgaWYgKGludGVuc2l0eSA+IFZfTE9XIC0gRVBTSU9OICYmIGludGVuc2l0eSA8IFZfTE9XICsgRVBTSU9OKSB7CiAgICAgICAgc3RyZW5ndGggPSAwLjMzOwogICAgICAgIGNvbG9yID0gUkdYMyh4eSwgc3RyZW5ndGgpOwoKICAgIH0gZWxzZSBpZiAoaW50ZW5zaXR5ID4gVl9NRUQgLSBFUFNJT04gJiYgaW50ZW5zaXR5IDwgVl9NRUQgKyBFUFNJT04pIHsKICAgICAgICBzdHJlbmd0aCA9IDAuNTsKICAgICAgICBjb2xvciA9IFJHWDMoeHksIHN0cmVuZ3RoKTsKCiAgICB9IGVsc2UgaWYgKGludGVuc2l0eSA+IFZfSElHSCAtIEVQU0lPTiAmJiBpbnRlbnNpdHkgPCBWX0hJR0ggKyBFUFNJT04pIHsKICAgICAgICBzdHJlbmd0aCA9IDAuOTk7CiAgICAgICAgY29sb3IgPSBSR1gzKHh5LCBzdHJlbmd0aCk7CgogICAgfSBlbHNlIGlmIChpbnRlbnNpdHkgPiBWX01BWCAtIEVQU0lPTikgewogICAgICAgIHN0cmVuZ3RoID0gMTsKICAgICAgICBjb2xvciA9IFJHWDIoeHkpLnJnYjsKICAgIH0KCiAgICByZXR1cm4gZmxvYXQ0KGNvbG9yLCBvcmlnaW5hbENvbG9yLmEpOwp9) -opera-args(0.75 calc(env(-opera-gx-accent-color-r)/255) calc(env(-opera-gx-accent-color-g)/255) calc(env(-opera-gx-accent-color-b)/255)));
+  }
+</style>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/jquery-migrate.min.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var CrayonSyntaxSettings = {"version":"_2.7.2_beta","is_admin":"0","ajaxurl":"https:\/\/stm32f4-discovery.net\/wp-admin\/admin-ajax.php","prefix":"crayon-","setting":"crayon-setting","selected":"crayon-setting-selected","changed":"crayon-setting-changed","special":"crayon-setting-special","orig_value":"data-orig-value","debug":""};
+var CrayonSyntaxStrings = {"copy":"Press %s to Copy, %s to Paste","minimize":"Click To Expand Code"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/crayon.min.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var Cli_Data = {"nn_cookie_ids":[],"cookielist":[]};
+var log_object = {"ajax_url":"https:\/\/stm32f4-discovery.net\/wp-admin\/admin-ajax.php"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/cookie-law-info-public.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/bootstrap.min.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/front.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/chosen.jquery.min.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/jquery.swipebox.min.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/infinite-scroll.pkgd.min.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var rlArgs = {"script":"swipebox","selector":"lightbox","customEvents":"","activeGalleries":"1","animation":"1","hideCloseButtonOnMobile":"0","removeBarsOnMobile":"0","hideBars":"1","hideBarsDelay":"5000","videoMaxWidth":"1080","useSVG":"1","loopAtEnd":"0","woocommerce_gallery":"0","ajaxurl":"https:\/\/stm32f4-discovery.net\/wp-admin\/admin-ajax.php","nonce":"81c599ea32"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/front(1).js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/jquery.fancybox.min.js.download"></script>
+<meta name="generator" content="WordPress Download Manager 2.9.82">
+<link rel="https://api.w.org/" href="https://stm32f4-discovery.net/wp-json/">
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://stm32f4-discovery.net/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://stm32f4-discovery.net/wp-includes/wlwmanifest.xml"> 
+<link rel="shortlink" href="http://bit.ly/2tqXCGU">
+<link rel="alternate" type="application/json+oembed" href="https://stm32f4-discovery.net/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fstm32f4-discovery.net%2F2017%2F07%2Fstm32-tutorial-efficiently-receive-uart-data-using-dma%2F">
+<link rel="alternate" type="text/xml+oembed" href="https://stm32f4-discovery.net/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fstm32f4-discovery.net%2F2017%2F07%2Fstm32-tutorial-efficiently-receive-uart-data-using-dma%2F&amp;format=xml">
+
+        <script>
+            var wpdm_site_url = 'https://stm32f4-discovery.net/';
+            var wpdm_home_url = 'https://stm32f4-discovery.net/';
+            var ajax_url = 'https://stm32f4-discovery.net/wp-admin/admin-ajax.php';
+            var wpdm_ajax_url = 'https://stm32f4-discovery.net/wp-admin/admin-ajax.php';
+            var wpdm_ajax_popup = '0';
+        </script>
+
+
+        <script type="text/javascript">
+(function(url){
+	if(/(?:Chrome\/26\.0\.1410\.63 Safari\/537\.31|WordfenceTestMonBot)/.test(navigator.userAgent)){ return; }
+	var addEvent = function(evt, handler) {
+		if (window.addEventListener) {
+			document.addEventListener(evt, handler, false);
+		} else if (window.attachEvent) {
+			document.attachEvent('on' + evt, handler);
+		}
+	};
+	var removeEvent = function(evt, handler) {
+		if (window.removeEventListener) {
+			document.removeEventListener(evt, handler, false);
+		} else if (window.detachEvent) {
+			document.detachEvent('on' + evt, handler);
+		}
+	};
+	var evts = 'contextmenu dblclick drag dragend dragenter dragleave dragover dragstart drop keydown keypress keyup mousedown mousemove mouseout mouseover mouseup mousewheel scroll'.split(' ');
+	var logHuman = function() {
+		if (window.wfLogHumanRan) { return; }
+		window.wfLogHumanRan = true;
+		var wfscr = document.createElement('script');
+		wfscr.type = 'text/javascript';
+		wfscr.async = true;
+		wfscr.src = url + '&r=' + Math.random();
+		(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(wfscr);
+		for (var i = 0; i < evts.length; i++) {
+			removeEvent(evts[i], logHuman);
+		}
+	};
+	for (var i = 0; i < evts.length; i++) {
+		addEvent(evts[i], logHuman);
+	}
+})('//stm32f4-discovery.net/?wordfence_lh=1&hid=231E6FE4BF1E703FEE43EBAED79CC633');
+</script>
+<link rel="dns-prefetch" href="https://v0.wordpress.com/">
+<link rel="shortcut icon" href="https://stm32f4-discovery.net/wp-content/uploads/favicon.ico">
+<!--[if lt IE 9]>
+<script src="https://stm32f4-discovery.net/wp-content/themes/hueman/assets/front/js/ie/html5shiv-printshiv.min.js"></script>
+<script src="https://stm32f4-discovery.net/wp-content/themes/hueman/assets/front/js/ie/selectivizr.js"></script>
+<![endif]-->
+		<style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
+				<script type="text/javascript">
+			var cli_flush_cache=2;
+		</script>
+				<style type="text/css" id="wp-custom-css">
+			/*
+Welcome to Custom CSS!
+
+CSS (Cascading Style Sheets) is a kind of code that tells the browser how
+to render a web page. You may delete these comments and get started with
+your customizations.
+
+By default, your stylesheet will be loaded after the theme stylesheets,
+which means that your rules can take precedence and override the theme CSS
+rules. Just write here what you want to change, you don't need to copy all
+your theme's stylesheet content.
+*/
+.w3eden {
+/*background: #123456;*/
+	background: #ffffff;
+	background: #ffffff;
+/* Old browsers */
+	background: -moz-linear-gradient(top,#ffffff 0%,#D0DCE8 100%);
+/* FF3.6+ */
+	background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#ffffff),color-stop(100%,#D0DCE8));
+/* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,#ffffff 0%,#D0DCE8 100%);
+/* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,#ffffff 0%,#D0DCE8 100%);
+/* Opera 11.10+ */
+	background: -ms-linear-gradient(top,#ffffff 0%,#D0DCE8 100%);
+/* IE10+ */
+	background: linear-gradient(to bottom,#ffffff 0%,#D0DCE8 100%);
+/* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff',endColorstr='#D0DCE8',GradientType=0);
+/* IE6-9 */
+}
+
+table th {
+	vertical-align: center !important;
+	background: #E1E1E1;
+}
+
+small {
+	font-size: 60% !important;
+}
+
+/* Mesi logo */
+#header-ads {
+	display: block !important;
+}		</style>
+	            <style>
+                @import url('https://fonts.googleapis.com/css?family=Cantarell:400,700');
+
+                .w3eden .fetfont,
+                .w3eden .btn,
+                .w3eden .btn.wpdm-front h3.title,
+                .w3eden .wpdm-social-lock-box .IN-widget a span:last-child,
+                .w3eden #xfilelist .panel-heading,
+                .w3eden .wpdm-frontend-tabs a,
+                .w3eden .alert:before,
+                .w3eden .panel .panel-heading,
+                .w3eden .discount-msg,
+                .w3eden .panel.dashboard-panel h3,
+                .w3eden #wpdm-dashboard-sidebar .list-group-item,
+                .w3eden #package-description .wp-switch-editor,
+                .w3eden .w3eden.author-dashbboard .nav.nav-tabs li a,
+                .w3eden .wpdm_cart thead th,
+                .w3eden #csp .list-group-item,
+                .w3eden .modal-title {
+                    font-family: Cantarell, sans-serif;
+                    text-transform: uppercase;
+                    font-weight: 700;
+                }
+                .w3eden #csp .list-group-item{
+                    text-transform: unset;
+                }
+            </style>
+            <meta data-pso-pv="1.2.1" data-pso-pt="singlePost" data-pso-th="60cc5c9124fd11d1f2c4b37a594ba410"><script async="" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/f(1).txt"></script><script pagespeed_no_defer="" data-pso-version="20170403_083938">window.dynamicgoogletags={config:[]};dynamicgoogletags.config=["ca-pub-1510671897088135",[[[["DIV",null,"categories-3",[]],["10px","10px",0],3,[0],"6044623402",0,null,null,10],[["NAV",0,null,[]],["10px","10px",1],3,[2],"7521356607",0,null,null,5],[["ARTICLE",0,null,["tag-serial-peripheral-interface"],2],["10px","14px",0],0,[0],"8998089802",0,null,null,14]]],[[[[null,[[0,19]],null,16,1,1],[null,[[180,199]],null,17,1,1],[null,[[320,339]],null,32,1,1]],[[["BODY",0,null,[]],["10px","10px",1],1,[4],null,0,null,null,2],[["HEADER",0,null,[]],["10px","10px",1],2,[2],null,0,null,null,4],[["HEADER",0,null,[]],["10px","10px",1],3,[2],null,0,null,null,4],[["NAV",0,null,[]],["10px","10px",1],0,[4],null,0,null,null,5],[["NAV",0,null,[]],["10px","10px",1],3,[0],null,0,null,null,5],[["DIV",null,"page",[]],["10px","10px",0],3,[3],null,0,null,null,4],[["DIV",null,null,["main"]],["10px","10px",0],3,[3],null,0,null,null,6],[["LI",null,null,["category"]],["10px","10px",1],1,[2],null,0,null,null,11],[["LI",null,null,["category"]],["10px","10px",1],2,[2],null,0,null,null,11],[["DIV",null,null,["author-bio"]],["10px","40px",0],0,[1],null,0,null,null,10],[["DIV",null,null,["author-bio"]],["10px","40px",0],3,[1],null,0,null,null,10],[["DIV",null,"disqus_thread",[]],["10px","10px",0],0,[1],null,0,null,null,10],[["DIV",null,"disqus_thread",[]],["10px","10px",0],3,[1],null,0,null,null,10],[["LI",null,null,["previous"]],["10px","10px",0],1,[1],null,0,null,null,11],[["DIV",null,"top-posts-3",[]],["10px","10px",0],0,[1],null,0,null,null,10],[["DIV",null,"top-posts-3",[]],["10px","10px",0],3,[1],null,0,null,null,10],[["DIV",null,"recent-comments-3",[]],["10px","10px",0],3,[1],null,0,null,null,10],[["DIV",null,"categories-3",[]],["10px","10px",0],3,[1],null,0,null,null,10],[["DIV",null,"recent-posts-2",[]],["10px","10px",0],3,[1],null,0,null,null,10],[["TABLE",null,"wp-calendar",[]],["10px","10px",0],3,[1],null,0,null,null,12],[["DIV",null,"archives-3",[]],["10px","10px",0],3,[1],null,0,null,null,10],[["DIV",null,"email-subscribers-2",[]],["10px","10px",0],0,[1],null,0,null,null,10],[["DIV",null,"email-subscribers-2",[]],["10px","10px",0],3,[1],null,0,null,null,10],[["DIV",null,"polls-widget-2",[]],["10px","10px",0],3,[1],null,0,null,null,10],[["DIV",null,"paypal_support_widget",[]],["10px","10px",0],3,[1],null,0,null,null,12],[["DIV",null,"search-2",[]],["10px","10px",0],3,[1],null,0,null,null,10],[["DIV",null,"text-4",[]],["10px","10px",0],3,[1],null,0,null,null,10],[["DIV",null,"text-5",[]],["10px","10px",0],3,[3],null,0,null,null,10],[["DIV",null,"copyright",[]],["10px","10px",0],0,[3],null,0,null,null,9],[["DIV",null,"copyright",[]],["10px","10px",0],3,[5],null,0,null,null,9],[["ARTICLE",0,null,["tag-serial-peripheral-interface"],1],["10px","15px",0],0,[0],null,0,null,null,14],[["ARTICLE",0,null,["tag-serial-peripheral-interface"],2],["10px","14px",0],0,[0],null,0,null,null,14],[["ARTICLE",0,null,["tag-serial-peripheral-interface"],-1],["10px","15px",0],3,[0],null,0,null,null,14],[["SECTION",null,"footer-ads",[]],["10px","10px",0],0,[3],null,0,null,null,5],[["BODY",0,null,[]],["10px","10px",1],2,[5],null,0,null,null,2],[["DIV",null,"wrapper",[]],["10px","10px",0],3,[5],null,0,null,null,3],[["SECTION",null,"footer-bottom",[]],["10px","10px",0],3,[5],null,0,null,null,5],[["LI",null,null,["next"]],["10px","10px",0],1,[1],null,0,null,null,11],[["ARTICLE",0,null,["tag-serial-peripheral-interface"],3],["10px","10px",0],0,[0],null,0]],["4031336600","5508069809","6984803003","8461536204","9938269402"],["ARTICLE",null,null,["tag-serial-peripheral-interface"]],"20170214_040801",6]],"WordPressSinglePost","4852675400",null,0.01,null,[null,1494911916365],0.01,1,null,null,"http://stm32f4-discovery.net"];(function(){var h=this,aa=function(a){var b=typeof a;if("object"==b)if(a){if(a instanceof Array)return"array";if(a instanceof Object)return b;var c=Object.prototype.toString.call(a);if("[object Window]"==c)return"object";if("[object Array]"==c||"number"==typeof a.length&&"undefined"!=typeof a.splice&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("splice"))return"array";if("[object Function]"==c||"undefined"!=typeof a.call&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("call"))return"function"}else return"null";
+else if("function"==b&&"undefined"==typeof a.call)return"object";return b},p=function(a){return"number"==typeof a},ba=function(a,b){var c=Array.prototype.slice.call(arguments,1);return function(){var b=c.slice();b.push.apply(b,arguments);return a.apply(this,b)}},r=function(a,b){function c(){}c.prototype=b.prototype;a.Ra=b.prototype;a.prototype=new c;a.prototype.constructor=a;a.Ta=function(a,c,f){for(var d=Array(arguments.length-2),e=2;e<arguments.length;e++)d[e-2]=arguments[e];return b.prototype[c].apply(a,
+d)}};var ca=String.prototype.trim?function(a){return a.trim()}:function(a){return a.replace(/^[\s\xa0]+|[\s\xa0]+$/g,"")},da=function(a,b){return a<b?-1:a>b?1:0},ea=function(a){return String(a).replace(/\-([a-z])/g,function(a,c){return c.toUpperCase()})};var fa=Array.prototype.forEach?function(a,b,c){Array.prototype.forEach.call(a,b,c)}:function(a,b,c){for(var d=a.length,e="string"==typeof a?a.split(""):a,f=0;f<d;f++)f in e&&b.call(c,e[f],f,a)};var ga=function(a){ga[" "](a);return a};ga[" "]=function(){};var ia=function(a,b){var c=ha;Object.prototype.hasOwnProperty.call(c,a)||(c[a]=b(a))};var t;a:{var ja=h.navigator;if(ja){var ka=ja.userAgent;if(ka){t=ka;break a}}t=""}var v=function(a){return-1!=t.indexOf(a)};var la=v("Opera"),w=v("Trident")||v("MSIE"),ma=v("Edge"),na=v("Gecko")&&!(-1!=t.toLowerCase().indexOf("webkit")&&!v("Edge"))&&!(v("Trident")||v("MSIE"))&&!v("Edge"),oa=-1!=t.toLowerCase().indexOf("webkit")&&!v("Edge"),pa=function(){var a=h.document;return a?a.documentMode:void 0},qa;
+a:{var ra="",sa=function(){var a=t;if(na)return/rv\:([^\);]+)(\)|;)/.exec(a);if(ma)return/Edge\/([\d\.]+)/.exec(a);if(w)return/\b(?:MSIE|rv)[: ]([^\);]+)(\)|;)/.exec(a);if(oa)return/WebKit\/(\S+)/.exec(a);if(la)return/(?:Version)[ \/]?(\S+)/.exec(a)}();sa&&(ra=sa?sa[1]:"");if(w){var ta=pa();if(null!=ta&&ta>parseFloat(ra)){qa=String(ta);break a}}qa=ra}
+var ua=qa,ha={},va=function(a){ia(a,function(){for(var b=0,c=ca(String(ua)).split("."),d=ca(String(a)).split("."),e=Math.max(c.length,d.length),f=0;0==b&&f<e;f++){var g=c[f]||"",k=d[f]||"";do{g=/(\d*)(\D*)(.*)/.exec(g)||["","","",""];k=/(\d*)(\D*)(.*)/.exec(k)||["","","",""];if(0==g[0].length&&0==k[0].length)break;b=da(0==g[1].length?0:parseInt(g[1],10),0==k[1].length?0:parseInt(k[1],10))||da(0==g[2].length,0==k[2].length)||da(g[2],k[2]);g=g[3];k=k[3]}while(0==b)}return 0<=b})},wa;var xa=h.document;
+wa=xa&&w?pa()||("CSS1Compat"==xa.compatMode?parseInt(ua,10):5):void 0;var x=function(){},ya="function"==typeof Uint8Array,z=function(a,b,c){a.a=null;b||(b=[]);a.Va=void 0;a.M=-1;a.l=b;a:{if(a.l.length){b=a.l.length-1;var d=a.l[b];if(d&&"object"==typeof d&&"array"!=aa(d)&&!(ya&&d instanceof Uint8Array)){a.R=b-a.M;a.G=d;break a}}a.R=Number.MAX_VALUE}a.Ua={};if(c)for(b=0;b<c.length;b++)d=c[b],d<a.R?(d+=a.M,a.l[d]=a.l[d]||y):a.G[d]=a.G[d]||y},y=[],A=function(a,b){if(b<a.R){b+=a.M;var c=a.l[b];return c===y?a.l[b]=[]:c}c=a.G[b];return c===y?a.G[b]=[]:c},Aa=function(a){a=
+A(za,a);return null==a?a:+a},B=function(a,b,c){b<a.R?a.l[b+a.M]=c:a.G[b]=c},C=function(a,b,c){a.a||(a.a={});if(!a.a[c]){var d=A(a,c);d&&(a.a[c]=new b(d))}return a.a[c]},D=function(a,b,c){a.a||(a.a={});if(!a.a[c]){for(var d=A(a,c),e=[],f=0;f<d.length;f++)e[f]=new b(d[f]);a.a[c]=e}b=a.a[c];b==y&&(b=a.a[c]=[]);return b},Ba=function(a,b,c){a.a||(a.a={});c=c||[];for(var d=[],e=0;e<c.length;e++)d[e]=E(c[e]);a.a[b]=c;B(a,b,d)},Ca=function(a){if(a.a)for(var b in a.a){var c=a.a[b];if("array"==aa(c))for(var d=
+0;d<c.length;d++)c[d]&&E(c[d]);else c&&E(c)}},E=function(a){Ca(a);return a.l};x.prototype.toString=function(){Ca(this);return this.l.toString()};var Da=function(a){var b;if("array"==aa(a)){for(var c=Array(a.length),d=0;d<a.length;d++)null!=(b=a[d])&&(c[d]="object"==typeof b?Da(b):b);return c}if(ya&&a instanceof Uint8Array)return new Uint8Array(a);c={};for(d in a)null!=(b=a[d])&&(c[d]="object"==typeof b?Da(b):b);return c};var Ea=function(a,b){this.events=[];this.Ga=b||h;var c=null;b&&(b.google_js_reporting_queue=b.google_js_reporting_queue||[],this.events=b.google_js_reporting_queue,c=b.google_measure_js_timing);this.ia=null!=c?c:Math.random()<a};Ea.prototype.disable=function(){fa(this.events,this.ya,this);this.events.length=0;this.ia=!1};Ea.prototype.ya=function(a){var b=this.Ga.performance;a&&b&&b.clearMarks&&(b.clearMarks("goog_"+a.uniqueId+"_start"),b.clearMarks("goog_"+a.uniqueId+"_end"))};var Fa=function(){var a=!1;try{var b=Object.defineProperty({},"passive",{get:function(){a=!0}});h.addEventListener("test",null,b)}catch(c){}return a}();var Ha=function(){var a=Ga;try{var b;if(b=!!a&&null!=a.location.href)a:{try{ga(a.foo);b=!0;break a}catch(c){}b=!1}return b}catch(c){return!1}},Ia=function(a,b){for(var c in a)Object.prototype.hasOwnProperty.call(a,c)&&b.call(void 0,a[c],c,a)};var Ja=function(a,b,c,d,e){this.la=c||4E3;this.H=a||"&";this.wa=b||",$";this.T=void 0!==d?d:"trn";this.Sa=e||null;this.va=!1;this.V={};this.Ja=0;this.L=[]},Ma=function(a,b,c,d){b=b+"//"+c+d;var e=Ka(a)-d.length-0;if(0>e)return"";a.L.sort(function(a,b){return a-b});d=null;c="";for(var f=0;f<a.L.length;f++)for(var g=a.L[f],k=a.V[g],m=0;m<k.length;m++){if(!e){d=null==d?g:d;break}var l=La(k[m],a.H,a.wa);if(l){l=c+l;if(e>=l.length){e-=l.length;b+=l;c=a.H;break}else a.va&&(c=e,l[c-1]==a.H&&--c,b+=l.substr(0,
+c),c=a.H,e=0);d=null==d?g:d}}f="";a.T&&null!=d&&(f=c+a.T+"="+(a.Sa||d));return b+f+""},Ka=function(a){if(!a.T)return a.la;var b=1,c;for(c in a.V)b=c.length>b?c.length:b;return a.la-a.T.length-b-a.H.length-1},La=function(a,b,c,d,e){var f=[];Ia(a,function(a,k){(a=Na(a,b,c,d,e))&&f.push(k+"="+a)});return f.join(b)},Na=function(a,b,c,d,e){if(null==a)return"";b=b||"&";c=c||",$";"string"==typeof c&&(c=c.split(""));if(a instanceof Array){if(d=d||0,d<c.length){for(var f=[],g=0;g<a.length;g++)f.push(Na(a[g],
+b,c,d+1,e));return f.join(c[d])}}else if("object"==typeof a)return e=e||0,2>e?encodeURIComponent(La(a,b,c,d,e+1)):"...";return encodeURIComponent(String(a))};var Ra=function(a,b,c,d){var e=Pa;if((c?e.Pa:Math.random())<(d||e.za))try{var f;b instanceof Ja?f=b:(f=new Ja,Ia(b,function(a,b){var c=f,d=c.Ja++,e={};e[b]=a;a=[e];c.L.push(d);c.V[d]=a}));var g=Ma(f,e.Ma,e.Ba,e.La+a+"&");g&&Qa(g)}catch(k){}},Qa=function(a){h.google_image_requests||(h.google_image_requests=[]);var b=h.document.createElement("img");b.src=a;h.google_image_requests.push(b)};var Sa;if(!(Sa=!na&&!w)){var Ta;if(Ta=w)Ta=9<=Number(wa);Sa=Ta}Sa||na&&va("1.9.1");w&&va("9");var F=function(a,b,c,d){this.top=a;this.right=b;this.bottom=c;this.left=d};F.prototype.floor=function(){this.top=Math.floor(this.top);this.right=Math.floor(this.right);this.bottom=Math.floor(this.bottom);this.left=Math.floor(this.left);return this};var Ua=document,Va=window;var Wa=!!window.google_async_iframe_id,Ga=Wa&&window.parent||window;var Pa,G;if(Wa&&!Ha()){var Xa="."+Ua.domain;try{for(;2<Xa.split(".").length&&!Ha();)Ua.domain=Xa=Xa.substr(Xa.indexOf(".")+1),Ga=window.parent}catch(a){}Ha()||(Ga=window)}G=Ga;var Ya=new Ea(1,G);Pa=new function(){this.Ma="http:"===Va.location.protocol?"http:":"https:";this.Ba="pagead2.googlesyndication.com";this.La="/pagead/gen_204?id=";this.za=.01;this.Pa=Math.random()};
+if("complete"==G.document.readyState)G.google_measure_js_timing||Ya.disable();else if(Ya.ia){var Za=function(){G.google_measure_js_timing||Ya.disable()};G.addEventListener?G.addEventListener("load",Za,Fa?void 0:!1):G.attachEvent&&G.attachEvent("onload",Za)};var H=function(a){this.na={};this.na.c=a;this.o=[];this.u=null;this.v=[];this.ea=0};H.prototype.g=function(a){for(var b=0;b<this.o.length;b++)if(this.o[b]==a)return this;this.o.push(a);return this};var $a=function(a,b){a.u=a.u?a.u:b;return a};H.prototype.C=function(a){for(var b=0;b<this.v.length;b++)if(this.v[b]==a)return this;this.v.push(a);return this};
+H.prototype.getData=function(a){var b=this.na,c={},d;for(d in b)c[d]=b[d];0<this.ea&&(c.t=this.ea);c.err=this.o.join();c.warn=this.v.join();if(this.u){c.excp_n=this.u.name;c.excp_m=this.u.message&&this.u.message.substring(0,512);if(b=this.u.stack){d=this.u.stack;try{-1==d.indexOf("")&&(d="\n"+d);for(var e;d!=e;)e=d,d=d.replace(/((https?:\/..*\/)[^\/:]*:\d+(?:.|\n)*)\2/,"$1");b=d.replace(/\n */g,"\n")}catch(f){b=""}}c.excp_s=b}c.w=0<a.innerWidth?a.innerWidth:null;c.h=0<a.innerHeight?a.innerHeight:
+null;return c};var bb=function(a,b){ab(a,a.Ea,a.X,b)},ab=function(a,b,c,d){var e=d.u;d=d.getData(a.K);a.Ha?(d.type=b,a.K.console.log(d),e&&a.K.console.error(e)):0<c&&(d.r=c,Ra(b,d,"jserror"!=b,c))};var I=function(a){return a.dynamicgoogletags=a.dynamicgoogletags||{}};var J=function(a){z(this,a,cb)};r(J,x);var cb=[4];J.prototype.getId=function(){return A(this,3)};var K=function(a){z(this,a,null)};r(K,x);var db=function(a){z(this,a,null)};r(db,x);var L=function(a){return C(a,J,1)},fb=function(a){z(this,a,eb)};r(fb,x);var eb=[1];fb.prototype.i=function(){return D(this,db,1)};fb.prototype.pa=function(a){Ba(this,1,a)};var M=function(a){z(this,a,gb)};r(M,x);var gb=[2];M.prototype.ka=function(){return A(this,3)};M.prototype.qa=function(a){B(this,3,a)};var hb=function(a){z(this,a,null)};r(hb,x);var N=function(a){z(this,a,ib)};r(N,x);var ib=[1,2,3];N.prototype.i=function(){return D(this,db,2)};
+N.prototype.pa=function(a){Ba(this,2,a)};var O=function(a){z(this,a,jb)};r(O,x);var jb=[3];O.prototype.A=function(){return A(this,1)};O.prototype.D=function(){return C(this,fb,2)};O.prototype.O=function(){return A(this,4)};O.prototype.ka=function(){return A(this,5)};O.prototype.qa=function(a){B(this,5,a)};O.prototype.N=function(){return C(this,kb,9)};var kb=function(a){z(this,a,null)};r(kb,x);var lb=function(a){this.m=a;this.sa=[]};lb.prototype.f=function(){return 0<D(this.m,N,3).length?D(this.m,N,3)[0]:null};var mb=function(a){var b=["adsbygoogle-placeholder"];a=a.className?a.className.split(/\s+/):[];for(var c={},d=0;d<a.length;++d)c[a[d]]=!0;for(d=0;d<b.length;++d)if(!c[b[d]])return!1;return!0};var nb=function(a,b){for(var c=0;c<b.length;c++){var d=b[c],e=ea(d.Wa);a[e]=d.value}},qb=function(a,b){var c=ob;b.setAttribute("data-adsbygoogle-status","reserved");b={element:b};(c=c&&c.Na)&&(b.params=c);pb(a).push(b)},pb=function(a){return a.adsbygoogle=a.adsbygoogle||[]};var rb=function(a,b){if(!a)return!1;a=b.getComputedStyle?b.getComputedStyle(a,null):a.currentStyle;if(!a)return!1;a=a.cssFloat||a.styleFloat;return"left"==a||"right"==a},sb=function(a){for(a=a.previousSibling;a&&1!=a.nodeType;)a=a.previousSibling;return a?a:null},tb=function(a){return!!a.nextSibling||!!a.parentNode&&tb(a.parentNode)};var ub=function(a,b){var c=a.length;if(null!=c)for(var d=0;d<c;d++)b.call(void 0,a[d],d)};var vb=function(a,b,c,d){this.ma=a;this.$=b;this.aa=c;this.P=d};vb.prototype.query=function(a){var b=[];try{b=a.querySelectorAll(this.ma)}catch(f){}if(!b.length)return[];a=b;b=a.length;if(0<b){for(var c=Array(b),d=0;d<b;d++)c[d]=a[d];a=c}else a=[];a=wb(this,a);p(this.$)&&(b=this.$,0>b&&(b+=a.length),a=0<=b&&b<a.length?[a[b]]:[]);if(p(this.aa)){b=[];for(c=0;c<a.length;c++){var d=xb(a[c]),e=this.aa;0>e&&(e+=d.length);0<=e&&e<d.length&&b.push(d[e])}a=b}return a};
+vb.prototype.toString=function(){return JSON.stringify({nativeQuery:this.ma,occurrenceIndex:this.$,paragraphIndex:this.aa,ignoreMode:this.P})};
+var wb=function(a,b){if(null==a.P)return b;switch(a.P){case 1:return b.slice(1);case 2:return b.slice(0,b.length-1);case 3:return b.slice(1,b.length-1);case 0:return b;default:throw Error("Unknown ignore mode: "+a.P);}},xb=function(a){var b=[];ub(a.getElementsByTagName("p"),function(a){100<=yb(a)&&b.push(a)});return b},yb=function(a){if(3==a.nodeType)return a.length;if(1!=a.nodeType||"SCRIPT"==a.tagName)return 0;var b=0;ub(a.childNodes,function(a){b+=yb(a)});return b},zb=function(a){return 0==a.length||
+isNaN(a[0])?a:"\\"+(30+parseInt(a[0],10))+" "+a.substring(1)};var Ab=function(a,b){var c=0,d=A(a,6);if(void 0!==d)switch(d){case 0:c=1;break;case 1:c=2;break;case 2:c=3}var d=null,e=A(a,7);if(A(a,1)||a.getId()||0<A(a,4).length){var f=a.getId(),g=A(a,1),e=A(a,4),d=A(a,2);a=A(a,5);var k="";g&&(k+=g);f&&(k+="#"+zb(f));if(e)for(f=0;f<e.length;f++)k+="."+zb(e[f]);d=(e=k)?new vb(e,d,a,c):null}else e&&(d=new vb(e,A(a,2),A(a,5),c));return d?d.query(b):[]},Bb=function(a,b){if(a==b)return!0;if(!a||!b||A(a,1)!=A(b,1)||A(a,2)!=A(b,2)||a.getId()!=b.getId()||A(a,7)!=A(b,
+7)||A(a,5)!=A(b,5)||A(a,6)!=A(b,6))return!1;a=A(a,4);b=A(b,4);if(a||b)if(a&&b&&a.length==b.length)for(var c=0;c<a.length;c++){if(a[c]!=b[c])return!1}else return!1;return!0};var Cb=function(a){a=a.document;return("CSS1Compat"==a.compatMode?a.documentElement:a.body)||{}},Db=function(a){return void 0===a.pageYOffset?(a.document.documentElement||a.document.body.parentNode||a.document.body).scrollTop:a.pageYOffset};var Eb=function(a,b){b=L(b);if(!b)return null;a=Ab(b,a);return 0<a.length?a[0]:null},Gb=function(a,b){b=Fb(a,b,!0);return p(b)&&!(b<=Cb(a).clientHeight)},Hb=function(a,b){return a.body?b-a.body.getBoundingClientRect().top:b},Fb=function(a,b,c){if(!c||!p(A(b,8))){var d=Eb(a.document,b);if(d){var e=null!=C(b,K,2)?A(C(b,K,2),3):void 0;c=a.document.createElement("div");c.className="googlepublisherpluginad";var f=c.style;f.textAlign="center";f.width="100%";f.height="0px";f.clear=e?"both":"none";Ib(c,d,
+A(b,3));d=c.getBoundingClientRect().top+Db(a);c.parentNode.removeChild(c);B(b,8,d)}}b=A(b,8);return p(b)?b-Db(a):null},Jb={0:0,1:1,2:2,3:3},Kb={0:"auto",1:"horizontal",2:"vertical",3:"rectangle"},Lb=function(a,b){a.sort(function(a,d){a=Fb(b,a,!0);a=p(a)?a:Number.POSITIVE_INFINITY;d=Fb(b,d,!0);d=p(d)?d:Number.POSITIVE_INFINITY;return a-d})},Ib=function(a,b,c){switch(Jb[c]){case 0:b.parentNode&&b.parentNode.insertBefore(a,b);break;case 3:if(c=b.parentNode){var d=b.nextSibling;if(d&&d.parentNode!=c)for(;d&&
+8==d.nodeType;)d=d.nextSibling;c.insertBefore(a,d)}break;case 1:b.insertBefore(a,b.firstChild);break;case 2:b.appendChild(a)}if(1!=b.nodeType?0:"INS"==b.tagName&&mb(b))b.style.display="block"};var ob=new function(){this.ha="googlepublisherpluginad";this.Na={google_tag_origin:"pso"}},P=function(a){this.b=a;this.j=[];this.da=0;this.o=[];this.v=[];this.Y=null;this.oa=!1},Mb=function(a,b){a=C(a.f(),J,4);if(!(a&&b&&A(b,1)==A(a,1)&&b.getId()==a.getId()&&p(A(b,2))&&p(A(b,5))))return!1;a=A(a,4);b=A(b,4);if(a.length!=b.length)return!1;for(var c=0;c<a.length;++c)if(b[c]!=a[c])return!1;return!0},Nb=function(a){var b=p(void 0)?void 0:20,c=a.f(),d=c.i(),e=C(c,J,4);if(!(a.oa||0>=b)&&e&&0!=Ab(e,a.b.document).length){a.oa=
+!0;for(var c=[],f=0;f<d.length;++f){var g=d[f],k=L(g);if(Mb(a,k)){var m=A(k,2),k=A(k,5);null!=m&&null!=k&&0<=m&&0<=k&&(!c[m]||A(L(c[m]),5)<k)&&(c[m]=g)}}k=0;d=Ab(e,a.b.document);for(m=0;m<c.length&&k<b;++m){var e=k,f=a,l=d[m],g=c[m],k=b-k,u=f.f().i(),q=0;if(l&&g){l=xb(l).length;switch(A(L(g),6)){case 0:case 1:--l;break;case 2:l-=2}for(var n=A(L(g),5)+1;n<l&&q<k;++n){var Oa=new g.constructor(Da(E(g))),Hc=L(Oa);B(Hc,5,n);u.push(Oa);q++}}q&&f.f().pa(u);k=e+q}}};
+P.prototype.g=function(a){for(var b=0;b<this.o.length;++b)if(this.o[b]==a)return;this.o.push(a)};P.prototype.C=function(a){for(var b=0;b<this.v.length;++b)if(this.v[b]==a)return;this.v.push(a)};
+var Ob=function(a,b,c){var d=Jb[A(b,3)],e=Eb(a.b.document,b);if(e){var f=L(b)?A(L(b),2):void 0,g;a:{g=a.b;if(null!=f)switch(d){case 0:g=rb(sb(e),g);break a;case 3:g=rb(e,g);break a;case 2:f=e.lastChild;g=rb(f?1==f.nodeType?f:sb(f):null,g);break a}g=!1}if(!g&&(c||2!=d||tb(e))&&(c=1==d||2==d?e:e.parentNode,!c||(1!=c.nodeType?0:"INS"==c.tagName&&mb(c))||!(0>=c.offsetWidth)))a:if(A(b,7))a.C(8);else{b:if(A(b,5))c=A(b,5);else{if(c=Q(a).f())if(c=A(c,3),a.da<c.length){c=c[a.da++];break b}a.g(4);c=null}if(null!=
+c){B(b,7,!0);d=[];(g=a.O())&&d.push(g);g=Q(a).sa;for(f=0;f<g.length;++f)d.push(g[f]);p(A(b,9))&&d.push("pso-lv-"+A(b,9));var k=a.b.document;g=a.A();var f=A(b,6),f=null!=f?Kb[f]:f,m=C(b,K,2),l={};m&&(l.ra=A(m,1),l.ga=A(m,2),l.xa=!!A(m,3));var m=c,u=ob,q=k.createElement("div"),n=q.style;n.textAlign="center";n.width="100%";n.height="auto";n.clear=l.xa?"both":"none";l.Ka&&nb(n,l.Ka);k=k.createElement("ins");n=k.style;n.display="block";n.margin="auto";n.backgroundColor="transparent";l.ra&&(n.marginTop=
+l.ra);l.ga&&(n.marginBottom=l.ga);l.ta&&nb(n,l.ta);q.appendChild(k);k.setAttribute("data-ad-format",f?f:"auto");if(f=u&&u.ha)q.className=f;k.className="adsbygoogle";k.setAttribute("data-ad-client",g);m&&k.setAttribute("data-ad-slot",m);d.length&&k.setAttribute("data-ad-channel",d.join("+"));Ib(q,e,A(b,3));try{qb(a.b,k)}catch(Oa){A(b,5)!=c&&a.da--;B(b,7,!1);a.C(6);q&&q.parentNode&&q.parentNode.removeChild(q);break a}a.j.push(q)}}}},Pb=function(a,b){for(var c=Number.POSITIVE_INFINITY,d=0;d<a.j.length;++d)var e=
+a.j[d].getBoundingClientRect().top,f=a.j[d].getBoundingClientRect().bottom,c=Math.min(c,b<e?e-b:f<b?b-f:0);return c},Q=function(a){a=I(a.b).ps||null;if(!a)throw Error("No placementState");return a},Qb=function(a,b){var c=Q(a).m;if(!c||!c.A())return a.g(5),!1;c=D(c,N,3)[0];return c?A(c,3).length<b?(a.g(4),a.g(5),!1):!0:(a.g(5),!1)};P.prototype.A=function(){return Q(this).m.A()||""};P.prototype.O=function(){return Q(this).m.O()||void 0};P.prototype.D=function(){return Q(this).m.D()||new fb};
+P.prototype.f=function(){var a=Q(this).f();if(!a)throw Error("No mConfig");return a};var Rb=function(a){a=A(a.f(),6);return null!=a&&0<a};var Sb=function(){this.I=this.J=this.ba=null};var R=function(a){P.call(this,a)};r(R,P);R.prototype.apply=function(a){var b;(b=Q(this).m)&&b.A()&&b.D()?b=!0:(this.g(5),b=!1);if(b){b=this.D().i();for(var c=0;c<b.length;c++){var d=b[c];A(d,7)||Ob(this,d,a)}}};R.prototype.B=function(){return(0==this.D().i().length||0<this.j.length)&&0==this.o.length};var Tb=function(a){P.call(this,a);if(Qb(this,0)){a=this.D().i();for(var b=this.f().i(),c=0;c<a.length;c++){var d=a[c],e;a:{e=d;var f=b;if(e&&L(e))for(var g=0;g<f.length;g++){var k=f[g];if(A(e,3)==A(k,3)&&Bb(L(e),L(k))){e=k;break a}}e=null}e&&C(e,K,2)&&(e=C(e,K,2),d.a||(d.a={}),f=e?E(e):e,d.a[2]=e,B(d,2,f))}}};r(Tb,R);var Vb=function(a,b){var c=void 0===b.pageXOffset?(b.document.documentElement||b.document.body.parentNode||b.document.body).scrollLeft:b.pageXOffset,d=Db(b);if(a.getBoundingClientRect)return a=a.getBoundingClientRect(),Ub(a)?new F(a.top+d,a.right+c,a.bottom+d,a.left+c):new F(0,0,0,0);b=b.document.createRange();b.selectNodeContents(a);return b.collapsed?new F(0,0,0,0):b.getBoundingClientRect?(a=b.getBoundingClientRect(),Ub(a)?new F(a.top+d,a.right+c,a.bottom+d,a.left+c):new F(0,0,0,0)):new F(0,0,0,
+0)},Ub=function(a){return!!a&&p(a.top)&&!isNaN(a.top)&&p(a.right)&&!isNaN(a.right)&&p(a.bottom)&&!isNaN(a.bottom)&&p(a.left)&&!isNaN(a.left)};var $b=function(a){this.K=a;this.Fa=Wb(a);this.ua=S("ins.adsbygoogle",a);this.fa=Xb(a);this.Oa=S("[__lsu_res=reserved]",a);this.U=[];a=Yb(this);for(var b=0;b<a.length;b++)this.U.push(new Zb(a[b]))},Wb=function(a){var b=a.googletag;if(!b||"function"!=typeof b.pubads)return S("div[id^=div-gpt-ad]",a);var c=[];try{for(var d=b.pubads().getSlots(),b=0;b<d.length;b++){var e=d[b].getSlotElementId(),f=a.document.getElementById(e);null!=f&&c.push(f)}}catch(g){Ra("ladd_evt",{ok:0,err:g.toString()},!0,.1)}return c},
+Xb=function(a){return S("iframe[id^=aswift_],iframe[id^=google_ads_frame]",a)},S=function(a,b){return Array.prototype.slice.call(b.document.querySelectorAll(a))},Yb=function(a){return[].concat(a.Fa,a.ua,a.fa,a.Oa)},Zb=function(a){this.Ca=a;this.W=null};var T=function(a){P.call(this,a)};r(T,P);T.prototype.apply=function(){};T.prototype.B=function(){var a;if(Rb(this)){a=this.b;var b=Wb(a);a=0<[].concat(b,S("ins.adsbygoogle",a),Xb(a),S("[__lsu_res=reserved]",a)).length}else a=!0;return a};var ac=function(a){P.call(this,a);this.F=null};r(ac,P);
+ac.prototype.apply=function(a){if(a&&Qb(this,2)){Nb(this);a=Cb(this.b).clientHeight||640;null==this.F&&(this.F=new $b(this.b));var b=this.F.fa.length;if(!(5<=b)){var b=Math.min(2,5-b),c=this.f().i();Lb(c,this.b);for(var d=0;d<c.length&&this.j.length<b;++d){var e=c[d];if(Gb(this.b,e)){var f=Fb(this.b,e,!0);if(void 0!==f){var g;a:{g=this.F;for(var k=a,m=f,l=0;l<g.U.length;l++){var u=m,q=k,n;n=g.U[l];n.W||(n.W=Vb(n.Ca,g.K));n=n.W;if(n.top-q<u&&u<n.bottom+q){g=!0;break a}}g=!1}g||Pb(this,f)<a||Ob(this,
+e,!0)}}}0==this.j.length&&this.C(1)}}};ac.prototype.B=function(){return Rb(this)?0<Yb(this.F).length:!0};var bc=function(a){P.call(this,a);this.Z=!1};r(bc,T);
+bc.prototype.apply=function(a){if(a&&!this.Z){var b;a:{var c=this.b.document;b=c.body;if(a&&b){a=this.A();var d=ob,e=c.createElement("div");e.style.display="block";if(d=d&&d.ha)e.className=d;c=c.createElement("ins");c.className="adsbygoogle";c.setAttribute("data-ad-client",a);c.setAttribute("data-reactive-ad-format","1");c.style.display="none";e.appendChild(c);Ib(e,b,2);try{qb(this.b,c)}catch(f){this.C(6);e&&e.parentNode&&e.parentNode.removeChild(e);b=5;break a}this.j.push(e);b=0}else b=4}this.Z=
+0==b}};bc.prototype.B=function(){return this.Z&&T.prototype.B.call(this)};var cc=function(a){P.call(this,a);a=Cb(a).clientHeight;this.Aa=.1*a;this.Ia=.75*a};r(cc,P);
+cc.prototype.apply=function(a){if(Qb(this,3)&&!this.B()){Nb(this);var b=this.f().i();Lb(b,this.b);var c;c=this.Aa;var d;d=document;d=d.querySelectorAll?d.querySelectorAll("header,#header,#masthead,.header,.site-header"):[];for(var e=d.length,f=0<e?d[0]:null,g=1;g<e;g++)d[g].getBoundingClientRect().top<f.getBoundingClientRect().top&&(f=d[g]);(d=f)&&(d=d.getBoundingClientRect())&&d.top!=d.bottom&&d.left!=d.right&&(c=Math.min(c,Hb(document,d.bottom)));for(d=0;d<b.length&&3>this.j.length;d++){e=b[d];
+var f=c,g=this.b.document,k=Fb(this.b,e,!1);!p(k)||Hb(g,k)<f?f=!1:(f=Pb(this,k),f=this.Ia<f);f&&(f=Gb(this.b,e),g=A(e,6)||0,f&&0==g&&B(e,6,3),!f&&a||Ob(this,e,a))}}};cc.prototype.B=function(){return 3==this.j.length};var U={};U[16]=R;U[17]=R;U[19]=T;U[29]=ac;U[33]=T;U[30]=bc;U[28]=cc;U[34]=cc;U[32]=Tb;U[1]=R;U[8]=T;U[11]=R;var dc=[19,29,33,30,16,32,17,34],ec=[16,19,33,30,17,1,6,8,11];var fc=function(a,b){a=a.google_ad_modifications=a.google_ad_modifications||{};(a.ad_channels=a.ad_channels||[]).push(b)};var gc=function(a){return 0>a||99<a?null:10>a?"0"+a:""+a};var hc=function(a,b){a=a.google_ad_modifications=a.google_ad_modifications||{};a=a.loeids=a.loeids||[];for(var c=0;c<b.length;c++)a.push(b[c])};var ic=function(a,b,c){this.ja=a;this.Da=c?c:new kb};ic.prototype.N=function(){return this.Da||new kb};var jc=function(a){if(!p(a))return!1;for(var b=0;b<dc.length;++b)if(a==dc[b])return!1;return!0},oc=function(){var a=V,b=kc,c=lc,d=b.f();if(!d)return mc(16);var e=null,f;a:{var g=D(d,M,1);for(f=0;f<g.length;++f){for(var k=!0,m=0;m<ec.length;++m)A(g[f],4)==ec[m]&&(k=!1);if(k){g=[];0==d.i().length&&g.push("PsoInvalidVariant");0==A(d,3).length&&g.push("PsoNoAdSlotCodes");f=g;break a}}f=[]}g=c.ja;if(0==f.length)a:{e=D(d,M,1);if(p(g))for(f=0;f<e.length;f++)if(k=e[f],U[A(k,4)])for(var m=D(k,hb,2),l=0;l<
+m.length;l++){var u=m[l],q=A(u,1),u=A(u,2);if(p(q)&&p(u)&&g>=q&&g<=u){e=k;break a}}e=null}else for(k=0;k<f.length;++k)b.sa.push(f[k]);if(!e){f=D(d,M,1);e={};for(k=0;k<f.length;k++)e[A(f[k],4)]=!0;f=null;e[19]||e[8]?f=19:e[16]||e[1]?f=16:0<d.i().length&&0<A(d,3).length&&e[34]&&(f=34);null!=f?(e=new M,B(e,6,3),B(e,4,f),16!=f&&19!=f&&e.qa("pso-ama-fallback")):e=null}(f=!e)||(!p(g)||800>g?f=!1:820>g?(hc(a,["26835111"]),f=!0):(840>g&&hc(a,["26835112"]),f=!1));if(f)return mc(16);(g=e.ka())&&fc(a,g);g=!0;
+A(c.N(),2)&&(Date.now?Date.now():+new Date)<A(c.N(),2)||(fc(a,"pso-ama-exd"),g=!1);A(b.m,11)&&(fc(a,"pso-ama-stl-tmp"),g=!1);g&&fc(a,"pso-ama-elig");2==A(e,6)&&(b=A(e,1),null!=b&&hc(a,[""+b]));if(g&&(2==A(e,6)||1==A(e,6))){d=D(d,M,1);if(null===c.ja)c=[];else{b={};c=[];for(g=0;g<d.length;g++)f=nc(d[g]),null==f||b[f]||(b[f]=!0,c.push(f));b=nc(e);if(null!=b){d=[];b=gc(b);g=!1;if(b)for(f=0;f<c.length;f++)k=gc(c[f]),b==k&&(g=!0),k&&d.push("950"+b+k);g||(d=[]);c=d}else c=[]}hc(a,c)}a=new Sb;a.ba=A(e,5);
+a.J=A(e,4);return a},mc=function(a){var b=new Sb;b.J=a;return b},pc=function(a){a=a.google_ad_modifications=a.google_ad_modifications||{};a.remove_ads_by_default=!0;a.ad_whitelist=[{ad_tag_origin:"pso"}];a.ad_blacklist=[];a.space_collapsing="slot"},nc=function(a){var b;switch(A(a,6)){case 1:b=A(a,4);break;case 2:b=A(a,7)}return null!=b?b:null};var qc=function(a){this.document=a};var W=function(a){H.call(this,a)};r(W,H);W.prototype.getData=function(a){var b=W.Ra.getData.call(this,a),c;a:{c=(new qc(a.document)).document.getElementsByTagName("script");for(var d=0;d<c.length;++d)if(c[d].hasAttribute("data-pso-version")){c=c[d].getAttribute("data-pso-version");break a}c=null}b.sv=c;if(d=I(a).ps||null){c=d.m;var d=d.f(),e=b.wpc;b.wpc=null!=e?e:c.A();b.su=A(c,14);b.tn=c.O();b.ev=d&&A(d,5)}if(a=I(a).ss||null)b.s=a.J,b.st=a.ba;return b};var rc=null,sc=!1,vc=function(a){var b=tc,c=uc;b.addEventListener?(a&&b.addEventListener("DOMContentLoaded",a,!1),c&&b.addEventListener("load",c,!1)):b.attachEvent&&c&&b.attachEvent("onload",c)},xc=function(a){p(rc)&&a.clearInterval&&(a.clearInterval(rc),rc=null);sc||wc(a,!1);wc(a,!0)},yc=function(a,b){try{xc(b);var c=I(b).ss||null;if(c&&c.I){var d=c.I,e=d.B(),f=d.o,g=d.v,k=d.Y,m=d.j.length;e||0!=m||f.push(6);for(var l=new W(m),c=0;c<g.length;c++)l.C(g[c]);if(e&&0==f.length&&null===k)ab(a,a.Qa,a.ca,
+l);else{for(e=0;e<f.length;e++)l.g(f[e]);bb(a,$a(l,k))}}else bb(a,(new W(0)).g(2))}catch(u){bb(a,$a((new W(0)).g(1),u))}I(b).loaded=!0},wc=function(a,b){b||(sc=!0);if((a=I(a).ss||null)&&a.I){a=a.I;try{a.apply(b)}catch(c){a.g(1),null===a.Y&&(a.Y=c)}}},zc=function(){wc(window,!1)};var X=new function(a){this.Qa="pso_success";this.Ea="pso_failure";this.X=this.ca=.01;this.Ha=!1;this.K=a}(window);
+try{var V=window,za,Ac=I(V).config;za=Ac?new O(Ac):null;if(!za)throw Error("No config");var Bc=Aa(10),Cc=Aa(7);X.ca=null!=Bc?Bc:X.ca;X.X=null!=Cc?Cc:X.X;var kc=new lb(za),Dc=kc;I(V).ps=Dc;var Y,lc;if(v("iPad")||v("Android")&&!v("Mobile")||v("Silk")||!(v("iPod")||v("iPhone")||v("Android")||v("IEMobile")))Y=mc(16);else{var Ec,Fc=/^#([^=]*)=(\d+)$/.exec(V.location.hash);if((Ec=Fc&&3==Fc.length&&"pso_strategy"==Fc[1]?+Fc[2]:null)&&U[Ec]){Y=mc(Ec);var Gc=V;jc(Ec)&&pc(Gc)}else{var Ic=V,Jc=kc.m.N(),Z;try{var Kc=
+parseInt(Ic.localStorage.getItem("PSO_EXP0"),10);Z=isNaN(Kc)?null:Kc}catch(a){Z=null}if(null==Z){Z=Math.floor(1024*Math.random());var Lc=Z;try{Ic.localStorage.setItem("PSO_EXP0",Lc.toString())}catch(a){}}lc=new ic(Z,0,Jc);Y=oc()}if(1==Y.ba){var Mc=V;jc(Y.J)&&pc(Mc)}}if(!Y)throw Error("No strategyState created!");var Nc=Y;I(V).ss=Nc;var Oc=V,Pc=Y,Qc=Pc.J;if(p(Qc)){var Rc=U[Qc];Qc&&Rc&&(Pc.I=new Rc(Oc))}var tc=V,uc=ba(yc,X,tc),Sc=ba(xc,tc);switch(tc.document.readyState){case "complete":uc();break;case "interactive":Sc();
+vc();break;default:var Tc=tc,Uc=pb(Tc);Uc.loaded||(Uc.onload=zc);rc=Tc.setInterval(zc,10);vc(Sc)}}catch(a){bb(X,$a(new W(0),a))};})();
+</script><script type="text/javascript" async="" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/saved_resource"></script><script async="" type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/count.js.download"></script><script type="text/javascript" async="" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/embed.js.download"></script><style type="text/css">:root [href^="//x4pollyxxpush.com/"], :root zeus-ad, :root topadblock, :root span[id^="ezoic-pub-ad-placeholder-"], :root guj-ad, :root gpt-ad, :root div[id^="zergnet-widget"], :root div[id^="vuukle-ad-"], :root div[id^="sticky_ad_"], :root div[id^="rc-widget-"], :root div[id^="gpt_ad_"], :root div[id^="ezoic-pub-ad-"], :root div[id^="div-gpt-"], :root div[id^="dfp-ad-"], :root div[id^="adspot-"], :root div[id^="ads300_250-widget-"], :root div[id^="ads300_100-widget-"], :root div[id^="ads250_250-widget-"], :root div[id^="adrotate_widgets-"], :root div[id^="_vdo_ads_player_ai_"], :root div[id*="ScriptRoot"], :root div[id*="MarketGid"], :root div[data-native_ad], :root div[data-mini-ad-unit], :root div[data-insertion], :root div[data-id-advertdfpconf], :root div[data-google-query-id], :root hl-adsense, :root div[data-contentexchange-widget], :root div[data-content="Advertisement"], :root div[data-alias="300x250 Ad 2"], :root div[data-alias="300x250 Ad 1"], :root div[data-adzone], :root div[data-adunit-path], :root div[data-ad-wrapper], :root div[data-ad-placeholder], :root div[class^="native-ad-"], :root div[data-dfp-id], :root div[class^="kiwi-ad-wrapper"], :root div[class^="Adstyled__AdWrapper-"], :root div[aria-label="Ads"], :root display-ads, :root display-ad-component, :root atf-ad-slot, :root aside[id^="adrotate_widgets-"], :root article.ad, :root ark-top-ad, :root app-advertisement, :root app-ad, :root amp-fx-flying-carpet, :root amp-embed[type="taboola"], :root amp-connatix-player, :root amp-ad-custom, :root amp-ad, :root a[style="width:100%;height:100%;z-index:10000000000000000;position:absolute;top:0;left:0;"], :root a[onmousedown^="this.href='https://paid.outbrain.com/network/redir?"][target="_blank"] + .ob_source, :root a[onmousedown^="this.href='http://paid.outbrain.com/network/redir?"][target="_blank"] + .ob_source, :root a[href^="https://yogacomplyfuel.com/"], :root a[href^="https://www.sugarinstant.com/?partner_id="], :root a[href^="https://www.privateinternetaccess.com/"] > img, :root a[href^="https://www.onlineusershielder.com/"], :root a[href^="https://www.nutaku.net/signup/landing/"], :root a[href^="https://www.nudeidols.com/cams/"], :root a[href^="https://www.mypornstarcams.com/landing/click/"], :root a[href^="https://www.kingsoffetish.com/tour?partner_id="], :root a[href^="https://www.infowarsstore.com/"] > img, :root a[href^="https://www.highcpmrevenuenetwork.com/"], :root a[href^="https://www.googleadservices.com/pagead/aclk?"], :root a[href^="https://www.goldenfrog.com/vyprvpn?offer_id="][href*="&aff_id="], :root a[href^="https://www.get-express-vpn.com/offer/"], :root a[href^="https://www.financeads.net/tc.php?"], :root a[href^="https://www.brazzersnetwork.com/landing/"], :root div[class^="Display_displayAd"], :root a[href^="https://www.sheetmusicplus.com/?aff_id="], :root a[href^="https://www.bang.com/?aff="], :root a[href^="https://www.adxsrve.com/"], :root a[href^="https://wirewar.website/"], :root a[href^="https://visit-website.com/"], :root a[href^="https://twinrdsyn.com/"], :root a[href^="https://twinrdsrv.com/"], :root a[href^="https://tsartech.g2afse.com/"], :root a[href^="https://trk.sportsflix4k.club/"], :root a[href^="https://trk.nfl-online-streams.club/"], :root a[href^="https://traffdaq.com/"], :root a[href^="https://tracking.avapartner.com/"], :root a[href^="https://track.wg-aff.com"], :root a[href^="https://track.ultravpn.com/"], :root a[href^="https://track.totalav.com/"], :root a[href^="https://track.afcpatrk.com/"], :root a[href^="https://track.adform.net/"], :root a[href^="https://torguard.net/aff.php"] > img, :root a[href^="https://thefacux.com/"], :root div[data-adname], :root a[href^="https://thechleads.pro/"], :root a[href^="https://tc.tradetracker.net/"] > img, :root a[href^="https://taghaugh.com/"], :root a[href^="https://t.hrtye.com/"], :root a[href^="https://www.highperformancecpmgate.com/"], :root a[href^="https://t.grtyi.com/"], :root a[href^="https://t.adating.link/"], :root a[href^="https://go.trackitalltheway.com/"], :root [href^="https://track.fiverr.com/visit/"] > img, :root a[href^="https://syndication.exoclick.com/"], :root a[href^="https://syndication.dynsrvtbg.com/"], :root a[href^="https://streamate.com/landing/click/"], :root a[href^="https://ad.doubleclick.net/"], :root a[href^="https://static.fleshlight.com/images/banners/"], :root a[href^="https://slkmis.com/"], :root a[href^="https://sTaRtGAMing.net/tienda/"], :root citrus-ad-wrapper, :root a[onmousedown^="this.href='https://paid.outbrain.com/network/redir?"][target="_blank"], :root a[href^="https://sTaRTgamInG.net/tienda/"], :root [data-adblockkey], :root a[href^="https://sTARtgamIng.net/tienda/"], :root bottomadblock, :root a[href^="https://s.zlinkd.com/"], :root a[href^="https://aweptjmp.com/"], :root a[href^="https://s.zlinkc.com/"], :root a[href^="https://www.mrskin.com/account/"], :root a[href^="https://s.optzsrv.com/"], :root a[data-obtrack^="http://paid.outbrain.com/network/redir?"], :root a[href^="https://reinstandpointdumbest.com/"], :root a[href^="https://go.strpjmp.com/"], :root a[href^="https://refpa4903566.top/"], :root a[href^="https://pubads.g.doubleclick.net/"], :root a[href^="https://prf.hn/click/"][href*="/camref:"] > img, :root a[href^="https://serve.awmdelivery.com/"], :root a[href^="https://prf.hn/click/"][href*="/adref:"] > img, :root a[href^="https://pb-track.com/"], :root a[href^="https://paid.outbrain.com/network/redir?"], :root ps-connatix-module, :root div[id^="ad_position_"], :root a[href^="https://ovb.im/"], :root div[id^="ad-div-"], :root a[href^="https://newbinotracs.com/"], :root a[href^="http://eighteenderived.com/"], :root a[href^="https://natour.naughtyamerica.com/track/"], :root [href^="https://stvkr.com/"], :root a[href^="https://mediaserver.entainpartners.com/renderBanner.do?"], :root a[href^="https://loboclick.com"], :root .nya-slot[style], :root a[href^="https://a.bestcontentweb.top/"], :root a[href^="https://lobimax.com/"], :root a[href^="https://lead1.pl/"], :root a[href^="https://refpa.top/"], :root a[href^="https://landing.brazzersnetwork.com/"], :root a[href^="https://safesurfingtoday.com/"][href*="?skip="], :root a[href^="https://t.acam.link/"], :root a[href^="https://ads.leovegas.com/redirect.aspx?"], :root a[href^="https://land.brazzersnetwork.com/landing/"], :root [data-css-class="dfp-inarticle"], :root .card-captioned.crd > .crd--cnt > .s2nPlayer, :root a[href^="https://go.tmrjmp.com"], :root a[href^="https://startgamIng.Net/tienda/"], :root a[href^="https://l.hyenadata.com/"], :root a[href^="https://yourperfectdating.life/"], :root a[href^="https://join.virtuallust3d.com/"], :root a[href^="https://kiksajex.com/"], :root a[href^="https://juicyads.in/"], :root a[href^="https://mediaserver.gvcaffiliates.com/renderBanner.do?"], :root a[href^="https://join.dreamsexworld.com/"], :root a[href^="https://itubego.com/video-downloader/?affid="], :root a[href^="https://iqbroker.com/"][href*="?aff="], :root a[href^="https://incisivetrk.cvtr.io/click?"], :root a[href^="https://hot-growngames.life/"], :root [data-revive-zoneid], :root a[href^="https://googleads.g.doubleclick.net/pcs/click"], :root a[href^="https://t.ajump1.com/"], :root a[href^="https://clk.wrenchsound.store/"], :root a[href^="https://go.zybrdr.com"], :root [href^="http://join.michelle-austin.com/"], :root [class^="tile-picker__CitrusBannerContainer-sc-"], :root a[href^="https://go.xxxiijmp.com"], :root a[href^="https://go.xtbaffiliates.com/"], :root a[href^="https://thaudray.com/"], :root .OUTBRAIN[data-widget-id^="FMS_REELD_"], :root [data-role="tile-ads-module"], :root a[href^="https://adsrv4k.com/"], :root a[href^="https://go.xlviirdr.com"], :root a[href^="https://ismlks.com/"], :root a[href^="//a.bestcontentfare.top/"], :root [href^="https://www.mypillow.com/"] > img, :root a[href^="https://azpresearch.club/"], :root a[href^="https://go.xlirdr.com"], :root a[href^="https://go.skinstrip.net"][href*="?campaignId="], :root a[href^="https://go.markets.com/visit/?bta="], :root a[href^="https://billing.purevpn.com/aff.php"] > img, :root a[href^="https://go.hpyrdr.com/"], :root a[href^="https://go.goaserv.com/"], :root a[href^="https://go.dmzjmp.com"], :root a[href^="https://go.admjmp.com/"], :root [href^="https://kingered-banctours.com/"], :root a[href^="https://get.surfshark.net/aff_c?"][href*="&aff_id="] > img, :root a-ad, :root a[href^="https://affiliate.rusvpn.com/click.php?"], :root a[href^="https://geniusdexchange.com/"], :root a[href^="https://frameworkdeserve.com/"], :root a[href^="https://flirtandsweets.life/"], :root a[href^="https://www.mrskin.com/tour"], :root a[href^="https://financeads.net/tc.php?"], :root div[data-native-ad], :root a[href^="https://engine.trackingdesks.com/"], :root a[data-redirect^="https://paid.outbrain.com/network/redir?"], :root [href^="https://www.reimageplus.com/"], :root a[href^="https://ak.hauchiwu.com/"], :root a[href^="https://engine.phn.doublepimp.com/"], :root a[href^="https://engine.blueistheneworanges.com/"], :root a[href^="https://dl-protect.net/"], :root [href="//jjgirls.com/sex/ChaturbateCams"], :root a[href^="https://datingoffers30.info/"], :root a[href^="https://ctosrd.com/"], :root a[href^="https://clixtrac.com/"], :root a[href^="https://click.linksynergy.com/fs-bin/"] > img, :root ad-shield-ads, :root a[href^="https://sTartGAMinG.net/tienda/"], :root AD-TRIPLE-BOX, :root a[href^="https://click.hoolig.app/"], :root img[src^="https://images.purevpnaffiliates.com"], :root a[href^="https://porntubemate.com/"], :root a[href^="http://www.gfrevenge.com/landing/"], :root a[href^="https://clickadilla.com/"], :root a[href^="https://click.dtiserv2.com/"], :root a[href^="https://go.xlvirdr.com"], :root a[href^="http://www.iyalc.com/"], :root a[href^="https://claring-loccelkin.com/"], :root a[href^="https://chaturbate.com/in/?track="], :root a[href^="https://chaturbate.com/in/?tour="], :root a[href^="https://cams.imagetwist.com/in/?track="], :root a[href^="https://go.gldrdr.com/"], :root a[href^="https://buqkrzbrucz.com/"], :root a[href^="https://affcpatrk.com/"], :root a[href^="https://bongacams2.com/track?"], :root a[href^="https://www.sheetmusicplus.com/"][href*="?aff_id="], :root a[href^="https://bngpt.com/"], :root a[href^="https://bluedelivery.pro/"], :root a[href^="https://black77854.com/"], :root a[href^="https://bc.game/"], :root a[href^="https://ndt5.net/"], :root a[href^="https://batheunits.com/"], :root a[target="_blank"][onmousedown="this.href^='http://paid.outbrain.com/network/redir?"], :root a[href^="https://banners.livepartners.com/"], :root a[href^="//whulsaux.com/"], :root a[href^="https://m.do.co/c/"] > img, :root [class^="s2nPlayer"], :root a[href^="https://chaturbate.jjgirls.com/?track="], :root a[href^="https://ausoafab.net/"], :root a[href^="https://t.ajrkm1.com/"], :root [href="https://masstortfinancing.com"] img, :root a[href^="https://bongacams10.com/track?"], :root a[href^="https://albionsoftwares.com/"], :root a[href^="https://go.etoro.com/"] > img, :root a[href^="https://convertmb.com/"], :root a[href^="https://spo-play.live/"], :root a[href^="https://join.sexworld3d.com/track/"], :root a[href^="https://intenseaffiliates.com/redirect/"], :root a[href^="https://ads.ad4game.com/"], :root [id^="google_ads_iframe"], :root a[href^="https://syndication.optimizesrv.com/"], :root a[href^="https://affpa.top/"], :root a[href^="https://adnetwrk.com/"], :root a[href^="https://adjoincomprise.com/"], :root [href^="http://misslinkvocation.com/"], :root a[href^="https://adclick.g.doubleclick.net/"], :root a[href^="https://www.bet365.com/"][href*="affiliate="], :root [href^="https://r.kraken.com/"], :root a[href^="https://mmwebhandler.aff-online.com/"], :root a[href^="https://go.nordvpn.net/aff"] > img, :root [href^="http://clicks.totemcash.com/"], :root a[href^="https://misspkl.com/"], :root a[href^="https://ad.zanox.com/ppc/"] > img, :root a[href^="https://ad.kubiccomps.icu/"], :root a[href^="https://ab.advertiserurl.com/aff/"], :root a[href^="https://a2.adform.net/"], :root a[href^="https://iactrivago.ampxdirect.com/"], :root a[href^="https://a.medfoodhome.com/"], :root a[href^="https://adultfriendfinder.com/go/"], :root a[href^="https://a.bestcontentoperation.top/"], :root a[href^="http://static.fleshlight.com/images/banners/"], :root a[href^="https://a.adtng.com/"], :root [data-m-ad-id], :root a[href^="https://sTartgAminG.net/tienda/"], :root a[href^="https://a-ads.com/"], :root a[href^="https://join.virtualtaboo.com/track/"], :root a[href^="https://StarTGAminG.net/tienda/"], :root a[href^="https://STaRTgamINg.net/tienda/"], :root a[href^="http://www.mrskin.com/tour"], :root a[href^="https://agacelebir.com/"], :root a[href^="https://spygasm.com/track?"], :root ins.adsbygoogle, :root a[href^="https://1startfiledownload1.com/"], :root a[href^="https://s.zlinkb.com/"], :root a[href^="http://d2.zedo.com/"], :root a[href^="http://www.friendlyduck.com/AF_"], :root a[href^="http://trk.globwo.online/"], :root a[href^="https://1betandgonow.com/"], :root a[href^="https://prf.hn/click/"][href*="/creativeref:"] > img, :root a[href^="http://www.adultempire.com/unlimited/promo?"][href*="&partner_id="], :root a[href^="http://traffic.tc-clicks.com/"], :root a[href^="http://tour.mrskin.com/"], :root [href^="https://wct.link/"], :root [data-desktop-ad-id], :root a[href^="https://www.purevpn.com/"][href*="&utm_source=aff-"], :root a[href^="http://m.hue2m.com/"], :root a[href^="https://funkydaters.com/"], :root [id^="ad_sky"], :root a[href^="http://https://www.get-express-vpn.com/offer/"], :root div[id^="google_dfp_"], :root a[href^="http://googleads.g.doubleclick.net/pcs/click"], :root [href^="http://go.cm-trk2.com/"], :root a[href^="http://click.payserve.com/"], :root a[href^="https://porngames.adult/?SID="], :root a[href^="https://landing1.brazzersnetwork.com"], :root #slashboxes > .deals-rail, :root [href^="http://globsads.com/"], :root [href^="https://www.brighteonstore.com/products/"] img, :root a[href^="http://bc.vc/?r="], :root a[href^="https://mityneedn.com/"], :root [href^="http://homemoviestube.com/"], :root a[href^="http://ad.doubleclick.net/"], :root a[href^="//zunsoach.com/"], :root a[href^="//s.st1net.com/splash.php"], :root a[href^="//pubads.g.doubleclick.net/"], :root a[href^="https://femglobal.app/"], :root a[href^="//go.eabids.com/"], :root [id^="div-gpt-ad"], :root .ob_container .item-container-obpd, :root div[id^="yandex_ad"], :root a[href^="https://pb-imc.com/"], :root a[href^="http://deskfrontfreely.com/"], :root a[data-url^="http://paid.outbrain.com/network/redir?"] + .author, :root [href^="https://join.playboyplus.com/track/"], :root a[href^="//ardslediana.com/"], :root [data-d-ad-id], :root a[href*=".engine.adglare.net/"], :root #kt_player > a[target="_blank"], :root a[href*=".cfm?fp="][href*="&maxads="], :root [data-ad-width], :root [href^="https://cpa.10kfreesilver.com/"], :root a[href^="https://a.bestcontentfood.top/"], :root a[href^="http://wct.link/"], :root [href^="https://goldforyourfuture.com/clk.trk"] img, :root [onclick^="location.href='http://www.reimageplus.com"], :root [id^="section-ad-banner"], :root a[href^="https://t.aslnk.link/"], :root a[href^="https://click.candyoffers.com/"], :root [href^="https://zstacklife.com/"] img, :root a[href^="https://go.julrdr.com/"], :root .trc_rbox_div .syndicatedItemUB, :root [href^="https://zone.gotrackier.com/"], :root a[href^="https://fourwhenstatistics.com/"], :root [href^="https://detachedbates.com/"], :root [href^="https://www.targetingpartner.com/"], :root .section-subheader > .section-hotel-prices-header, :root [href^="https://go.affiliatexe.com/"], :root [href^="https://www.hostg.xyz/"] > img, :root a[href^="http://adultfriendfinder.com/go/"], :root a[href^="https://maymooth-stopic.com/"], :root [href^="https://www.herbanomic.com/"] > img, :root div[id^="ad-position-"], :root a[href^="http://affiliate.glbtracker.com/"], :root a[href^="https://leg.xyz/?track="], :root div[id^="crt-"][style], :root a[href^="http://adultgames.xxx/"], :root a[href^="https://bngprm.com/"], :root [href^="https://shiftnetwork.infusionsoft.com/go/"] > img, :root a[href^="https://trk.softonixs.xyz/"], :root [href^="https://www.mypatriotsupply.com/"] > img, :root a[onmousedown^="this.href='http://paid.outbrain.com/network/redir?"][target="_blank"], :root [href^="https://secure.bmtmicro.com/servlets/"], :root [href="https://ourgoldguy.com/contact/"] img, :root a[href^="https://brightadnetwork.com/"], :root a[href^="http://www.onwebcam.com/random?t_link="], :root [href^="https://www.avantlink.com/click.php"] img, :root a[href^="https://losingoldfry.com/"], :root [data-wpas-zoneid], :root .scroll-fixable.rail-right > .deals-rail, :root [href^="https://routewebtk.com/"], :root a[href^="https://oackoubs.com/"], :root a[href^="https://ak.psaltauw.net/"], :root a[href^="https://go.cmtaffiliates.com/"], :root [data-name="adaptiveConstructorAd"], :root [href^="https://optimizedelite.com/"] > img, :root a[href^="https://awptjmp.com/"], :root a[href^="https://go.goasrv.com/"], :root [href^="http://mypillow.com/"] > img, :root a[href^="http://bongacams.com/track?"], :root a[href^="https://fleshlight.sjv.io/"], :root [data-ad-manager-id], :root a[href^="https://promo-bc.com/"], :root a[href^="https://clicks.pipaffiliates.com/"], :root [href^="https://noqreport.com/"] > img, :root [href^="https://mylead.global/stl/"] > img, :root [href^="https://mypatriotsupply.com/"] > img, :root [data-freestar-ad], :root a[href^="https://fc.lc/ref/"], :root .vid-present > .van_vid_carousel__padding, :root span[data-ez-ph-id], :root [href^="https://track.aftrk1.com/"], :root div[id^="adngin-"], :root [data-rc-widget], :root a[href^="https://go.xxxijmp.com"], :root [href^="https://istlnkcl.com/"], :root a[href^="https://staRTgaming.net/tienda/"], :root a[href^="https://STaRtgAmInG.net/tienda/"], :root [href^="https://ilovemyfreedoms.com/landing-"], :root [href^="https://go.xlrdr.com"], :root [href^="https://go.4rabettraff.com/"], :root a[href^="https://tm-offers.gamingadult.com/"], :root [href^="https://charmingdatings.life/"], :root [href^="https://glersakr.com/"], :root a[href^="https://italarizege.xyz/"], :root a[href^="https://wittered-mainging.com/"], :root [href^="https://engine.gettopple.com/"], :root [data-id^="div-gpt-ad"], :root a[href^="https://tracker.loropartners.com/"], :root [href^="https://awbbjmp.com/"], :root a[href^="https://k2s.cc/pr/"], :root [href^="https://affect3dnetwork.com/track/"], :root a[href^="https://camfapr.com/landing/click/"], :root [href="//sexcams.plus/"], :root a[href^="https://go.currency.com/"], :root div[id^="advads_ad_"], :root .resultsList > div > div > div > div[data-resultid$="-sponsored"], :root [href^="http://www.mypillow.com/"] > img, :root a[href^="https://adserver.adreactor.com/"], :root [href^="http://join.shemalesfromhell.com/"], :root a[href^="https://ads.betfair.com/redirect.aspx?"], :root [href^="http://www.fleshlightgirls.com/"], :root [href^="http://join.trannies-fuck.com/"], :root .trc_rbox .syndicatedItem, :root a[href^="http://cam4com.go2cloud.org/aff_c?"], :root a[href^="https://cpmspace.com/"], :root [href^="https://freecourseweb.com/"] > .sitefriend, :root a[href^="https://ads.planetwin365affiliate.com/redirect.aspx?"], :root [href^="http://join.rodneymoore.com/"], :root [href^="https://shrugartisticelder.com"], :root a[href^="https://staRTgamIng.net/tienda/"], :root div[id^="lazyad-"], :root a[href^="http://com-1.pro/"], :root [name^="google_ads_iframe"], :root a[href^="http://bodelen.com/"], :root [href="https://www.masstortfinancing.com/"] > img, :root a[href^="https://www.geekbuying.com/dynamic-ads/"], :root a[href^="https://lnkxt.bannerator.com/"], :root [href="https://jdrucker.com/gold"] > img, :root [href^="https://v.investologic.co.uk/"], :root [href^="https://cipledecline.buzz/"], :root a[href^="https://go.xxxjmp.com"], :root #leader-companion > a[href], :root a[href^="https://jaxofuna.com/"], :root div[recirculation-ad-container], :root [href^="https://traffserve.com/"], :root [id^="ad_slider"], :root [data-adbridg-ad-class], :root a[href^="http://www.adultdvdempire.com/?partner_id="][href*="&utm_"], :root [href^="http://join.shemale.xxx/"], :root div[id^="div-ads-"], :root [href^="https://rapidgator.net/article/premium/ref/"], :root [href^="https://join3.bannedsextapes.com"], :root div[data-spotim-slot], :root [href^="https://antiagingbed.com/discount/"] > img, :root a[href^="https://go.247traffic.com/"], :root [href^="https://join.girlsoutwest.com/"], :root [href^="http://trafficare.net/"], :root [data-type="ad-vertical"], :root a[href^="https://u.expresstech.io/"], :root [href^="https://mypillow.com/"] > img, :root [href^="https://ad.admitad.com/"], :root [data-testid="ad_testID"], :root [href^="https://goldcometals.com/clk.trk"], :root a[href^="https://bodelen.com/"], :root [data-ad-name], :root a[href*=".g2afse.com/"], :root a[href^="https://go.hpyjmp.com"], :root a[href^="https://tour.mrskin.com/"], :root a[href^="https://fastestvpn.com/lifetime-special-deal?a_aid="], :root [href^="https://mystore.com/"] > img, :root [data-mobile-ad-id], :root [data-ez-name], :root a[data-widget-outbrain-redirect^="http://paid.outbrain.com/network/redir?"], :root [data-dynamic-ads], :root a[href^="http://go.xtbaffiliates.com/"], :root a[href^="https://consali.com/"], :root .grid > .container > #aside-promotion, :root DFP-AD, :root [onclick*="content.ad/"], :root AMP-AD, :root a[href^="https://sTartGAMiNG.net/tienda/"], :root [data-ad-cls], :root [id^="ad-wrap-"], :root div[id^="taboola-stream-"], :root [href^="https://go.astutelinks.com/"], :root a[href^="http://tc.tradetracker.net/"] > img, :root a[href^="http://affiliates.thrixxx.com/"], :root a[href^="https://www.adultempire.com/"][href*="?partner_id="], :root [data-template-type="nativead"], :root [class^="amp-ad-"], :root [href^="https://affiliate.fastcomet.com/"] > img, :root [class^="adDisplay-module"], :root AD-SLOT, :root .ob_dual_right > .ob_ads_header ~ .odb_div, :root a[href^="https://www.liquidfire.mobi/"], :root [href^="https://click2cvs.com/"], :root .trc_related_container div[data-item-syndicated="true"], :root [href^="http://join.shemalepornstar.com/"], :root a[href^="https://go.xlviiirdr.com"], :root .trc_rbox_div .syndicatedItem, :root .plistaList > .itemLinkPET, :root [href^="https://gmxvmvptfm.com/"], :root div[data-adunit], :root app-large-ad, :root [href^="https://turtlebids.irauctions.com/"] img, :root a[href^="https://www.adskeeper.com"], :root [href^="https://totlnkcl.com/"], :root [data-ad-module], :root a[data-oburl^="https://paid.outbrain.com/network/redir?"], :root div[data-ad-targeting], :root a[href^="https://hotplaystime.life/"], :root a[href^="http://www.h4trck.com/"], :root [href^="https://trackfin.asia/"], :root .plistaList > .plista_widget_underArticle_item[data-type="pet"], :root a[href^="https://bs.serving-sys.com"], :root [href^="http://residenceseeingstanding.com/"], :root div[id^="pa_sticky_ad_box_middle_"], :root a[href^="http://www.onclickmega.com/jump/next.php?"], :root .trc_rbox_border_elm .syndicatedItem, :root a[href*="//lkstrck2.com/"], :root [class^="div-gpt-ad"], :root a[href^="https://ggbetpromo.com/"], :root a[href^="http://partners.etoro.com/"], :root [data-advadstrackid], :root a[href^="https://refpazkjixes.top/"], :root #mgb-container > #mgb, :root [href^="https://www.cloudways.com/en/?id"], :root [href^="https://safer-redirection.com"], :root a[href^="https://startgAming.net/tienda/"], :root a[href^="https://tweakostensibleinstaller.com/"], :root a[href^="https://go.xlivrdr.com"], :root a[href^="https://cam4com.go2cloud.org/"], :root a[href^="http://li.blogtrottr.com/click?"], :root [href^="//mage98rquewz.com/"], :root a[href^="https://webroutetrk.com/"], :root a[href^="https://mercurybest.com/"], :root [href^="https://www.restoro.com/"], :root div[id^="optidigital-adslot"], :root .resultsList > div > div > div > div.G-5c[role="tab"][tabindex="0"] > .yuAt-pres-rounded { display: none !important; }</style><style type="text/css">.fancybox-margin{margin-right:15px;}</style><link rel="stylesheet" id="gravatar-card-css" href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/hovercards.min.css"><script src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/count-data.js.download"></script><meta http-equiv="origin-trial" content="AlK2UR5SkAlj8jjdEc9p3F3xuFYlF6LYjAML3EOqw1g26eCwWPjdmecULvBH5MVPoqKYrOfPhYVL71xAXI1IBQoAAAB8eyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiV2ViVmlld1hSZXF1ZXN0ZWRXaXRoRGVwcmVjYXRpb24iLCJleHBpcnkiOjE3NTgwNjcxOTksImlzU3ViZG9tYWluIjp0cnVlfQ=="><meta http-equiv="origin-trial" content="Amm8/NmvvQfhwCib6I7ZsmUxiSCfOxWxHayJwyU1r3gRIItzr7bNQid6O8ZYaE1GSQTa69WwhPC9flq/oYkRBwsAAACCeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiV2ViVmlld1hSZXF1ZXN0ZWRXaXRoRGVwcmVjYXRpb24iLCJleHBpcnkiOjE3NTgwNjcxOTksImlzU3ViZG9tYWluIjp0cnVlfQ=="><meta http-equiv="origin-trial" content="A/ERL66fN363FkXxgDc6F1+ucRUkAhjEca9W3la6xaLnD2Y1lABsqmdaJmPNaUKPKVBRpyMKEhXYl7rSvrQw+AkAAACNeyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiRmxlZGdlQmlkZGluZ0FuZEF1Y3Rpb25TZXJ2ZXIiLCJleHBpcnkiOjE3MTkzNTk5OTksImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="A6OdGH3fVf4eKRDbXb4thXA4InNqDJDRhZ8U533U/roYjp4Yau0T3YSuc63vmAs/8ga1cD0E3A7LEq6AXk1uXgsAAACTeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiRmxlZGdlQmlkZGluZ0FuZEF1Y3Rpb25TZXJ2ZXIiLCJleHBpcnkiOjE3MTkzNTk5OTksImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><script async="" id="dsq_recs_scr" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/recommendations.js.download"></script><script charset="utf-8" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/timeline.e108540dddc96e4b707f5cf259a582d7.js.download"></script><script src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/alfie_v4.63f1ab6d6b9d5807dc0c94ef3fe0b851.js.download" async="" charset="UTF-8"></script></head>
+
+<body class="post-template-default single single-post postid-3015 single-format-standard col-3cm full-width topbar-enabled header-desktop-sticky header-mobile-sticky chrome is-scrolled">
+<div id="wrapper">
+  <a class="screen-reader-text skip-link" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#content">Skip to content</a>
+  
+  <header id="header" class="top-menu-mobile-on one-mobile-menu top_menu header-ads-desktop  topbar-transparent no-header-img fixed-header-on" style="height: 190px; padding-top: 50px;">
+        <nav class="nav-container group mobile-menu mobile-sticky " id="nav-mobile" data-menu-id="header-1">
+  <div class="mobile-title-logo-in-header"><p class="site-title">                  <a class="custom-logo-link" href="https://stm32f4-discovery.net/" rel="home" title="STM32F4 Discovery | Home page">STM32F4 Discovery</a>                </p></div>
+        
+                    <!-- <div class="ham__navbar-toggler collapsed" aria-expanded="false">
+          <div class="ham__navbar-span-wrapper">
+            <span class="ham-toggler-menu__span"></span>
+          </div>
+        </div> -->
+        <button class="ham__navbar-toggler-two collapsed" title="Menu" aria-expanded="false">
+          <span class="ham__navbar-span-wrapper">
+            <span class="line line-1"></span>
+            <span class="line line-2"></span>
+            <span class="line line-3"></span>
+          </span>
+        </button>
+            
+      <div class="nav-text"></div>
+      <div class="nav-wrap container submenu-click-expand">
+                  <ul class="nav container-inner group mobile-search">
+                            <li>
+                  <form role="search" method="get" class="search-form" action="https://stm32f4-discovery.net/">
+				<label>
+					<span class="screen-reader-text">Search for:</span>
+					<input type="search" class="search-field" placeholder="Search …" value="" name="s">
+				</label>
+				<input type="submit" class="search-submit" value="Search">
+			</form>                </li>
+                      </ul>
+                <ul id="menu-main" class="nav container-inner group"><li id="menu-item-21" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-21"><a href="https://stm32f4-discovery.net/">Home</a></li>
+<li id="menu-item-1522" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1522"><a href="https://stm32f4-discovery.net/stm32f4-links/">STM32F4 links</a></li>
+<li id="menu-item-3046" class="menu-item menu-item-type-post_type menu-item-object-post menu-item-3046"><a href="https://stm32f4-discovery.net/2014/05/all-stm32f429-libraries-at-one-place/">SPL libs</a></li>
+<li id="menu-item-2625" class="menu-item menu-item-type-post_type menu-item-object-post menu-item-2625"><a href="https://stm32f4-discovery.net/2015/07/all-stm32-hal-libraries/">HAL libs</a></li>
+<li id="menu-item-1071" class="menu-item menu-item-type-post_type menu-item-object-post menu-item-1071"><a href="https://stm32f4-discovery.net/2014/09/stm32f4-tutorials-one-place/">Tutorials</a></li>
+<li id="menu-item-3048" class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3048"><a href="https://stm32f4-discovery.net/category/esp8266-esp32/">ESP8266 &amp; ESP32</a></li>
+<li id="menu-item-3047" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3047"><a href="http://majerle.eu/">About</a></li>
+</ul>      </div>
+</nav><div class="googlepublisherpluginad" style="text-align: center; width: 100%; height: auto; clear: both;"><ins data-ad-format="auto" class="adsbygoogle" data-ad-client="ca-pub-1510671897088135" data-ad-slot="7521356607" data-ad-channel="WordPressSinglePost+pso-lv-5" data-adsbygoogle-status="done" style="display: block; margin: 10px auto; background-color: transparent;"></ins></div><!--/#nav-topbar-->  
+        <nav class="nav-container group desktop-menu desktop-sticky" id="nav-topbar" data-menu-id="header-2" style="max-width: 2504px; transform: translate(0px, -50px);">
+    <div class="nav-text"></div>
+  <div class="topbar-toggle-down">
+    <i class="fas fa-angle-double-down" aria-hidden="true" data-toggle="down" title="Expand menu"></i>
+    <i class="fas fa-angle-double-up" aria-hidden="true" data-toggle="up" title="Collapse menu"></i>
+  </div>
+  <div class="nav-wrap container">
+    <ul id="menu-main-1" class="nav container-inner group"><li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-21"><a href="https://stm32f4-discovery.net/">Home</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1522"><a href="https://stm32f4-discovery.net/stm32f4-links/">STM32F4 links</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-post menu-item-3046"><a href="https://stm32f4-discovery.net/2014/05/all-stm32f429-libraries-at-one-place/">SPL libs</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-post menu-item-2625"><a href="https://stm32f4-discovery.net/2015/07/all-stm32-hal-libraries/">HAL libs</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-post menu-item-1071"><a href="https://stm32f4-discovery.net/2014/09/stm32f4-tutorials-one-place/">Tutorials</a></li>
+<li class="menu-item menu-item-type-taxonomy menu-item-object-category menu-item-3048"><a href="https://stm32f4-discovery.net/category/esp8266-esp32/">ESP8266 &amp; ESP32</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3047"><a href="http://majerle.eu/">About</a></li>
+</ul>  </div>
+      <div id="topbar-header-search" class="container">
+      <div class="container-inner">
+        <button class="toggle-search"><i class="fas fa-search"></i></button>
+        <div class="search-expand">
+          <div class="search-expand-inner"><form role="search" method="get" class="search-form" action="https://stm32f4-discovery.net/">
+				<label>
+					<span class="screen-reader-text">Search for:</span>
+					<input type="search" class="search-field" placeholder="Search …" value="" name="s">
+				</label>
+				<input type="submit" class="search-submit" value="Search">
+			</form></div>
+        </div>
+      </div><!--/.container-inner-->
+    </div><!--/.container-->
+  
+</nav><!--/#nav-topbar-->  
+  <div class="container group">
+        <div class="container-inner">
+
+                    <div class="group hu-pad central-header-zone">
+                  <div class="logo-tagline-group">
+                      <p class="site-title">                  <a class="custom-logo-link" href="https://stm32f4-discovery.net/" rel="home" title="STM32F4 Discovery | Home page">STM32F4 Discovery</a>                </p>                                                <p class="site-description">Libraries and tutorials for STM32F4 series MCUs by Tilen Majerle</p>
+                                        </div>
+
+                                        <div id="header-widgets">
+                                                </div><!--/#header-ads-->
+                                </div>
+      
+                <nav class="nav-container group desktop-menu " id="nav-header" data-menu-id="header-3">
+    <div class="nav-text"><!-- put your mobile menu text here --></div>
+
+  <div class="nav-wrap container">
+        <ul id="menu-top-menu" class="nav container-inner group"><li id="menu-item-424" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-424"><a title="Contact me" href="https://stm32f4-discovery.net/about/">About</a></li>
+<li id="menu-item-1317" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1317"><a title="View me on LinkedIn" target="_blank" href="http://si.linkedin.com/pub/tilen-majerle/7/697/85a">LinkedIn</a></li>
+<li id="menu-item-422" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-422"><a title="Follow me on Twitter" target="_blank" href="https://twitter.com/tilz0R">Twitter</a></li>
+<li id="menu-item-423" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-423"><a title="Follow me on Google+" target="_blank" href="https://plus.google.com/+TilenMajerle?rel=author">Google+</a></li>
+<li id="menu-item-844" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-844"><a title="Follow me on Facebook" target="_blank" href="https://www.facebook.com/tilz0R">Facebook</a></li>
+<li id="menu-item-425" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-425"><a title="My Github account" target="_blank" href="https://github.com/MaJerle">Github</a></li>
+<li id="menu-item-2391" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2391"><a title="Follow me on Instagram" target="_blank" href="https://instagram.com/majerletilen">Instagram</a></li>
+</ul>  </div>
+</nav><!--/#nav-header-->      
+    </div><!--/.container-inner-->
+      </div><!--/.container-->
+
+</header><!--/#header-->
+  
+  <div class="container" id="page">
+    <div class="container-inner">
+            <div class="main">
+        <div class="main-inner group">
+          
+              <section class="content" id="content">
+              <div class="page-title hu-pad group">
+          	    		<ul class="meta-single group">
+    			<li class="category"><a href="https://stm32f4-discovery.net/category/arm-cortex-m/" rel="category tag">ARM Cortex-M</a> <span>/</span> <a href="https://stm32f4-discovery.net/category/stm32f4-2/" rel="category tag">STM32F4</a> <span>/</span> <a href="https://stm32f4-discovery.net/category/stm32f4-discovery-2/" rel="category tag">STM32F4 Discovery</a> <span>/</span> <a href="https://stm32f4-discovery.net/category/stm32f429/" rel="category tag">STM32F429</a> <span>/</span> <a href="https://stm32f4-discovery.net/category/stm32f429-discovery/" rel="category tag">STM32F429 Discovery</a> <span>/</span> <a href="https://stm32f4-discovery.net/category/stm32f7/" rel="category tag">STM32F7</a> <span>/</span> <a href="https://stm32f4-discovery.net/category/stm32f7-discovery/" rel="category tag">STM32F7 Discovery</a> <span>/</span> <a href="https://stm32f4-discovery.net/category/tutorials/" rel="category tag">Tutorials</a></li>
+    			    			<li class="comments"><a href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#disqus_thread" data-disqus-identifier="3015 https://stm32f4-discovery.net/?p=3015">62 Comments</a></li>
+    			    		</ul>
+
+    	
+    </div><!--/.page-title-->
+          <div class="hu-pad group">
+              <article class="post-3015 post type-post status-publish format-standard hentry category-arm-cortex-m category-stm32f4-2 category-stm32f4-discovery-2 category-stm32f429 category-stm32f429-discovery category-stm32f7 category-stm32f7-discovery category-tutorials tag-asynchronous tag-direct-memory-access tag-dma tag-idle-line tag-stm32 tag-stm32-family tag-stm32f4 tag-stm32f7 tag-tutorial tag-usart tag-usart-idle">
+    <div class="post-inner group">
+
+      <h1 class="post-title entry-title">STM32 tutorial: Efficiently receive UART data using DMA</h1>
+<p class="post-byline">
+   by   <span class="vcard author">
+     <span class="fn"><a href="https://stm32f4-discovery.net/author/tilz0r/" title="Posts by tilz0R" rel="author">tilz0R</a></span>
+   </span>
+   ·
+                  
+                            Published <time class="published" datetime="2017-07-06T00:21:12+00:00">July 6, 2017</time>
+              · Updated <time class="updated" datetime="2019-11-30T10:59:30+00:00">November 30, 2019</time>
+              </p>
+                                
+      <div class="clear"></div>
+
+      <div class="entry themeform">
+        <div class="entry-inner">
+          <blockquote>
+<h3><a href="https://github.com/MaJerle/STM32_USART_DMA">Latest updates and examples are available at my official Github repository.</a></h3>
+</blockquote>
+<h1><a id="user-content-stm32--uart--dma-rx--unknown-length" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#stm32--uart--dma-rx--unknown-length" aria-hidden="true"></a>STM32 + UART + DMA RX + unknown length</h1>
+<p>This repository may give you information about how to read data on UART by using DMA when number of bytes to receive is not known in advance.</p>
+<p>In STM32 microcontroller family, U(S)ART reception can work in different modes:</p>
+<ul>
+<li>Polling mode (no DMA, no IRQ): Application must poll for status bits to check if new character has been received and read it fast enough in order to get all bytes
+<ul>
+<li>PROS
+<ul>
+<li>Very easy implementation, but no-one is using it in real-life scenario</li>
+</ul>
+</li>
+<li>CONS
+<ul>
+<li>Very easy to miss received characters in bursts of data</li>
+<li>Works only for low baudrates</li>
+<li>Application must very fast check for new character</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Interrupt mode (no DMA): UART triggers interrupt and CPU jumps to service routine to handle data reception
+<ul>
+<li>PROS
+<ul>
+<li>Most commonly used approach across all applications today</li>
+<li>Works well in common baudrate, <code>115200</code> bauds</li>
+</ul>
+</li>
+<li>CONS
+<ul>
+<li>Interrupt service routine gets executed for every received character</li>
+<li>May stall other tasks in high-performance MCUs with many interrupts</li>
+<li>May stall operating system when receiving burst of data at a time</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>DMA mode: DMA is used to transfer data from USART RX data register to user memory on hardware level. No application interaction is needed at this point except processing received data by application once necessary
+<ul>
+<li>PROS
+<ul>
+<li>Transfer from USART peripheral to memory is done on hardware level without CPU interaction</li>
+<li>Can work very easily with operating systems</li>
+<li>Optimized for highest baudrates <code>&gt; 1Mbps</code> and low-power applications</li>
+<li>In case of big bursts of data, increasing data buffer size can improve functionality</li>
+</ul>
+</li>
+<li>CONS
+<ul>
+<li>Number of bytes to transfer must be known in advance by DMA hardware</li>
+<li>If communication fails, DMA may not notify application about all bytes transferred</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>This article focuses only on <em>DMA mode</em> with unknown data length to receive.</p>
+<h3><a id="user-content-important-facts-about-dma" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#important-facts-about-dma" aria-hidden="true"></a>Important facts about DMA</h3>
+<p>DMA in STM32 can work in <code>normal</code> or <code>circular</code> mode. For each mode, it requires number of <em>elements</em> to transfer before events are triggered.</p>
+<ul>
+<li><em>Normal mode</em>: In this mode, DMA starts transferring data and when it transfers all elements, it stops.</li>
+<li><em>Circular mode</em>: In this mode, DMA starts with transfer, but when it reaches to the end, it jumps back on top of memory and continues to write</li>
+</ul>
+<p>While transfer is active, <code>2</code> of many interrupts may be triggered:</p>
+<ul>
+<li><em>Half-Transfer complete (HT)</em> interrupt: Executed when half of elements were transferred by DMA hardware</li>
+<li><em>Transfer-Complete (TC)</em> interrupt: Executed when all elements transferred by DMA hardware
+<ul>
+<li>When DMA operates in <em>circular</em> mode, these interrupts are executed periodically</li>
+</ul>
+</li>
+</ul>
+<p><em>Number of elements to transfer by DMA hardware must be written to relevant DMA registers!</em></p>
+<p>As you can see, we get notification by DMA on <em>HT</em> or <em>TC</em> events. Imagine application assumes it will receive <code>20</code> bytes, but it receives only <code>14</code>:</p>
+<ul>
+<li>Application would write <code>20</code> to relevant register for number of bytes to receive</li>
+<li>Application would be notfified after first <code>10</code> bytes are received (HT event)</li>
+<li><strong>Application is never notified for the rest of <code>4</code> bytes</strong>
+<ul>
+<li><strong>Application must solve this case!</strong></li>
+</ul>
+</li>
+</ul>
+<h3><a id="user-content-important-facts-about-usart" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#important-facts-about-usart" aria-hidden="true"></a>Important facts about U(S)ART</h3>
+<p>Most of STM32 series have U(S)ARTs with IDLE line detection. If IDLE line detection is not available, some of them have <em>Receiver Timeout</em> feature with programmable delay. If even this is not available, then application may use only <em>polling modes with DMA</em>, with examples provided below.</p>
+<p>IDLE line detection (or Receiver Timeout) can trigger USART interrupt when receive line is steady without any communication for at least <em>1</em> character for reception.<br>
+Practicle example: Imagine we received <em>10</em> bytes at <em>115200</em> bauds. Each byte at <em>115200</em> bauds takes about <code>10us</code> on UART line, total <code>100us</code>. IDLE line interrupt will notify application when it will detect for <code>1</code> character inactivity on RX line, meaning after <code>10us</code> after last character. Application may react on this event and process data accordingly.</p>
+<h3><a id="user-content-connect-dma--usarts-together" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#connect-dma--usarts-together" aria-hidden="true"></a>Connect DMA + USARTs together</h3>
+<p>Now it is time to use all these features of DMA and USARTs in single application.<br>
+If we move to previous example of expecting to receive <code>20</code> bytes by application (and actually receiving only <code>14</code>), we can now:</p>
+<ul>
+<li>Application would write <code>20</code> to relevant register for number of bytes to receive</li>
+<li>Application would be notfified after first <code>10</code> bytes are received (HT event)</li>
+<li>Application would be notified after the rest <code>4</code> bytes because of USART IDLE line detection (IDLE LINE)</li>
+</ul>
+<h3><a id="user-content-final-configuration" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#final-configuration" aria-hidden="true"></a>Final configuration</h3>
+<ul>
+<li>Put DMA to <code>circular</code> mode to avoid race conditions after DMA transfer completes and before user starts a new transfer</li>
+<li>Set memory length big enough to be able to receive all bytes while processing another.
+<ul>
+<li>Imagine you receive data at <code>115200</code> bauds, bursts of <code>100</code> bytes at a time.</li>
+<li>It is good to set receive buffer to at least <code>100</code> bytes unless you can make sure your processing approach is faster than burst of data</li>
+<li>At <code>115200</code> bauds, <code>100</code> bytes means <code>1ms</code> time</li>
+</ul>
+</li>
+</ul>
+<h3><a id="user-content-dma-httc-and-usart-idle-explanation" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#dma-httc-and-usart-idle-explanation" aria-hidden="true"></a>DMA HT/TC and USART IDLE explanation</h3>
+<p>This section describes possible <code>4</code> possible cases and one additional which explains why <em>HT/TC</em> events are necessary by application</p>
+<p><a href="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/dma_events.svg" target="_blank" rel="noopener noreferrer"><img style="max-width: 100%;" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/dma_events.svg" alt="DMA events"></a></p>
+<p>Abbrevations used on image:</p>
+<ul>
+<li><code>old_ptr</code>: Information about last used position to read data</li>
+<li><code>new_ptr</code>: Information where DMA will save next byte in memory</li>
+<li><code>HT</code>: Half-Transfer event triggered by DMA</li>
+<li><code>TC</code>: Transfer-Complete event triggered by DMA</li>
+<li><code>IDLE</code>: IDLE line detection by USART peripheral</li>
+</ul>
+<p>DMA information:</p>
+<ul>
+<li>Circular mode</li>
+<li><code>20</code> bytes memory depth, <code>HT</code> event received at <code>10</code> bytes</li>
+</ul>
+<p>Possible cases:</p>
+<ul>
+<li><em>P1</em>: DMA transfered <code>10</code> bytes. Application is notified by <code>HT</code> event and can read/process data, received by UART</li>
+<li><em>P2</em>: DMA transfered next <code>10</code> bytes. In this case, reading/processing starts from last known position until the end of memory
+<ul>
+<li>DMA is in circular mode, it will go automatically to the beginning of memory to transfer more data, coming from UART</li>
+</ul>
+</li>
+<li><em>P3</em>: DMA transfered <code>10</code> bytes, but not aligned with <code>HT</code> nor <code>TC</code> events
+<ul>
+<li>Application will get <code>HT</code> event when first <code>6</code> bytes are received</li>
+<li>Application will get <code>IDLE</code> event when next <code>4</code> bytes are received. By using <code>IDLE</code> interrupt, we can prevent application to think there is no data on USART and can possibly return <code>timeout</code> to other side in case of packet communication</li>
+</ul>
+</li>
+<li><em>P4</em>: DMA transfered <code>10</code> bytes in <em>overflow</em> mode, but not aligned with <code>HT</code> nor <code>TC events</code>
+<ul>
+<li>Application will get <code>TC</code> event when first <code>4</code> bytes are received</li>
+<li>Application will get <code>IDLE</code> event when next <code>6</code> bytes are received. By using <code>IDLE</code> interrupt, we can prevent application to think there was is data on USART and can possibly return <code>timeout</code> to other side in case of packet communication</li>
+</ul>
+</li>
+<li><em>P5</em>: In case we rely only on <em>IDLE</em> line detection. What would happen if we receive more bytes in a burst than DMA can hold? In this case we can hold <code>20</code> bytes, but we received <code>30</code> bytes in burst
+<ul>
+<li>Application will get IDLE line event once there is steady RX line for <code>1</code> byte timeframe</li>
+<li>Red part of data represents last data which overflowed previous one = <em>we lost <code>10</code> bytes</em></li>
+<li>Option to avoid such scenario is to poll for DMA changes faster than receiving burst of data may happen, or by using <code>HT/TC</code> events</li>
+</ul>
+</li>
+</ul>
+<p>For cases <em>P1-4</em>, below snippet shows how to get DMA positions and how much data to process.</p><!-- Crayon Syntax Highlighter v_2.7.2_beta -->
+
+		<div id="crayon-6651ae36ae7ea826737634" class="crayon-syntax crayon-theme-keil-uvision crayon-font-monaco crayon-os-pc print-yes notranslate" data-settings=" minimize scroll-mouseover" style="margin-top: 12px; margin-bottom: 12px; font-size: 12px !important; line-height: 15px !important; height: auto;">
+		
+			<div class="crayon-toolbar" data-settings=" mouseover overlay hide delay" style="font-size: 12px !important; height: 18px !important; line-height: 18px !important; margin-top: -19px; display: none; position: absolute; z-index: 2;"><span class="crayon-title">Read data example</span>
+			<div class="crayon-tools" style="font-size: 12px !important;height: 18px !important; line-height: 18px !important;"><div class="crayon-button crayon-nums-button crayon-pressed" title="Toggle Line Numbers"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-plain-button" title="Toggle Plain Code"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-wrap-button" title="Toggle Line Wrap"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-expand-button" title="Expand Code" style="display: none;"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-copy-button" title="Copy"><div class="crayon-button-icon"></div></div><div class="crayon-button crayon-popup-button" title="Open Code In New Window"><div class="crayon-button-icon"></div></div><span class="crayon-language">C</span></div></div>
+			<div class="crayon-info" style="min-height: 16.8px !important; line-height: 16.8px !important; margin-top: -18px; display: none;"></div>
+			<div class="crayon-plain-wrap"><textarea wrap="soft" class="crayon-plain print-no" data-settings="dblclick" readonly="" style="tab-size: 4; font-size: 12px !important; line-height: 15px !important; z-index: 0; opacity: 0; overflow: hidden; height: 480px;">/**
+ * \brief           Check for new data received with DMA
+ * \note            This function must be called from DMA HT/TC and USART IDLE events
+ * \note            Full source code is available in examples
+ */
+void
+usart_rx_check(void) {
+    static size_t old_pos;
+    size_t pos;
+
+    /* Calculate current position in buffer */
+    pos = ARRAY_LEN(usart_rx_dma_buffer) - LL_DMA_GetDataLength(DMA1, LL_DMA_STREAM_1);
+    if (pos != old_pos) {                       /* Check change in received data */
+        if (pos &gt; old_pos) {                    /* Current position is over previous one */
+            /* We are in "linear" mode, case P1, P2, P3 */
+            /* Process data directly by subtracting "pointers" */
+            usart_process_data(&amp;usart_rx_dma_buffer[old_pos], pos - old_pos);
+        } else {
+            /* We are in "overflow" mode, case P4 */
+            /* First process data to the end of buffer */
+            usart_process_data(&amp;usart_rx_dma_buffer[old_pos], ARRAY_LEN(usart_rx_dma_buffer) - old_pos);
+            /* Continue with beginning of buffer */
+            usart_process_data(&amp;usart_rx_dma_buffer[0], pos);
+        }
+    }
+    old_pos = pos;                              /* Save current position as old */
+
+    /* Check and manually update if we reached end of buffer */
+    if (old_pos == ARRAY_LEN(usart_rx_dma_buffer)) {
+        old_pos = 0;
+    }
+}</textarea></div>
+			<div class="crayon-main" style="position: relative; z-index: 1; overflow: hidden; opacity: 1;">
+				<table class="crayon-table" style="margin-left: 0px;">
+					<tbody><tr class="crayon-row">
+				<td class="crayon-nums " data-settings="show">
+					<div class="crayon-nums-content" style="font-size: 12px !important; line-height: 15px !important;"><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-1">1</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-2">2</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-3">3</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-4">4</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-5">5</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-6">6</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-7">7</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-8">8</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-9">9</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-10">10</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-11">11</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-12">12</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-13">13</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-14">14</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-15">15</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-16">16</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-17">17</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-18">18</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-19">19</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-20">20</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-21">21</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-22">22</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-23">23</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-24">24</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-25">25</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-26">26</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-27">27</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-28">28</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-29">29</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-30">30</div><div class="crayon-num" data-line="crayon-6651ae36ae7ea826737634-31">31</div><div class="crayon-num crayon-striped-num" data-line="crayon-6651ae36ae7ea826737634-32">32</div></div>
+				</td>
+						<td class="crayon-code"><div class="crayon-pre" style="font-size: 12px !important; line-height: 15px !important; -moz-tab-size:4; -o-tab-size:4; -webkit-tab-size:4; tab-size:4;"><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-1"><span class="crayon-c">/**</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-2"><span class="crayon-c"> * \brief&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Check for new data received with DMA</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-3"><span class="crayon-c"> * \note&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This function must be called from DMA HT/TC and USART IDLE events</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-4"><span class="crayon-c"> * \note&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Full source code is available in examples</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-5"><span class="crayon-c"> */</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-6"><span class="crayon-t">void</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-7"><span class="crayon-e">usart_rx_check</span><span class="crayon-sy">(</span><span class="crayon-t">void</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-sy">{</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-8"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-m">static</span><span class="crayon-h"> </span><span class="crayon-e">size_t </span><span class="crayon-v">old_pos</span><span class="crayon-sy">;</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-9"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-e">size_t </span><span class="crayon-v">pos</span><span class="crayon-sy">;</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-10">&nbsp;</div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-11"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-c">/* Calculate current position in buffer */</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-12"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-v">pos</span><span class="crayon-h"> </span><span class="crayon-o">=</span><span class="crayon-h"> </span><span class="crayon-e">ARRAY_LEN</span><span class="crayon-sy">(</span><span class="crayon-v">usart_rx_dma_buffer</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-e">LL_DMA_GetDataLength</span><span class="crayon-sy">(</span><span class="crayon-v">DMA1</span><span class="crayon-sy">,</span><span class="crayon-h"> </span><span class="crayon-v">LL_DMA_STREAM_1</span><span class="crayon-sy">)</span><span class="crayon-sy">;</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-13"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-st">if</span><span class="crayon-h"> </span><span class="crayon-sy">(</span><span class="crayon-v">pos</span><span class="crayon-h"> </span><span class="crayon-o">!=</span><span class="crayon-h"> </span><span class="crayon-v">old_pos</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-sy">{</span><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span class="crayon-c">/* Check change in received data */</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-14"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-st">if</span><span class="crayon-h"> </span><span class="crayon-sy">(</span><span class="crayon-v">pos</span><span class="crayon-h"> </span><span class="crayon-o">&gt;</span><span class="crayon-h"> </span><span class="crayon-v">old_pos</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-sy">{</span><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-c">/* Current position is over previous one */</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-15"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-c">/* We are in "linear" mode, case P1, P2, P3 */</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-16"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-c">/* Process data directly by subtracting "pointers" */</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-17"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-e">usart_process_data</span><span class="crayon-sy">(</span><span class="crayon-o">&amp;</span><span class="crayon-v">usart_rx_dma_buffer</span><span class="crayon-sy">[</span><span class="crayon-v">old_pos</span><span class="crayon-sy">]</span><span class="crayon-sy">,</span><span class="crayon-h"> </span><span class="crayon-v">pos</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">old_pos</span><span class="crayon-sy">)</span><span class="crayon-sy">;</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-18"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-sy">}</span><span class="crayon-h"> </span><span class="crayon-st">else</span><span class="crayon-h"> </span><span class="crayon-sy">{</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-19"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-c">/* We are in "overflow" mode, case P4 */</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-20"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-c">/* First process data to the end of buffer */</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-21"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-e">usart_process_data</span><span class="crayon-sy">(</span><span class="crayon-o">&amp;</span><span class="crayon-v">usart_rx_dma_buffer</span><span class="crayon-sy">[</span><span class="crayon-v">old_pos</span><span class="crayon-sy">]</span><span class="crayon-sy">,</span><span class="crayon-h"> </span><span class="crayon-e">ARRAY_LEN</span><span class="crayon-sy">(</span><span class="crayon-v">usart_rx_dma_buffer</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-o">-</span><span class="crayon-h"> </span><span class="crayon-v">old_pos</span><span class="crayon-sy">)</span><span class="crayon-sy">;</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-22"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-c">/* Continue with beginning of buffer */</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-23"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-e">usart_process_data</span><span class="crayon-sy">(</span><span class="crayon-o">&amp;</span><span class="crayon-v">usart_rx_dma_buffer</span><span class="crayon-sy">[</span><span class="crayon-cn">0</span><span class="crayon-sy">]</span><span class="crayon-sy">,</span><span class="crayon-h"> </span><span class="crayon-v">pos</span><span class="crayon-sy">)</span><span class="crayon-sy">;</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-24"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-sy">}</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-25"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-sy">}</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-26"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-v">old_pos</span><span class="crayon-h"> </span><span class="crayon-o">=</span><span class="crayon-h"> </span><span class="crayon-v">pos</span><span class="crayon-sy">;</span><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-c">/* Save current position as old */</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-27">&nbsp;</div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-28"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-c">/* Check and manually update if we reached end of buffer */</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-29"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-st">if</span><span class="crayon-h"> </span><span class="crayon-sy">(</span><span class="crayon-v">old_pos</span><span class="crayon-h"> </span><span class="crayon-o">==</span><span class="crayon-h"> </span><span class="crayon-e">ARRAY_LEN</span><span class="crayon-sy">(</span><span class="crayon-v">usart_rx_dma_buffer</span><span class="crayon-sy">)</span><span class="crayon-sy">)</span><span class="crayon-h"> </span><span class="crayon-sy">{</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-30"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-v">old_pos</span><span class="crayon-h"> </span><span class="crayon-o">=</span><span class="crayon-h"> </span><span class="crayon-cn">0</span><span class="crayon-sy">;</span></div><div class="crayon-line" id="crayon-6651ae36ae7ea826737634-31"><span class="crayon-h">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="crayon-sy">}</span></div><div class="crayon-line crayon-striped-line" id="crayon-6651ae36ae7ea826737634-32"><span class="crayon-sy">}</span></div></div></td>
+					</tr>
+				</tbody></table>
+			</div>
+		</div>
+<!-- [Format Time: 0.0037 seconds] -->
+<p>&nbsp;</p>
+<h1><a id="user-content-examples" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#examples" aria-hidden="true"></a>Examples</h1>
+<ul>
+<li><a href="https://github.com/MaJerle/STM32_USART_DMA_RX">Available on Github</a></li>
+<li>Developed in TrueSTUDIO for easier evaluation</li>
+<li>No HAL, LL drivers are used instead</li>
+<li>USART common settings: <code>115200</code> bauds, <code>1</code> stop bit, no-parity</li>
+<li>DMA common settings: Circular mode</li>
+<li>All examples implement loop-back terminology with polling approach</li>
+</ul>
+<table>
+<thead>
+<tr class="alt">
+<th>STM32 family</th>
+<th>Board name</th>
+<th>USART</th>
+<th>STM32 TX</th>
+<th>STM32 RX</th>
+<th>DMA settings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>STM32F1xx</td>
+<td><code>BluePill-F103C8</code></td>
+<td><code>USART1</code></td>
+<td><code>PA9</code></td>
+<td><code>PA10</code></td>
+<td><em><code>DMA1</code>, <code>Channel 5</code></em></td>
+</tr>
+<tr class="alt">
+<td>STM32F4xx</td>
+<td><code>NUCLEO-F413ZH</code></td>
+<td><code>USART3</code></td>
+<td><code>PD8</code></td>
+<td><code>PD9</code></td>
+<td><em><code>DMA1</code>, <code>Stream 1</code>, <code>Channel 4</code></em></td>
+</tr>
+<tr>
+<td>STM32G0xx</td>
+<td><code>NUCLEO-G071RB</code></td>
+<td><code>USART2</code></td>
+<td><code>PA2</code></td>
+<td><code>PA3</code></td>
+<td><em><code>DMA1</code>, <code>Channel 1</code></em></td>
+</tr>
+<tr class="alt">
+<td>STM32L4xx</td>
+<td><code>NUCLEO-L432KC</code></td>
+<td><code>USART2</code></td>
+<td><code>PA2</code></td>
+<td><code>PA15</code></td>
+<td><em><code>DMA1</code>, <code>Channel 6</code>, <code>Request 2</code></em></td>
+</tr>
+</tbody>
+</table>
+<p>Examples show different use cases:</p>
+<h3><a id="user-content-polling-for-changes" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#polling-for-changes" aria-hidden="true"></a>Polling for changes</h3>
+<p>DMA hardware takes care of transferring received data to memory but application must constantly poll for new changes and read received data fast enough to not get overwritten. Processing of received data is in thread mode</p>
+<ul>
+<li>PROS
+<ul>
+<li>Easy to implement</li>
+<li>No interrupts</li>
+<li>Suitable for devices without <em>USART IDLE</em> line detection</li>
+</ul>
+</li>
+<li>CONS
+<ul>
+<li>Application must take care of data periodically, fast enough, otherwise data may get overwritten by DMA hardware</li>
+<li>Harder to get immediate reply when using <em>USART</em> based communication</li>
+</ul>
+</li>
+</ul>
+<h3><a id="user-content-polling-for-changes-rtos" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#polling-for-changes-rtos" aria-hidden="true"></a>Polling for changes RTOS</h3>
+<p>Idea is completely the same as in previous case (<em>polling only</em>) but it uses separate thread for data processing</p>
+<ul>
+<li>PROS
+<ul>
+<li>Easy to implement to RTOS systems, uses only single thread without additional RTOS features</li>
+<li>No interrupts</li>
+<li>Data processing always <em>on-time</em> with maximum delay given by thread thus with known maximum latency between received character and processing time</li>
+<li>Suitable for devices without <em>USART IDLE</em> line detection</li>
+</ul>
+</li>
+<li>CONS
+<ul>
+<li>Uses more memory resources dedicated for separate thread for data processing</li>
+</ul>
+</li>
+</ul>
+<h3><a id="user-content-usart-idle-line-detection--dma-httc-interrupts" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#usart-idle-line-detection--dma-httc-interrupts" aria-hidden="true"></a>USART Idle line detection + DMA HT&amp;TC interrupts</h3>
+<p>Similar to <code>polling</code> except in this case user gets notification from <code>3</code> different sources:</p>
+<ul>
+<li>USART idle line detection: Some data was received but now receive line is steady. Interrupt will notify application to process currently received data immediately
+<ul>
+<li>DMA Half-Transfer (<em>HT</em>): DMA hardware reached middle point of received length. Interrupt will norify application to process data immediately. This is to make sure we process data fast enough if we receive burst of data and number of bytes is higher than rolling receive buffer</li>
+<li>DMA Transfer-Complete (<em>TC</em>): Exactly the same like <code>HT</code> event, except that it happens at the end of received rolling buffer. Once this event happens, DMA will start receiving from beginning of buffer</li>
+</ul>
+</li>
+<li>PROS
+<ul>
+<li>User do not need to check for new changes</li>
+<li>Relevant interrupts are triggered on which user must immediate react</li>
+</ul>
+</li>
+<li>CONS
+<ul>
+<li>Processing of data in this mode is always in interrupt. This may have negative effects on application if there is too much data to process at a time. Doing this may stall CPU and processing of other interrupts</li>
+</ul>
+</li>
+</ul>
+<h3><a id="user-content-usart-idle-line-detection--dma-httc-interrupts-with-rtos" class="anchor" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#usart-idle-line-detection--dma-httc-interrupts-with-rtos" aria-hidden="true"></a>USART Idle line detection + DMA HT&amp;TC interrupts with RTOS</h3>
+<ul>
+<li>The same as <code>idle_line_irq</code> type, except it only writes notification to message queue. Data processing is done in separate thread which offloads interrupts for other tasks</li>
+<li>PROS
+<ul>
+<li>Processing is not in the interrupt, it is in separate thread</li>
+</ul>
+</li>
+<li>CONS
+<ul>
+<li>Memory usage for separate thread + message queue (or semaphore)</li>
+<li>Increases RAM footprint</li>
+</ul>
+</li>
+</ul>
+<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon sd-sharing"><h3 class="sd-title">Share this to other users:</h3><div class="sd-content"><ul><li class="share-print"><a rel="nofollow noopener noreferrer" data-shared="" class="share-print sd-button share-icon no-text" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#print" target="_blank" title="Click to print"><span></span><span class="sharing-screen-reader-text">Click to print (Opens in new window)</span></a></li><li class="share-email share-service-visible"><a rel="nofollow noopener noreferrer" data-shared="" class="share-email sd-button share-icon no-text" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/?share=email&amp;nb=1" target="_blank" title="Click to email this to a friend"><span></span><span class="sharing-screen-reader-text">Click to email this to a friend (Opens in new window)</span></a></li><li class="share-facebook"><a rel="nofollow noopener noreferrer" data-shared="sharing-facebook-3015" class="share-facebook sd-button share-icon no-text" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/?share=facebook&amp;nb=1" target="_blank" title="Click to share on Facebook"><span></span><span class="sharing-screen-reader-text">Click to share on Facebook (Opens in new window)</span></a></li><li class="share-google-plus-1"><a rel="nofollow noopener noreferrer" data-shared="sharing-google-3015" class="share-google-plus-1 sd-button share-icon no-text" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/?share=google-plus-1&amp;nb=1" target="_blank" title="Click to share on Google+"><span></span><span class="sharing-screen-reader-text">Click to share on Google+ (Opens in new window)</span></a></li><li class="share-twitter"><a rel="nofollow noopener noreferrer" data-shared="sharing-twitter-3015" class="share-twitter sd-button share-icon no-text" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/?share=twitter&amp;nb=1" target="_blank" title="Click to share on Twitter"><span></span><span class="sharing-screen-reader-text">Click to share on Twitter (Opens in new window)</span></a></li><li class="share-linkedin"><a rel="nofollow noopener noreferrer" data-shared="sharing-linkedin-3015" class="share-linkedin sd-button share-icon no-text" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/?share=linkedin&amp;nb=1" target="_blank" title="Click to share on LinkedIn"><span></span><span class="sharing-screen-reader-text">Click to share on LinkedIn (Opens in new window)</span></a></li><li class="share-pinterest"><a rel="nofollow noopener noreferrer" data-shared="sharing-pinterest-3015" class="share-pinterest sd-button share-icon no-text" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/?share=pinterest&amp;nb=1" target="_blank" title="Click to share on Pinterest"><span></span><span class="sharing-screen-reader-text">Click to share on Pinterest (Opens in new window)</span></a></li><li class="share-tumblr"><a rel="nofollow noopener noreferrer" data-shared="" class="share-tumblr sd-button share-icon no-text" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/?share=tumblr&amp;nb=1" target="_blank" title="Click to share on Tumblr"><span></span><span class="sharing-screen-reader-text">Click to share on Tumblr (Opens in new window)</span></a></li><li class="share-reddit"><a rel="nofollow noopener noreferrer" data-shared="" class="share-reddit sd-button share-icon no-text" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/?share=reddit&amp;nb=1" target="_blank" title="Click to share on Reddit"><span></span><span class="sharing-screen-reader-text">Click to share on Reddit (Opens in new window)</span></a></li><li class="share-pocket"><a rel="nofollow noopener noreferrer" data-shared="" class="share-pocket sd-button share-icon no-text" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/?share=pocket&amp;nb=1" target="_blank" title="Click to share on Pocket"><span></span><span class="sharing-screen-reader-text">Click to share on Pocket (Opens in new window)</span></a></li><li class="share-end"></li></ul></div></div></div>          <nav class="pagination group">
+                      </nav><!--/.pagination-->
+        </div>
+
+        
+        <div class="clear"></div>
+      </div><!--/.entry-->
+
+    </div><!--/.post-inner-->
+  </article><!--/.post-->
+
+<div class="clear"></div>
+
+<p class="post-tags"><span>Tags:</span> <a href="https://stm32f4-discovery.net/tag/asynchronous/" rel="tag">asynchronous</a><a href="https://stm32f4-discovery.net/tag/direct-memory-access/" rel="tag">direct memory access</a><a href="https://stm32f4-discovery.net/tag/dma/" rel="tag">dma</a><a href="https://stm32f4-discovery.net/tag/idle-line/" rel="tag">idle line</a><a href="https://stm32f4-discovery.net/tag/stm32/" rel="tag">stm32</a><a href="https://stm32f4-discovery.net/tag/stm32-family/" rel="tag">stm32 family</a><a href="https://stm32f4-discovery.net/tag/stm32f4/" rel="tag">stm32f4</a><a href="https://stm32f4-discovery.net/tag/stm32f7/" rel="tag">stm32f7</a><a href="https://stm32f4-discovery.net/tag/tutorial/" rel="tag">tutorial</a><a href="https://stm32f4-discovery.net/tag/usart/" rel="tag">usart</a><a href="https://stm32f4-discovery.net/tag/usart-idle/" rel="tag">usart idle</a></p>
+  <div class="author-bio">
+    <div class="bio-avatar"><img alt="" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/20e38b943a60140829036a9276290557.png" srcset="https://secure.gravatar.com/avatar/20e38b943a60140829036a9276290557?s=256&amp;d=wavatar&amp;r=g 2x" class="avatar avatar-128 photo wp-hovercard-attachment grav-hashed grav-hijack" height="128" width="128"></div>
+    <p class="bio-name">tilz0R</p>
+    <p class="bio-desc">Owner of this site. Application engineer, currently employed by STMicroelectronics. Exploring latest technologies and owner of different libraries posted on Github.</p>
+    <div class="clear"></div>
+  </div>
+
+
+
+<h4 class="heading">
+	<i class="far fa-hand-point-right"></i>You may also like...</h4>
+
+<ul class="related-posts group">
+  		<li class="related post-hover">
+		<article class="post-2843 post type-post status-publish format-standard hentry category-arm-cortex-m category-esp8266-esp32 category-stm32f4-2 category-stm32f4-discovery-2 category-stm32f429 category-stm32f429-discovery category-stm32f7 category-stm32f7-discovery tag-at-commands tag-cortex tag-esp8266 tag-espressif tag-parser tag-stm32">
+
+			<div class="post-thumbnail">
+				<a href="https://stm32f4-discovery.net/2015/12/at-commands-parser-for-esp8266/" class="hu-rel-post-thumb">
+					        <svg class="hu-svg-placeholder thumb-medium-empty" id="6651ae37002ac" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M928 832q0-14-9-23t-23-9q-66 0-113 47t-47 113q0 14 9 23t23 9 23-9 9-23q0-40 28-68t68-28q14 0 23-9t9-23zm224 130q0 106-75 181t-181 75-181-75-75-181 75-181 181-75 181 75 75 181zm-1024 574h1536v-128h-1536v128zm1152-574q0-159-112.5-271.5t-271.5-112.5-271.5 112.5-112.5 271.5 112.5 271.5 271.5 112.5 271.5-112.5 112.5-271.5zm-1024-642h384v-128h-384v128zm-128 192h1536v-256h-828l-64 128h-644v128zm1664-256v1280q0 53-37.5 90.5t-90.5 37.5h-1536q-53 0-90.5-37.5t-37.5-90.5v-1280q0-53 37.5-90.5t90.5-37.5h1536q53 0 90.5 37.5t37.5 90.5z"></path></svg>
+         <img class="hu-img-placeholder" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/thumb-medium-empty.png" alt="AT commands parser for ESP8266" data-hu-post-id="6651ae37002ac">																			</a>
+									<a class="post-comments" href="https://stm32f4-discovery.net/2015/12/at-commands-parser-for-esp8266/#disqus_thread" data-disqus-identifier="2843 http://stm32f4-discovery.net/?p=2843">52 Comments</a>
+							</div><!--/.post-thumbnail-->
+
+			<div class="related-inner">
+
+				<h4 class="post-title entry-title">
+					<a href="https://stm32f4-discovery.net/2015/12/at-commands-parser-for-esp8266/" rel="bookmark" title="Permalink to AT commands parser for ESP8266">AT commands parser for ESP8266</a>
+				</h4><!--/.post-title-->
+
+				<div class="post-meta group">
+					<p class="post-date">
+  <time class="published updated" datetime="2015-12-12 10:13:23">December 12, 2015</time>
+</p>
+
+  <p class="post-byline" style="display:none">&nbsp;by    <span class="vcard author">
+      <span class="fn"><a href="https://stm32f4-discovery.net/author/tilz0r/" title="Posts by tilz0R" rel="author">tilz0R</a></span>
+    </span> · Published <span class="published">December 12, 2015</span>
+     · Last modified <span class="updated">April 10, 2018</span>  </p>
+				</div><!--/.post-meta-->
+
+			</div><!--/.related-inner-->
+
+		</article>
+	</li><!--/.related-->
+		<li class="related post-hover">
+		<article class="post-722 post type-post status-publish format-standard hentry category-stm32f4-2 category-stm32f4-discovery-2 category-stm32f429 category-stm32f429-discovery tag-beginning tag-card-detect tag-chan tag-custom tag-custom-get_fattime tag-detect-pin tag-disable tag-dma tag-fatfs tag-get_fattime tag-getdrive-size tag-sdio tag-selectable-options tag-spi tag-stm32f4 tag-stm32f4-discovery tag-stm32f429-2 tag-stm32f429-discovery tag-stm32f4xx tag-truncate tag-write-protect-pin">
+
+			<div class="post-thumbnail">
+				<a href="https://stm32f4-discovery.net/2014/07/library-21-read-sd-card-fatfs-stm32f4xx-devices/" class="hu-rel-post-thumb">
+					        <svg class="hu-svg-placeholder thumb-medium-empty" id="6651ae3702ed6" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M928 832q0-14-9-23t-23-9q-66 0-113 47t-47 113q0 14 9 23t23 9 23-9 9-23q0-40 28-68t68-28q14 0 23-9t9-23zm224 130q0 106-75 181t-181 75-181-75-75-181 75-181 181-75 181 75 75 181zm-1024 574h1536v-128h-1536v128zm1152-574q0-159-112.5-271.5t-271.5-112.5-271.5 112.5-112.5 271.5 112.5 271.5 271.5 112.5 271.5-112.5 112.5-271.5zm-1024-642h384v-128h-384v128zm-128 192h1536v-256h-828l-64 128h-644v128zm1664-256v1280q0 53-37.5 90.5t-90.5 37.5h-1536q-53 0-90.5-37.5t-37.5-90.5v-1280q0-53 37.5-90.5t90.5-37.5h1536q53 0 90.5 37.5t37.5 90.5z"></path></svg>
+         <img class="hu-img-placeholder" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/thumb-medium-empty.png" alt="Library 21- Read SD card with FatFs on STM32F4" data-hu-post-id="6651ae3702ed6">																			</a>
+									<a class="post-comments" href="https://stm32f4-discovery.net/2014/07/library-21-read-sd-card-fatfs-stm32f4xx-devices/#disqus_thread" data-disqus-identifier="722 http://stm32f4-discovery.net/?p=722">571 Comments</a>
+							</div><!--/.post-thumbnail-->
+
+			<div class="related-inner">
+
+				<h4 class="post-title entry-title">
+					<a href="https://stm32f4-discovery.net/2014/07/library-21-read-sd-card-fatfs-stm32f4xx-devices/" rel="bookmark" title="Permalink to Library 21- Read SD card with FatFs on STM32F4">Library 21- Read SD card with FatFs on STM32F4</a>
+				</h4><!--/.post-title-->
+
+				<div class="post-meta group">
+					<p class="post-date">
+  <time class="published updated" datetime="2014-07-10 16:26:02">July 10, 2014</time>
+</p>
+
+  <p class="post-byline" style="display:none">&nbsp;by    <span class="vcard author">
+      <span class="fn"><a href="https://stm32f4-discovery.net/author/tilz0r/" title="Posts by tilz0R" rel="author">tilz0R</a></span>
+    </span> · Published <span class="published">July 10, 2014</span>
+     · Last modified <span class="updated">April 29, 2016</span>  </p>
+				</div><!--/.post-meta-->
+
+			</div><!--/.related-inner-->
+
+		</article>
+	</li><!--/.related-->
+		<li class="related post-hover">
+		<article class="post-3007 post type-post status-publish format-standard has-post-thumbnail hentry category-arm-cortex-m category-stm32f7 category-stm32f7-discovery tag-button tag-custom tag-discovery tag-dropdown tag-easygui tag-graph tag-graphical tag-interface tag-keyboard tag-listbox tag-multitouch tag-stm32 tag-stm32f7 tag-support tag-touch tag-user tag-video tag-widgets tag-window">
+
+			<div class="post-thumbnail">
+				<a href="https://stm32f4-discovery.net/2017/04/easygui-preview-stm32f7-discovery/" class="hu-rel-post-thumb">
+					<img width="520" height="245" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/0-1-520x245.jpg" class="attachment-thumb-medium size-thumb-medium wp-post-image" alt="">																			</a>
+									<a class="post-comments" href="https://stm32f4-discovery.net/2017/04/easygui-preview-stm32f7-discovery/#disqus_thread" data-disqus-identifier="3007 https://stm32f4-discovery.net/?p=3007">16 Comments</a>
+							</div><!--/.post-thumbnail-->
+
+			<div class="related-inner">
+
+				<h4 class="post-title entry-title">
+					<a href="https://stm32f4-discovery.net/2017/04/easygui-preview-stm32f7-discovery/" rel="bookmark" title="Permalink to EasyGUI preview on STM32F7-Discovery">EasyGUI preview on STM32F7-Discovery</a>
+				</h4><!--/.post-title-->
+
+				<div class="post-meta group">
+					<p class="post-date">
+  <time class="published updated" datetime="2017-04-20 20:44:24">April 20, 2017</time>
+</p>
+
+  <p class="post-byline" style="display:none">&nbsp;by    <span class="vcard author">
+      <span class="fn"><a href="https://stm32f4-discovery.net/author/tilz0r/" title="Posts by tilz0R" rel="author">tilz0R</a></span>
+    </span> · Published <span class="published">April 20, 2017</span>
+      </p>
+				</div><!--/.post-meta-->
+
+			</div><!--/.related-inner-->
+
+		</article>
+	</li><!--/.related-->
+		  
+</ul><!--/.post-related-->
+
+
+
+<div id="disqus_recommendations" style="margin-bottom: 12px;"><iframe id="dsq-app6079" name="dsq-app6079" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/saved_resource.html" style="width: 100% !important; border: none !important; overflow: hidden !important; height: 0px !important; display: inline !important; box-sizing: border-box !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></div><div id="disqus_thread"><iframe id="dsq-app4478" name="dsq-app4478" allowtransparency="true" frameborder="0" scrolling="no" tabindex="0" title="Disqus" width="100%" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/saved_resource(2).html" style="width: 1px !important; min-width: 100% !important; border: none !important; overflow: hidden !important; height: 12395px !important;" horizontalscrolling="no" verticalscrolling="no"></iframe></div>
+          </div><!--/.hu-pad-->
+        </section><!--/.content-->
+          
+
+	<div class="sidebar s1 collapsed" data-position="left" data-layout="col-3cm" data-sb-id="s1" style="transform: translateZ(0px);">
+
+		<button class="sidebar-toggle" title="Expand Sidebar"><i class="fas sidebar-toggle-arrows"></i></button>
+
+		<div class="sidebar-content">
+
+			           			<div class="sidebar-top group">
+                        <p>Follow:</p>          
+          <ul class="social-links"><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="Facebook" aria-label="Facebook" href="http://www.facebook.com/tilz0R" target="_blank" style="color:"><i class="fab fa-facebook"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="Twitter" aria-label="Twitter" href="https://twitter.com/tilz0R" target="_blank" style="color:"><i class="fab fa-twitter-square"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="LinkedIn" aria-label="LinkedIn" href="https://www.linkedin.com/pub/tilen-majerle/7/697/85a" target="_blank" style="color:"><i class="fab fa-linkedin"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="Google+" aria-label="Google+" href="http:" target="_blank" style="color:"><i class="fab fa-google-plus"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="Github" aria-label="Github" href="http://github.com/MaJerle" target="_blank" style="color:"><i class="fab fa-github-square"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="Instagram" aria-label="Instagram" href="https://instagram.com/majerletilen" target="_blank" style="color:"><i class="fab fa-instagram"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="" aria-label="" href="http:" target="_blank" style="color:"><i class="fab fa-"></i></a></li></ul>  			</div>
+			
+				<ul class="post-nav group">
+		<li class="next"><a href="https://stm32f4-discovery.net/2017/11/st-released-stm32l4-plus-family/" rel="next"><i class="fas fa-chevron-right"></i><strong>Next story</strong> <span>ST released STM32L4+ family</span></a></li>
+		<li class="previous"><a href="https://stm32f4-discovery.net/2017/04/easygui-preview-stm32f7-discovery/" rel="prev"><i class="fas fa-chevron-left"></i><strong>Previous story</strong> <span>EasyGUI preview on STM32F7-Discovery</span></a></li>
+	</ul>
+
+			
+			<!-- PCBWAY -->
+			<!--<a href="https://www.pcbway.com/?from=stm32f4-discovery" target="_blank" alt="PCBWay">
+				<img src="" />
+			</a>-->
+
+			<div id="top-posts-3" class="widget widget_top-posts"><h3 class="widget-title">Top posts</h3><ul>				<li>
+										<a href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/" class="bump-view" data-bump-view="tp">
+						STM32 tutorial: Efficiently receive UART data using DMA					</a>
+										</li>
+								<li>
+										<a href="https://stm32f4-discovery.net/2014/05/stm32f4-stm32f429-discovery-pwm-tutorial/" class="bump-view" data-bump-view="tp">
+						STM32F4 PWM tutorial with TIMERs					</a>
+										</li>
+								<li>
+										<a href="https://stm32f4-discovery.net/2014/08/stm32f4-external-interrupts-tutorial/" class="bump-view" data-bump-view="tp">
+						STM32F4 External interrupts tutorial					</a>
+										</li>
+								<li>
+										<a href="https://stm32f4-discovery.net/2014/09/library-35-lis302dl-or-lis3dsh-accelerometer/" class="bump-view" data-bump-view="tp">
+						Library 35- LIS302DL or LIS3DSH accelerometer					</a>
+										</li>
+								<li>
+										<a href="https://stm32f4-discovery.net/2015/07/all-stm32-hal-libraries/" class="bump-view" data-bump-view="tp">
+						All STM32 HAL libraries					</a>
+										</li>
+								<li>
+										<a href="https://stm32f4-discovery.net/2014/07/library-21-read-sd-card-fatfs-stm32f4xx-devices/" class="bump-view" data-bump-view="tp">
+						Library 21- Read SD card with FatFs on STM32F4					</a>
+										</li>
+				</ul></div><div id="custom_html-2" class="widget_text widget widget_custom_html"><h3 class="widget-title">PCBWay</h3><div class="textwidget custom-html-widget"><a href="https://www.pcbway.com/?from=stm32f4-discovery" target="_blank" alt="PCBWay">
+				<img src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/pcbway_300x250.gif" alt="" style="display: none !important;">
+			</a></div></div><div id="recent-comments-3" class="widget widget_recent_comments"><h3 class="widget-title">Recent comments</h3><ul id="recentcomments"><li class="recentcomments"><span class="comment-author-link"><a href="https://maker.wiznet.io/2021/05/05/how-to-use-uart-dma-rx-on-stm32f103-mcu/" rel="external nofollow" class="url">How to use UART DMA RX on STM32F103 MCU</a></span> on <a href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#comment-7021">STM32 tutorial: Efficiently receive UART data using DMA</a></li><li class="recentcomments"><span class="comment-author-link"><a href="http://blog.bachi.net/?p=11194" rel="external nofollow" class="url">STM32Cube Ecosystem | Andreas' Blog</a></span> on <a href="https://stm32f4-discovery.net/2015/06/how-to-properly-enabledisable-interrupts-in-arm-cortex-m/#comment-7020">How to properly enable/disable interrupts in ARM Cortex-M?</a></li><li class="recentcomments"><span class="comment-author-link"><a href="https://projectiot123.com/2020/01/30/stm32-delay-ms-function/" rel="external nofollow" class="url">STM32 delay ms function : Software delay vs HAL Delay function</a></span> on <a href="https://stm32f4-discovery.net/2014/04/library-03-stm32f429-discovery-system-clock-and-pretty-precise-delay-library/#comment-7018">Library 03- STM32F4 system clock and delay functions</a></li><li class="recentcomments"><span class="comment-author-link"><a href="https://keepdevelopingprojects.wordpress.com/2021/01/02/project-eogee-programming-the-eoglass-microcontrollers/" rel="external nofollow" class="url">Project: EOGee – Programming the EOGlass microcontrollers | Matt's Projects</a></span> on <a href="https://stm32f4-discovery.net/2017/04/tutorial-jump-system-memory-software-stm32/#comment-7006">Tutorial – Jump to system memory from software on STM32</a></li><li class="recentcomments"><span class="comment-author-link"><a href="https://throwexceptions.com/c-control-amis-30543-with-stm32f030r8-via-spi.html" rel="external nofollow" class="url">c – Control AMIS-30543 with STM32F030R8 via SPI – ThrowExceptions</a></span> on <a href="https://stm32f4-discovery.net/2014/04/stm32f429-discovery-gpio-tutorial-with-onboard-leds-and-button/#comment-6987">Library 02- STM32F429 Discovery GPIO tutorial with onboard leds and button</a></li></ul></div><div id="categories-3" class="widget widget_categories"><h3 class="widget-title">Categories</h3>		<ul>
+	<li class="cat-item cat-item-727"><a href="https://stm32f4-discovery.net/category/arm-cortex-m/">ARM Cortex-M</a>
+</li>
+	<li class="cat-item cat-item-911"><a href="https://stm32f4-discovery.net/category/esp8266-esp32/" title="Posts related to ESP8266 and ESP32 WiFi modules from Espressif Systems">ESP8266 &amp; ESP32</a>
+</li>
+	<li class="cat-item cat-item-820"><a href="https://stm32f4-discovery.net/category/random/">Random</a>
+</li>
+	<li class="cat-item cat-item-68"><a href="https://stm32f4-discovery.net/category/stm32f4-2/">STM32F4</a>
+</li>
+	<li class="cat-item cat-item-74"><a href="https://stm32f4-discovery.net/category/stm32f4-discovery-2/">STM32F4 Discovery</a>
+</li>
+	<li class="cat-item cat-item-67"><a href="https://stm32f4-discovery.net/category/stm32f429/">STM32F429</a>
+</li>
+	<li class="cat-item cat-item-3"><a href="https://stm32f4-discovery.net/category/stm32f429-discovery/" title="All about STM32F429 DIscovery board.">STM32F429 Discovery</a>
+</li>
+	<li class="cat-item cat-item-747"><a href="https://stm32f4-discovery.net/category/stm32f7/">STM32F7</a>
+</li>
+	<li class="cat-item cat-item-738"><a href="https://stm32f4-discovery.net/category/stm32f7-discovery/">STM32F7 Discovery</a>
+</li>
+	<li class="cat-item cat-item-934"><a href="https://stm32f4-discovery.net/category/stm32u5/">STM32U5</a>
+</li>
+	<li class="cat-item cat-item-109"><a href="https://stm32f4-discovery.net/category/tutorials/">Tutorials</a>
+</li>
+	<li class="cat-item cat-item-1"><a href="https://stm32f4-discovery.net/category/uncategorized/">Uncategorized</a>
+</li>
+		</ul>
+</div><div class="googlepublisherpluginad" style="text-align: center; width: 100%; height: auto; clear: none;"><ins data-ad-format="auto" class="adsbygoogle" data-ad-client="ca-pub-1510671897088135" data-ad-slot="6044623402" data-ad-channel="WordPressSinglePost+pso-lv-10" data-adsbygoogle-status="done" style="display: block; margin: 10px auto; background-color: transparent;"></ins></div>		<div id="recent-posts-2" class="widget widget_recent_entries">		<h3 class="widget-title">Recent posts</h3>		<ul>
+											<li>
+					<a href="https://stm32f4-discovery.net/2022/12/touchgfx-simulator-development-in-visual-studio-code-with-cmake/">TouchGFX simulator development in Visual Studio Code with CMake</a>
+									</li>
+											<li>
+					<a href="https://stm32f4-discovery.net/2022/08/stm32u5-uart-with-dma/">STM32U5 – DMA for UART TX and RX</a>
+									</li>
+											<li>
+					<a href="https://stm32f4-discovery.net/2018/10/manage-embedded-software-libraries-with-stm32cubemx/">Manage embedded software libraries with STM32CubeMX</a>
+									</li>
+											<li>
+					<a href="https://stm32f4-discovery.net/2018/09/getting-started-with-stm32-step-by-step/">Getting started with STM32 step-by-step</a>
+									</li>
+											<li>
+					<a href="https://stm32f4-discovery.net/2018/09/c-code-style-coding-rules/">C code style and coding rules</a>
+									</li>
+											<li>
+					<a href="https://stm32f4-discovery.net/2018/06/tutorial-control-ws2812b-leds-stm32/">Tutorial: Control WS2812B leds with STM32</a>
+									</li>
+					</ul>
+		</div><div id="calendar-2" class="widget widget_calendar"><h3 class="widget-title">Calendar</h3><div id="calendar_wrap" class="calendar_wrap"><table id="wp-calendar">
+	<caption>July 2017</caption>
+	<thead>
+	<tr>
+		<th scope="col" title="Monday">M</th>
+		<th scope="col" title="Tuesday">T</th>
+		<th scope="col" title="Wednesday">W</th>
+		<th scope="col" title="Thursday">T</th>
+		<th scope="col" title="Friday">F</th>
+		<th scope="col" title="Saturday">S</th>
+		<th scope="col" title="Sunday">S</th>
+	</tr>
+	</thead>
+
+	<tfoot>
+	<tr class="alt">
+		<td colspan="3" id="prev"><a href="https://stm32f4-discovery.net/2017/04/">« Apr</a></td>
+		<td class="pad">&nbsp;</td>
+		<td colspan="3" id="next"><a href="https://stm32f4-discovery.net/2017/11/">Nov »</a></td>
+	</tr>
+	</tfoot>
+
+	<tbody>
+	<tr>
+		<td colspan="5" class="pad">&nbsp;</td><td>1</td><td>2</td>
+	</tr>
+	<tr class="alt">
+		<td>3</td><td>4</td><td>5</td><td><a href="https://stm32f4-discovery.net/2017/07/06/" aria-label="Posts published on July 6, 2017">6</a></td><td>7</td><td>8</td><td>9</td>
+	</tr>
+	<tr>
+		<td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td>
+	</tr>
+	<tr class="alt">
+		<td>17</td><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td>
+	</tr>
+	<tr>
+		<td>24</td><td>25</td><td>26</td><td>27</td><td>28</td><td>29</td><td>30</td>
+	</tr>
+	<tr class="alt">
+		<td>31</td>
+		<td class="pad" colspan="6">&nbsp;</td>
+	</tr>
+	</tbody>
+	</table></div></div><div id="archives-3" class="widget widget_archive"><h3 class="widget-title">Archives</h3>		<ul>
+			<li><a href="https://stm32f4-discovery.net/2022/12/">December 2022</a></li>
+	<li><a href="https://stm32f4-discovery.net/2022/08/">August 2022</a></li>
+	<li><a href="https://stm32f4-discovery.net/2018/10/">October 2018</a></li>
+	<li><a href="https://stm32f4-discovery.net/2018/09/">September 2018</a></li>
+	<li><a href="https://stm32f4-discovery.net/2018/06/">June 2018</a></li>
+	<li><a href="https://stm32f4-discovery.net/2018/04/">April 2018</a></li>
+	<li><a href="https://stm32f4-discovery.net/2017/12/">December 2017</a></li>
+	<li><a href="https://stm32f4-discovery.net/2017/11/">November 2017</a></li>
+	<li><a href="https://stm32f4-discovery.net/2017/07/">July 2017</a></li>
+	<li><a href="https://stm32f4-discovery.net/2017/04/">April 2017</a></li>
+	<li><a href="https://stm32f4-discovery.net/2017/03/">March 2017</a></li>
+	<li><a href="https://stm32f4-discovery.net/2016/11/">November 2016</a></li>
+	<li><a href="https://stm32f4-discovery.net/2016/07/">July 2016</a></li>
+	<li><a href="https://stm32f4-discovery.net/2016/04/">April 2016</a></li>
+	<li><a href="https://stm32f4-discovery.net/2016/01/">January 2016</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/12/">December 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/11/">November 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/10/">October 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/09/">September 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/08/">August 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/07/">July 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/06/">June 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/05/">May 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/04/">April 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/03/">March 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/02/">February 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2015/01/">January 2015</a></li>
+	<li><a href="https://stm32f4-discovery.net/2014/12/">December 2014</a></li>
+	<li><a href="https://stm32f4-discovery.net/2014/11/">November 2014</a></li>
+	<li><a href="https://stm32f4-discovery.net/2014/10/">October 2014</a></li>
+	<li><a href="https://stm32f4-discovery.net/2014/09/">September 2014</a></li>
+	<li><a href="https://stm32f4-discovery.net/2014/08/">August 2014</a></li>
+	<li><a href="https://stm32f4-discovery.net/2014/07/">July 2014</a></li>
+	<li><a href="https://stm32f4-discovery.net/2014/06/">June 2014</a></li>
+	<li><a href="https://stm32f4-discovery.net/2014/05/">May 2014</a></li>
+	<li><a href="https://stm32f4-discovery.net/2014/04/">April 2014</a></li>
+		</ul>
+		</div>
+		</div><!--/.sidebar-content-->
+
+	</div><!--/.sidebar-->
+
+	<div class="sidebar s2 collapsed" data-position="right" data-layout="col-3cm" data-sb-id="s2" style="transform: translateZ(0px);">
+
+	<button class="sidebar-toggle" title="Expand Sidebar"><i class="fas sidebar-toggle-arrows"></i></button>
+
+	<div class="sidebar-content">
+
+		  		<div class="sidebar-top group">
+        <p>More</p>  		</div>
+		
+		
+		<div id="polls-widget-2" class="widget widget_polls-widget"><h3 class="widget-title">Poll</h3><div id="polls-4" class="wp-polls">
+	<form id="polls_form_4" class="wp-polls-form" action="https://stm32f4-discovery.net/index.php" method="post">
+		<p style="display: none;"><input type="hidden" id="poll_4_nonce" name="wp-polls-nonce" value="ec67789f9b"></p>
+		<p style="display: none;"><input type="hidden" name="poll_id" value="4"></p>
+		<p style="text-align: center;"><strong>Which STM32 family is your favorite?</strong></p><div id="polls-4-ans" class="wp-polls-ans"><ul class="wp-polls-ul">
+		<li><input type="radio" id="poll-answer-14" name="poll_4" value="14"> <label for="poll-answer-14">STM32F series - General purpose microcontrollers</label></li>
+		<li><input type="radio" id="poll-answer-15" name="poll_4" value="15"> <label for="poll-answer-15">STM32G series - Next generation general purpose microcontrollers</label></li>
+		<li><input type="radio" id="poll-answer-16" name="poll_4" value="16"> <label for="poll-answer-16">STM32L series - Low-Power series</label></li>
+		<li><input type="radio" id="poll-answer-17" name="poll_4" value="17"> <label for="poll-answer-17">STM32MP series - Microprocessors</label></li>
+		<li><input type="radio" id="poll-answer-18" name="poll_4" value="18"> <label for="poll-answer-18">STM32W series - Wireless microcontrollers</label></li>
+		<li><input type="radio" id="poll-answer-19" name="poll_4" value="19"> <label for="poll-answer-19">STM32U series - Ultra-Low-Power series</label></li>
+		</ul><p style="text-align: center;"><input type="button" name="vote" value="   Vote   " class="Buttons" onclick="poll_vote(4);"></p><p style="text-align: center;"><a href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#ViewPollResults" onclick="poll_result(4); return false;" title="View Results Of This Poll">View Results</a></p></div>
+	</form>
+</div>
+<div id="polls-4-loading" class="wp-polls-loading"><img src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/loading.gif" width="16" height="16" alt="Loading ..." title="Loading ..." class="wp-polls-image">&nbsp;Loading ...</div>
+</div><div id="text-6" class="widget widget_text"><h3 class="widget-title">Support</h3>			<div class="textwidget"><div id="paypal_support_widget">
+<a href="https://www.paypal.me/tilz0R" target="_new">
+<input type="image" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/btn_donateCC_LG.gif" name="submit" alt="PayPal - The safer, easier way to pay online!">
+</a>
+</div></div>
+		</div><div id="search-2" class="widget widget_search"><h3 class="widget-title">Search</h3><form role="search" method="get" class="search-form" action="https://stm32f4-discovery.net/">
+				<label>
+					<span class="screen-reader-text">Search for:</span>
+					<input type="search" class="search-field" placeholder="Search …" value="" name="s">
+				</label>
+				<input type="submit" class="search-submit" value="Search">
+			</form></div><div id="text-4" class="widget widget_text"><h3 class="widget-title">Twitter</h3>			<div class="textwidget"><a class="twitter-timeline" href="https://twitter.com/tilz0R" data-widget-id="465580122179792896" data-twitter-extracted-i1716629049847406765="true">Tweets by @tilz0R</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</div>
+		</div><div id="text-5" class="widget widget_text"><h3 class="widget-title">Google+</h3>			<div class="textwidget"><!-- Place this tag where you want the widget to render. -->
+<div id="___person_0" style="position: absolute; width: 450px; left: -10000px;"><iframe ng-non-bindable="" frameborder="0" hspace="0" marginheight="0" marginwidth="0" scrolling="no" style="position:absolute;top:-10000px;width:450px;margin:0px;border-style:none" tabindex="0" vspace="0" width="100%" id="I0_1716629049868" name="I0_1716629049868" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/person.html" data-gapiattached="true"></iframe></div><div class="g-person" data-width="250" data-href="//plus.google.com/u/0/116872488283801342036" data-rel="author" data-gapiscan="true" data-onload="true" data-gapistub="true"></div>
+
+<!-- Place this tag after the last widget tag. -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/platform.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+<a href="https://plus.google.com/+TilenMajerle/posts" rel="author" target="blank">Follow me on Google+</a></div>
+		</div>
+	</div><!--/.sidebar-content-->
+
+</div><!--/.sidebar-->
+
+        </div><!--/.main-inner-->
+      </div><!--/.main-->
+    </div><!--/.container-inner-->
+  </div><!--/.container-->
+    <footer id="footer">
+
+    
+    
+          <nav class="nav-container group" id="nav-footer" data-menu-id="footer-4" data-menu-scrollable="false">
+                      <!-- <div class="ham__navbar-toggler collapsed" aria-expanded="false">
+          <div class="ham__navbar-span-wrapper">
+            <span class="ham-toggler-menu__span"></span>
+          </div>
+        </div> -->
+        <button class="ham__navbar-toggler-two collapsed" title="Menu" aria-expanded="false">
+          <span class="ham__navbar-span-wrapper">
+            <span class="line line-1"></span>
+            <span class="line line-2"></span>
+            <span class="line line-3"></span>
+          </span>
+        </button>
+                    <div class="nav-text"></div>
+        <div class="nav-wrap submenu-click-expand">
+          <ul id="menu-top-menu-1" class="nav container group"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-424"><a title="Contact me" href="https://stm32f4-discovery.net/about/">About</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-1317"><a title="View me on LinkedIn" target="_blank" href="http://si.linkedin.com/pub/tilen-majerle/7/697/85a">LinkedIn</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-422"><a title="Follow me on Twitter" target="_blank" href="https://twitter.com/tilz0R">Twitter</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-423"><a title="Follow me on Google+" target="_blank" href="https://plus.google.com/+TilenMajerle?rel=author">Google+</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-844"><a title="Follow me on Facebook" target="_blank" href="https://www.facebook.com/tilz0R">Facebook</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-425"><a title="My Github account" target="_blank" href="https://github.com/MaJerle">Github</a></li>
+<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-2391"><a title="Follow me on Instagram" target="_blank" href="https://instagram.com/majerletilen">Instagram</a></li>
+</ul>        </div>
+      </nav><!--/#nav-footer-->
+    
+    <section class="container" id="footer-bottom">
+      <div class="container-inner">
+
+        <a id="back-to-top" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#"><i class="fas fa-angle-up"></i></a>
+
+        <div class="hu-pad group">
+
+          <div class="grid one-half">
+                        
+            <div id="copyright">
+                <p></p>
+            </div><!--/#copyright-->
+
+            
+          </div>
+
+          <div class="grid one-half last">
+                          <ul class="social-links"><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="Facebook" aria-label="Facebook" href="http://www.facebook.com/tilz0R" target="_blank" style="color:"><i class="fab fa-facebook"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="Twitter" aria-label="Twitter" href="https://twitter.com/tilz0R" target="_blank" style="color:"><i class="fab fa-twitter-square"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="LinkedIn" aria-label="LinkedIn" href="https://www.linkedin.com/pub/tilen-majerle/7/697/85a" target="_blank" style="color:"><i class="fab fa-linkedin"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="Google+" aria-label="Google+" href="http:" target="_blank" style="color:"><i class="fab fa-google-plus"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="Github" aria-label="Github" href="http://github.com/MaJerle" target="_blank" style="color:"><i class="fab fa-github-square"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="Instagram" aria-label="Instagram" href="https://instagram.com/majerletilen" target="_blank" style="color:"><i class="fab fa-instagram"></i></a></li><li><a rel="nofollow noopener noreferrer" class="social-tooltip" title="" aria-label="" href="http:" target="_blank" style="color:"><i class="fab fa-"></i></a></li></ul>                      </div>
+
+        </div><!--/.hu-pad-->
+
+      </div><!--/.container-inner-->
+    </section><!--/.container-->
+
+  </footer><!--/#footer-->
+
+</div><!--/#wrapper-->
+
+<div id="cookie-law-info-bar" style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 0); font-family: inherit; bottom: 0px; position: fixed; display: block;"><span>This website uses cookies to improve your experience. We'll assume you're ok with this, but you can opt-out if you wish.<a data-cli_action="accept" id="cookie_action_close_header" class="medium cli-plugin-button cli-plugin-main-button cookie_action_close_header cli_action_button" style="display: inline-block; color: rgb(255, 255, 255); background-color: rgb(0, 0, 0);">Accept</a> <a href="http://stm32f4-discovery.net/" id="CONSTANT_OPEN_URL" target="_blank" class="cli-plugin-main-link" style="display: inline-block; color: rgb(68, 68, 68);">Read More</a></span></div><div id="cookie-law-info-again" style="display: none; background-color: rgb(255, 255, 255); color: rgb(0, 0, 0); position: fixed; font-family: inherit; width: auto; bottom: 0px; right: 100px;"><span id="cookie_hdr_showagain">Privacy &amp; Cookies Policy</span></div><div class="cli-modal" id="cliSettingsPopup" tabindex="-1" role="dialog" aria-labelledby="cliSettingsPopup" aria-hidden="true">
+  <div class="cli-modal-dialog" role="document">
+    <div class="cli-modal-content cli-bar-popup">
+      <button type="button" class="cli-modal-close" id="cliModalClose">
+        <svg class="" viewBox="0 0 24 24"><path d="M19 6.41l-1.41-1.41-5.59 5.59-5.59-5.59-1.41 1.41 5.59 5.59-5.59 5.59 1.41 1.41 5.59-5.59 5.59 5.59 1.41-1.41-5.59-5.59z"></path><path d="M0 0h24v24h-24z" fill="none"></path></svg>
+      </button>
+      <div class="cli-modal-body">
+        <div class="cli-container-fluid cli-tab-container">
+    <div class="cli-row">
+        <div class="cli-col-12 cli-align-items-stretch cli-px-0">
+            <div class="cli-privacy-overview">
+                                                   
+                <div class="cli-privacy-content">
+                    <div class="cli-privacy-content-text"></div>
+                </div>
+                <a class="cli-privacy-readmore" data-readmore-text="Show more" data-readless-text="Show less" style="display: none;"></a>            </div>
+        </div>  
+        <div class="cli-col-12 cli-align-items-stretch cli-px-0 cli-tab-section-container">
+            <div class="cli-tab-section cli-privacy-tab">
+                <div class="cli-tab-header">
+                    <a class="cli-nav-link cli-settings-mobile">
+                                            </a>
+                </div>
+                <div class="cli-tab-content">
+                    <div class="cli-tab-pane cli-fade">
+                        <p></p>
+                    </div>
+                </div>
+
+            </div>
+              
+                            <div class="cli-tab-section">
+                    <div class="cli-tab-header">
+                        <a class="cli-nav-link cli-settings-mobile" data-target="necessary" data-toggle="cli-toggle-tab">
+                            Necessary 
+                        </a>
+                    
+                    <span class="cli-necessary-caption">Always Enabled</span>                     </div>
+                    <div class="cli-tab-content">
+                        <div class="cli-tab-pane cli-fade" data-id="necessary">
+                            <p></p>
+                        </div>
+                    </div>
+                </div>
+              
+                       
+        </div>
+    </div> 
+</div> 
+      </div>
+    </div>
+  </div>
+</div>
+<div class="cli-modal-backdrop cli-fade cli-settings-overlay"></div>
+<div class="cli-modal-backdrop cli-fade cli-popupbar-overlay"></div>
+<script type="text/javascript">
+  /* <![CDATA[ */
+  cli_cookiebar_settings='{"animate_speed_hide":"500","animate_speed_show":"500","background":"#fff","border":"#444","border_on":false,"button_1_button_colour":"#000","button_1_button_hover":"#000000","button_1_link_colour":"#fff","button_1_as_button":true,"button_1_new_win":false,"button_2_button_colour":"#333","button_2_button_hover":"#292929","button_2_link_colour":"#444","button_2_as_button":false,"button_2_hidebar":false,"button_3_button_colour":"#000","button_3_button_hover":"#000000","button_3_link_colour":"#fff","button_3_as_button":true,"button_3_new_win":false,"button_4_button_colour":"#000","button_4_button_hover":"#000000","button_4_link_colour":"#fff","button_4_as_button":true,"font_family":"inherit","header_fix":false,"notify_animate_hide":false,"notify_animate_show":false,"notify_div_id":"#cookie-law-info-bar","notify_position_horizontal":"right","notify_position_vertical":"bottom","scroll_close":false,"scroll_close_reload":false,"accept_close_reload":false,"reject_close_reload":false,"showagain_tab":true,"showagain_background":"#fff","showagain_border":"#000","showagain_div_id":"#cookie-law-info-again","showagain_x_position":"100px","text":"#000","show_once_yn":false,"show_once":"10000","logging_on":false,"as_popup":false,"popup_overlay":true,"bar_heading_text":"","cookie_bar_as":"banner","popup_showagain_position":"bottom-right","widget_position":"left"}';
+  /* ]]> */
+</script>	<div style="display:none">
+	<div class="grofile-hash-map-20e38b943a60140829036a9276290557">
+	</div>
+	</div>
+
+	<script type="text/javascript">
+		window.WPCOM_sharing_counts = {"https:\/\/stm32f4-discovery.net\/2017\/07\/stm32-tutorial-efficiently-receive-uart-data-using-dma\/":3015};
+	</script>
+					
+		<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/jquery.form.min.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var wpcf7 = {"apiSettings":{"root":"https:\/\/stm32f4-discovery.net\/wp-json\/contact-form-7\/v1","namespace":"contact-form-7\/v1"},"cached":"1"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/scripts.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var countVars = {"disqusShortname":"stm32f4discoverycom"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/comment_count.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var embedVars = {"disqusConfig":{"integration":"wordpress 3.0.22"},"disqusIdentifier":"3015 https:\/\/stm32f4-discovery.net\/?p=3015","disqusShortname":"stm32f4discoverycom","disqusTitle":"STM32 tutorial: Efficiently receive UART data using DMA","disqusUrl":"https:\/\/stm32f4-discovery.net\/2017\/07\/stm32-tutorial-efficiently-receive-uart-data-using-dma\/","postId":"3015"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/comment_embed.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/devicepx-jetpack.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var pollsL10n = {"ajax_url":"https:\/\/stm32f4-discovery.net\/wp-admin\/admin-ajax.php","text_wait":"Your last request is still being processed. Please wait a while ...","text_valid":"Please choose a valid poll answer.","text_multiple":"Maximum number of choices allowed: ","show_loading":"1","show_fading":"1"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/polls-js.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/core.min.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/imagesloaded.min.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/masonry.min.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/jquery.masonry.min.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/gprofiles.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var WPGroHo = {"my_hash":""};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/wpgroho.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/underscore.min.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var HUParams = {"_disabled":[],"SmoothScroll":{"Enabled":false,"Options":{"touchpadSupport":false}},"centerAllImg":"1","timerOnScrollAllBrowsers":"1","extLinksStyle":"","extLinksTargetExt":"","extLinksSkipSelectors":{"classes":["btn","button"],"ids":[]},"imgSmartLoadEnabled":"","imgSmartLoadOpts":{"parentSelectors":[".container .content",".container .sidebar","#footer","#header-widgets"],"opts":{"excludeImg":[".tc-holder-img"],"fadeIn_options":100,"threshold":0}},"goldenRatio":"1.618","gridGoldenRatioLimit":"350","sbStickyUserSettings":{"desktop":false,"mobile":false},"sidebarOneWidth":"340","sidebarTwoWidth":"260","isWPMobile":"","menuStickyUserSettings":{"desktop":"stick_up","mobile":"stick_up"},"mobileSubmenuExpandOnClick":"1","submenuTogglerIcon":"<i class=\"fas fa-angle-down\"><\/i>","isDevMode":"","ajaxUrl":"https:\/\/stm32f4-discovery.net\/?huajax=1","frontNonce":{"id":"HuFrontNonce","handle":"3bd1f8714a"},"isWelcomeNoteOn":"","welcomeContent":"","i18n":{"collapsibleExpand":"Expand","collapsibleCollapse":"Collapse"},"deferFontAwesome":"","fontAwesomeUrl":"https:\/\/stm32f4-discovery.net\/wp-content\/themes\/hueman\/assets\/front\/css\/font-awesome.min.css?3.5.7","mainScriptUrl":"https:\/\/stm32f4-discovery.net\/wp-content\/themes\/hueman\/assets\/front\/js\/scripts.min.js?3.5.7","flexSliderNeeded":"","flexSliderOptions":{"is_rtl":false,"has_touch_support":true,"is_slideshow":false,"slideshow_speed":5000}};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/scripts.min.js.download" defer=""></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/comment-reply.min.js.download"></script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/wp-embed.min.js.download"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var sharing_js_options = {"lang":"en","counts":"1","is_stats_active":"1"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/sharing.min.js.download"></script>
+<script type="text/javascript">
+var windowOpen;
+			jQuery( document.body ).on( 'click', 'a.share-facebook', function() {
+				// If there's another sharing window open, close it.
+				if ( 'undefined' !== typeof windowOpen ) {
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcomfacebook', 'menubar=1,resizable=1,width=600,height=400' );
+				return false;
+			});
+var windowOpen;
+			jQuery( document.body ).on( 'click', 'a.share-google-plus-1', function() {
+				// If there's another sharing window open, close it.
+				if ( 'undefined' !== typeof windowOpen ) {
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcomgoogle-plus-1', 'menubar=1,resizable=1,width=480,height=550' );
+				return false;
+			});
+var windowOpen;
+			jQuery( document.body ).on( 'click', 'a.share-twitter', function() {
+				// If there's another sharing window open, close it.
+				if ( 'undefined' !== typeof windowOpen ) {
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcomtwitter', 'menubar=1,resizable=1,width=600,height=350' );
+				return false;
+			});
+var windowOpen;
+			jQuery( document.body ).on( 'click', 'a.share-linkedin', function() {
+				// If there's another sharing window open, close it.
+				if ( 'undefined' !== typeof windowOpen ) {
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcomlinkedin', 'menubar=1,resizable=1,width=580,height=450' );
+				return false;
+			});
+var windowOpen;
+			jQuery( document.body ).on( 'click', 'a.share-tumblr', function() {
+				// If there's another sharing window open, close it.
+				if ( 'undefined' !== typeof windowOpen ) {
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcomtumblr', 'menubar=1,resizable=1,width=450,height=450' );
+				return false;
+			});
+var windowOpen;
+			jQuery( document.body ).on( 'click', 'a.share-pocket', function() {
+				// If there's another sharing window open, close it.
+				if ( 'undefined' !== typeof windowOpen ) {
+					windowOpen.close();
+				}
+				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcompocket', 'menubar=1,resizable=1,width=450,height=450' );
+				return false;
+			});
+</script>
+<!--[if lt IE 9]>
+<script src="https://stm32f4-discovery.net/wp-content/themes/hueman/assets/front/js/ie/respond.js"></script>
+<![endif]-->
+<script type="text/javascript" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/e-202421.js.download" async="async" defer="defer" style="display: none !important;"></script>
+<script type="text/javascript">
+	_stq = window._stq || [];
+	_stq.push([ 'view', {v:'ext',j:'1:6.6.1',blog:'68268430',post:'3015',tz:'2',srv:'stm32f4-discovery.net'} ]);
+	_stq.push([ 'clickTrackerInit', '68268430', '3015' ]);
+</script>
+
+<div id="sharing_email" style="display: none;">
+		<form action="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/" method="post">
+			<label for="target_email">Send to Email Address</label>
+			<input type="email" name="target_email" id="target_email" value="">
+
+			
+				<label for="source_name">Your Name</label>
+				<input type="text" name="source_name" id="source_name" value="">
+
+				<label for="source_email">Your Email Address</label>
+				<input type="email" name="source_email" id="source_email" value="">
+
+						<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" title="This field is for validation and should not be changed">
+			
+			<img style="float: right; display: none" class="loading" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/loading(1).gif" alt="loading" width="16" height="16">
+			<input type="submit" value="Send Email" class="sharing_send">
+			<a rel="nofollow" href="https://stm32f4-discovery.net/2017/07/stm32-tutorial-efficiently-receive-uart-data-using-dma/#cancel" class="sharing_cancel">Cancel</a>
+
+			<div class="errors errors-1" style="display: none;">
+				Post was not sent - check your email addresses!			</div>
+
+			<div class="errors errors-2" style="display: none;">
+				Email check failed, please try again			</div>
+
+			<div class="errors errors-3" style="display: none;">
+				Sorry, your blog cannot share posts by email.			</div>
+		</form>
+	</div><iframe scrolling="no" frameborder="0" allowtransparency="true" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/widget_iframe.2f70fb173b9000da126c79afe2098f02.html" title="Twitter settings iframe" style="display: none;"></iframe><ins class="adsbygoogle adsbygoogle-noablate" data-adsbygoogle-status="done" style="display: none !important;" data-ad-status="unfilled"><div id="aswift_0_host" style="border: none; height: 0px; width: 0px; margin: 0px; padding: 0px; position: relative; visibility: visible; background-color: transparent; display: inline-block;"><iframe id="aswift_0" name="aswift_0" style="left:0;position:absolute;top:0;border:0;width:undefinedpx;height:undefinedpx;" sandbox="allow-forms allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation" frameborder="0" marginwidth="0" marginheight="0" vspace="0" hspace="0" allowtransparency="true" scrolling="no" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/ads.html" data-google-container-id="a!1" tabindex="0" title="Advertisement" aria-label="Advertisement" data-load-complete="true"></iframe></div></ins><iframe style="display: none;" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/saved_resource(3).html"></iframe><iframe name="oauth2relay245356925" id="oauth2relay245356925" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/postmessageRelay.html" tabindex="-1" aria-hidden="true" style="width: 1px; height: 1px; position: absolute; top: -100px;"></iframe><iframe style="display: none;" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/saved_resource(4).html"></iframe><iframe id="rufous-sandbox" scrolling="no" frameborder="0" allowtransparency="true" allowfullscreen="true" style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;" title="Twitter analytics iframe" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/saved_resource(5).html"></iframe><iframe src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/runner.html" width="0" height="0" style="display: none;"></iframe><iframe src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/aframe.html" width="0" height="0" style="display: none;"></iframe></body><iframe id="google_esf" name="google_esf" src="./STM32 tutorial_ Efficiently receive UART data using DMA - STM32F4 Discovery_files/zrt_lookup_fy2021.html" style="display: none;"></iframe></html>
