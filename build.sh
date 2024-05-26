@@ -40,12 +40,12 @@ if [ "$rebuild" == "1" ]; then
     echo_color $BLUE "${BOLD}Rebuilding is True${RESET}"
     if ! make build_bootloader rebuild=1 || ! make build_target_app rebuild=1; then
         echo_color $RED "${BOLD}Error: Build failed.${RESET}"
-        exit 1
+        
     fi
 else
     if ! make build_bootloader || ! make build_target_app; then
         echo_color $RED "${BOLD}Error: Build failed.${RESET}"
-        exit 1
+        
     fi
 fi
 echo ------------------------------------------------------------------------------------------------------
