@@ -9,5 +9,7 @@ tools/build/IDE/TargetAppX/build/build/
 tools/build/IDE/output/
 tools/utils/Flashers/Bootloader.bin
 tools/utils/Flashers/TargetApplication.bin
+website/fota/firmwares/UpdatedFirmware.hex
+website/fota/firmwares/UpdatedFirmwareHash.txt
 
 *.prefs
