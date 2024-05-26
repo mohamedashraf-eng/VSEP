@@ -1,13 +1,13 @@
+.vscode/settings.json
+tools/build/IDE/BootloaderX/build/build/
+tools/build/IDE/TargetAppX/build/build/
 tools/build/CMake/Build/
 tools/build/CMake/Test/
-tools/build/CMake/output
-.vscode/settings.json
-Testing
-tools/build/IDE/BootloaderX/build/build
-tools/build/IDE/TargetAppX/build/build
-
-tools/build/IDE/BootloaderX/build/build
-tools/build/IDE/TargetAppX/build/build
-tools/build/IDE/output
+tools/build/CMake/output/
+tools/build/IDE/BootloaderX/build/build/
+tools/build/IDE/TargetAppX/build/build/
+tools/build/IDE/output/
+tools/utils/Flashers/Bootloader.bin
+tools/utils/Flashers/TargetApplication.bin
 
 *.prefs
