@@ -154,8 +154,8 @@
 
 /** @defgroup Packet Type */
 #define PACKET_TYPE_REQUEST_DATA				( (uint8) (0) )
-#define PACKET_TYPE_DATA_FOR_FLASH			( (uint8) (1) )
-#define PACKET_TYPE_CMD									( (uint8) (2) )
+#define PACKET_TYPE_DATA_FOR_FLASH				( (uint8) (1) )
+#define PACKET_TYPE_CMD							( (uint8) (2) )
 
 #define __STM32F103C8T6_SW_RESET_EXCECPTION() NVIC_SystemReset() 
 

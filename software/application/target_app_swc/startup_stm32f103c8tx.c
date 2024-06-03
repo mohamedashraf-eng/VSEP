@@ -1,3 +1,15 @@
+/**
+ * @file    startup_stm32f103c8tx.c
+ * @brief   This is the startup file for the stm32f103c8tx
+ * @author  Mohamed Wx
+ * @date    23-05-2024 
+ * 
+ * @copyright Copyrights (C) 2024, Mohamed Wx
+ * 
+ * @attention LICENSE: GNU GENERAL PUBLIC LICENSE V3.0
+ * 
+**/
+
 #include <stdint.h>
 
 /* Linker script defined symbols */
@@ -178,5 +190,6 @@ void Reset_Handler(void) {
   */
 void Default_Handler(void) {
     while (1) {
+        ; /* Halt - Wait for WDGT Reset (If valid) */
     }
 }

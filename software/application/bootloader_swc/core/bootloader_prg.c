@@ -884,7 +884,7 @@ __NORETURN BL_enBootManager(void) {
 		BL_LOG_SEND(LOGL_INFO, "No valid application found");
 		/* Start listener */
 		__enPipeListen();
-	} else {
+	} else { 
 #if (BL_SECURE_BOOT == BL_SECURE_BOOT_OFF)
 		BL_LOG_SEND(LOGL_INFO, "Found appllication, started to jump");
 		__vJumpToApplication();
