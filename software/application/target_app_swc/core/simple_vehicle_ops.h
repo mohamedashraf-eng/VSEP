@@ -61,7 +61,7 @@ extern "c" {
 /* Motors 
  * MOTOR_SPEED: 45 - 100 
 */
-#define MOTORS_SPEED								( (uint8) (60) )
+#define MOTORS_SPEED								( (uint8) (45) )
 /* Leds 
  * FRONT_LEDS_INTENSITY: 10 - 100
 */
