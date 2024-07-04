@@ -58,11 +58,17 @@ extern "c" {
  * @defgroup App Cfgs
  *
 */
-/* Motors */
+/* Motors 
+ * MOTOR_SPEED: 45 - 100 
+*/
 #define MOTORS_SPEED								( (uint8) (60) )
-/* Leds */
+/* Leds 
+ * FRONT_LEDS_INTENSITY: 10 - 100
+*/
 #define FRONT_LEDS_INTENSITY						( (uint8) (80) )
-/* Ultrasonic */
+/* Ultrasonic 
+ * USS_THRESHOLD_DISTANCE_CM: 10 - 200
+*/
 #define USS_THRESHOLD_DISTANCE_CM					( (uint8) (15) )
 
 /**

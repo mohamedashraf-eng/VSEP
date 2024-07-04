@@ -413,29 +413,30 @@ uint8 GetUltraSonicDistance(void) {
     return g_UssDistance;
 }
 
-void buzzerngy(uint8_t distance) {
+void BUZZBUZZ(uint8_t distance) {
 	BuzzerUUUUUH();
 }
 
 boolean CheckIfDistanceInValidRange(uint8 distance) {
     boolean motors_are_stopped = FALSE;
     if( (TRUE == uss_work_flag) ) {
-		if (distance >= 0 && distance <= USS_THRESHOLD_DISTANCE_CM) {
-			buzzerngy(distance);
-			if (distance <= (uint8)((USS_THRESHOLD_DISTANCE_CM * 0.50f) + 1u) && !motors_are_stopped) {
-				ControlMotorSpeed(MOTOR_ALL, 0u);
-				motors_are_stopped = TRUE;
-			}
+		if ( (distance >= 0) && 
+			 (distance <= USS_THRESHOLD_DISTANCE_CM) && 
+			 (!motors_are_stopped) ) {
+			BUZZBUZZ(distance);
+			ControlMotorSpeed(MOTOR_ALL, 0u);
+			motors_are_stopped = TRUE;
 			return FALSE;
 		} else {
-	//        ControlMotorSpeed(MOTOR_ALL, MOTORS_SPEED);
+	        ControlMotorSpeed(MOTOR_ALL, MOTORS_SPEED);
 			BuzzerNO();
 			motors_are_stopped = FALSE;
 			return TRUE;
 		}
-    }
+    } else {
+		BuzzerNO();
+	}
 }
-
 
 /**
  * @defgroup Movements 

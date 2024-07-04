@@ -101,11 +101,11 @@ int main(void)
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
   __disable_irq();
-
-  HAL_TIM_Base_Start(&htim4);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-  HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_3);
+  
+  HAL_TIM_Base_Start(&htim4); // Initiate timer system
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2); // Motors
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3); // Front Leds
+  HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_3); // Ultrasonic Echo
 
   vehicle_init();
 
@@ -114,9 +114,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint8 uss_distance = 0;
   while (1)
   { 
-	  CheckIfDistanceInValidRange(GetUltraSonicDistance());
+    uss_distance = GetUltraSonicDistance();
+	  CheckIfDistanceInValidRange(uss_distance);
 	  _DELAY_MS(100);
     /* USER CODE END WHILE */
 
