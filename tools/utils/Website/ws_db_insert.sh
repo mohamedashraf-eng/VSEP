@@ -44,7 +44,7 @@ cp "$OLD_FIRMWARE_FILE" "$FIRMWARE_FILE"
 INSERT_QUERY="INSERT INTO $TABLE_NAME (version, release_date, firmware, is_active, firmware_cmac, firmware_size, description) VALUES ('$VERSION', '$RELEASE_DATE', '$FIRMWARE_FILE', $IS_ACTIVE, '$firmware_hash', '$firmware_size', '$DESCRIPTION');"
 
 # Execute the MySQL command
-mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" -D "$DB_NAME" -e "$INSERT_QUERY"
+mysql -u"$DB_USER" -h "$DB_HOST" -D "$DB_NAME" -e "$INSERT_QUERY"
 
 if [ $? -eq 0 ]; then
     echo "Record inserted successfully into $TABLE_NAME table"
