@@ -62,41 +62,41 @@
  *      1. Prepare UART1 to handle the incoming msg [RESET SIGNAL] to jump to bootloader
  *      2. Characther '#' received => DeInit application, Jump to 0 Address [Bootloader]
  */
-____STATIC __NORETURN __vJumpToBootloader(void) {
-    __disable_irq();
-    /* Pre Init Jump */
-    memset((uint32_t *)NVIC->ICER, 0xFF, sizeof(NVIC->ICER));
-    SysTick->CTRL = 0;
-    SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk;
-    memset((uint32_t *)NVIC->ICPR, 0xFF, sizeof(NVIC->ICPR));
-    /* Load Vector Table */
-    SCB->VTOR = (uint32_t)(BOOTLOADER_START_ADDR);
-    /* Read the data stored in the first 4 bytes (Main Stack Pointer) */
-    uint32_t local_u32MspValue = *((uint32_t volatile *)(BOOTLOADER_START_ADDR));
-    /* Read the next 4 bytes from the base address (Reset Handler Function) */
-    uint32_t local_u32ResetHandler = *((uint32_t volatile *)(BOOTLOADER_START_ADDR + 4u));
-    /* Set the reset handler as function */
+__STATIC __NORETURN __vJumpToBootloader(void) {
+	__disable_irq();
+	/* Pre Init Jump */
+	memset((uint32*)NVIC->ICER, 0xFF, sizeof(NVIC->ICER));
+	SysTick->CTRL = 0;
+	SCB->ICSR |= SCB_ICSR_PENDSTCLR_Msk;
+	memset((uint32*)NVIC->ICPR, 0xFF, sizeof(NVIC->ICPR));
+	/* Load Vector Table */
+	SCB->VTOR = (uint32)(BOOTLOADER_START_ADDR);
+	/* Read the data stored in the first 4 bytes (Main Stack Pointer) */
+	uint32 local_u32MspValue = *((uint32_t volatile *)(BOOTLOADER_START_ADDR));
+	/* Read the next 4 bytes from the base address (Reset Handler Function) */
+	uint32 local_u32ResetHandler = *((uint32_t volatile *) (BOOTLOADER_START_ADDR + 4u));
+	/* Set the reset handler as function */
 #ifdef DIRECT_BOOTLOADER_JUMP
-    void (*local_vAppResetFunc)(void) = (void *)local_u32ResetHandler;
+	void (*local_vAppResetFunc)(void) = (void*)local_u32ResetHandler;
 #endif /* DIRECT_BOOTLOADER_JUMP */
-    /* Set the MSP for the application */
-    __set_MSP(local_u32MspValue);
-    /* Set stack pointer */
-    __set_CONTROL(0);
-    /* Activate APP_TO_BL flag */
-    __WRITE_FLAG_APP_TO_BL_ADDR(TRUE);
-    /* Reset clock before start */
-    HAL_RCC_DeInit();
+	/* Set the MSP for the application */
+	__set_MSP(local_u32MspValue);
+	/* Set stack pointer */
+	__set_CONTROL(0);
+	/* Activate APP_TO_BL flag */
+	__WRITE_FLAG_APP_TO_BL_ADDR(TRUE);
+	/* Reset clock before start */
+	HAL_RCC_DeInit();
 
-    /* Call the reset function to start the application */
+	/* Call the reset function to start the application */
 #ifdef DIRECT_BOOTLOADER_JUMP
-    local_vAppResetFunc();
+	local_vAppResetFunc();
 #else
-    HAL_NVIC_SystemReset();
+	HAL_NVIC_SystemReset();
 #endif /* DIRECT_BOOTLOADER_JUMP */
 }
 
-__STATIC uint8 rx_data = 0;
+static uint8 rx_data = 0;
 
 void start_gp_procedure(void);
 void stop_gp_procedure(void);
@@ -119,8 +119,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 #define SEND_LOG(_fmt, ...) send_log(_fmt "\r\n", ##__VA_ARGS__)
 
-void __STATIC send_log(const uint8* restrict pArg_u8StrFormat, ...) {
-	____STATIC uint8 local_u8DbgBuffer[DBG_BUFFER_MAX_SIZE];
+void static send_log(const uint8* restrict pArg_u8StrFormat, ...) {
+	__STATIC uint8 local_u8DbgBuffer[DBG_BUFFER_MAX_SIZE];
 
 	va_list args;
 	va_start(args, pArg_u8StrFormat);
@@ -331,9 +331,9 @@ void ControlFrontLeds(uint8 led, uint8 intensity) {
  * @todo
  *
  */
-__STATIC uint8 uss_work_flag = FALSE;
+static uint8 uss_work_flag = FALSE;
 
-__STATIC void delay_us(uint16_t delay) {
+static void delay_us(uint16_t delay) {
     if (0 != delay) {
         __HAL_TIM_SET_COUNTER(&htim4, 0);
         while (__HAL_TIM_GET_COUNTER(&htim4) < delay);
@@ -351,7 +351,7 @@ __STATIC void delay_us(uint16_t delay) {
 #define USS_TRIGGER_PORT    (USS_TRIGGER_GPIO_Port)
 #define USS_TRIGGER_PIN     (USS_TRIGGER_Pin)
 
-__STATIC void uss_trigger(void) {
+static void uss_trigger(void) {
     HAL_GPIO_WritePin(USS_TRIGGER_PORT, USS_TRIGGER_PIN, GPIO_PIN_RESET);
     DELAY_US(10);
     HAL_GPIO_WritePin(USS_TRIGGER_PORT, USS_TRIGGER_PIN, GPIO_PIN_SET);
@@ -361,11 +361,11 @@ __STATIC void uss_trigger(void) {
     __HAL_TIM_ENABLE_IT(&htim2, TIM_IT_CC3);
 }
 
-__STATIC uint8 g_UssDistance = USS_THRESHOLD_DISTANCE_CM + 1u;
-__STATIC boolean IsFirstCaptured = FALSE;
-__STATIC uint32 IcuCapturedVal1 = 0;
-__STATIC uint32 IcuCapturedVal2 = 0;
-__STATIC uint32 Diff = 0;
+static uint8 g_UssDistance = USS_THRESHOLD_DISTANCE_CM + 1u;
+static boolean IsFirstCaptured = FALSE;
+static uint32 IcuCapturedVal1 = 0;
+static uint32 IcuCapturedVal2 = 0;
+static uint32 Diff = 0;
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
     if (htim == &htim2 && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3) {
@@ -418,7 +418,7 @@ void BUZZBUZZ(uint8_t distance) {
 }
 
 boolean CheckIfDistanceInValidRange(uint8 distance) {
-    __STATIC volatile boolean vehicle_stopped = FALSE;
+    static volatile boolean vehicle_stopped = FALSE;
 
     if (TRUE == uss_work_flag) {
         if ((distance >= 0) && (distance <= USS_THRESHOLD_DISTANCE_CM)) {
@@ -461,7 +461,7 @@ void VehicleMoveBwd(void) {
 	SetRotateCCW_BL();
 }
 
-__STATIC void front_leds_init(void) {
+static void front_leds_init(void) {
 	uint8 i = 0;
 	for(; (i <= 100); ++i) {
 		ControlLedFL(i);
@@ -476,7 +476,7 @@ typedef struct {
 } RingtoneStep;
 
 // Nokia ringtone sequence
-__STATIC RingtoneStep nokiaRingtone[] = {
+static RingtoneStep nokiaRingtone[] = {
     {2637, 200},
     {0, 100},
     {2637, 200},
@@ -494,7 +494,7 @@ __STATIC RingtoneStep nokiaRingtone[] = {
     {0, 500}
 };
 
-__STATIC void buzzer_init(RingtoneStep *ringtone, uint16 steps) {
+static void buzzer_init(RingtoneStep *ringtone, uint16 steps) {
 	uint16 i = 0;
     for (i = 0; i < steps; i++) {
         if (ringtone[i].tone == 0) {
