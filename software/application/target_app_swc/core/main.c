@@ -41,11 +41,12 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 void _delay_us(uint16 delay) {
-    __HAL_TIM_SET_COUNTER(&htim4, 0);
-    while(__HAL_TIM_GET_COUNTER(&htim4) < delay);
+  __HAL_TIM_SET_COUNTER(&htim4, 0);
+  while(__HAL_TIM_GET_COUNTER(&htim4) < delay);
 }
 
 #define _DELAY_MS(_D) for(uint16 i = 0; i < 1000u; ++i) _delay_us(_D)
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -114,11 +115,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  uint8 uss_distance = 0;
+  
   while (1)
   { 
-    uss_distance = GetUltraSonicDistance();
-	  CheckIfDistanceInValidRange(uss_distance);
+    app_main();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

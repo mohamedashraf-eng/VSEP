@@ -333,20 +333,20 @@ void ControlFrontLeds(uint8 led, uint8 intensity) {
  */
 static uint8 uss_work_flag = FALSE;
 
-static void delay_us(uint16 delay) {
-	if(0 != delay) {
-	    __HAL_TIM_SET_COUNTER(&htim4, 0);
-	    while(__HAL_TIM_GET_COUNTER(&htim4) < delay);
-	}
+static void delay_us(uint16_t delay) {
+    if (0 != delay) {
+        __HAL_TIM_SET_COUNTER(&htim4, 0);
+        while (__HAL_TIM_GET_COUNTER(&htim4) < delay);
+    }
 }
 
 #define DELAY_US(_D) delay_us(_D)
-#define DELAY_MS(_D) do { 										 	 \
-							if (0 != _D) {							 \
-								for (uint16_t i = 0; i < 1000u; ++i) \
-									delay_us(_D); 					 \
-							} 										 \
-                    	} while(0)
+#define DELAY_MS(_D) do {                                            \
+                        if (0 != _D) {                               \
+                            for (uint16_t i = 0; i < 1000u; ++i)     \
+                                delay_us(_D);                        \
+                        }                                            \
+                    } while (0)
 
 #define USS_TRIGGER_PORT    (USS_TRIGGER_GPIO_Port)
 #define USS_TRIGGER_PIN     (USS_TRIGGER_Pin)
@@ -355,7 +355,7 @@ static void uss_trigger(void) {
     HAL_GPIO_WritePin(USS_TRIGGER_PORT, USS_TRIGGER_PIN, GPIO_PIN_RESET);
     DELAY_US(10);
     HAL_GPIO_WritePin(USS_TRIGGER_PORT, USS_TRIGGER_PIN, GPIO_PIN_SET);
-    DELAY_US(10);
+    DELAY_US(12);
     HAL_GPIO_WritePin(USS_TRIGGER_PORT, USS_TRIGGER_PIN, GPIO_PIN_RESET);
 
     __HAL_TIM_ENABLE_IT(&htim2, TIM_IT_CC3);
@@ -418,31 +418,35 @@ void BUZZBUZZ(uint8_t distance) {
 }
 
 boolean CheckIfDistanceInValidRange(uint8 distance) {
-    boolean motors_are_stopped = FALSE;
-    if( (TRUE == uss_work_flag) ) {
-		if ( (distance >= 0) && 
-			 (distance <= USS_THRESHOLD_DISTANCE_CM) && 
-			 (!motors_are_stopped) ) {
-			BUZZBUZZ(distance);
-			ControlMotorSpeed(MOTOR_ALL, 0u);
-			motors_are_stopped = TRUE;
-			return FALSE;
-		} else {
-	        ControlMotorSpeed(MOTOR_ALL, MOTORS_SPEED);
-			BuzzerNO();
-			motors_are_stopped = FALSE;
-			return TRUE;
-		}
+    static volatile boolean vehicle_stopped = FALSE;
+
+    if (TRUE == uss_work_flag) {
+        if ((distance >= 0) && (distance <= USS_THRESHOLD_DISTANCE_CM)) {
+            if (!vehicle_stopped) {
+                ControlMotorSpeed(MOTOR_ALL, 0u);
+                BUZZBUZZ(distance);
+                vehicle_stopped = TRUE;
+            }
+            return FALSE;
+        } else {
+            if (vehicle_stopped) {
+                ControlMotorSpeed(MOTOR_ALL, MOTORS_SPEED);
+                BuzzerNO();
+                vehicle_stopped = FALSE;
+            }
+            return TRUE;
+        }
     } else {
-		BuzzerNO();
-	}
+        BuzzerNO();
+		/* Assuming returning TRUE as default if uss_work_flag is FALSE */
+        return TRUE; 
+    }
 }
 
 /**
  * @defgroup Movements 
  * 
  */
-
 void VehicleMoveFwd(void) {
 	SetRotateCW_FL();
 	SetRotateCW_FR();
@@ -517,17 +521,8 @@ static void motors_init(void) {
 void vehicle_init(void) {
 	SEND_LOG("\n Starting Application with VTOR: 0x%x", SCB->VTOR);
 	__WRITE_FLAG_APP_TO_BL_ADDR(FALSE);
-	/* Init front leds */
-//	front_leds_init();
-	/* Init buzzer */
-	buzzer_init(nokiaRingtone, sizeof(nokiaRingtone) / sizeof(nokiaRingtone[0]));
-	/* Init ultrasonic */
-//	uss_init();
-	/* Init motors */
-//	motors_init();
 
-//	ControlFrontLeds(LED_ALL, FRONT_LEDS_INTENSITY);
-//	ControlMotorSpeed(MOTOR_ALL, MOTORS_SPEED);
+	buzzer_init(nokiaRingtone, sizeof(nokiaRingtone) / sizeof(nokiaRingtone[0]));
 
 	HAL_UART_Receive_IT(&huart1, &rx_data, 1u);
 }
@@ -542,4 +537,15 @@ void stop_gp_procedure(void) {
 	uss_work_flag = FALSE;
 	ControlMotorSpeed(MOTOR_ALL, 0);
 	ControlFrontLeds(LED_ALL, 0);
+}
+
+/**
+ * Main application function
+ * 
+ */
+void app_main(void) {
+	(void)GetUltraSonicDistance();
+	DELAY_MS(200);
+	CheckIfDistanceInValidRange(g_UssDistance);
+    DELAY_MS(150);
 }
