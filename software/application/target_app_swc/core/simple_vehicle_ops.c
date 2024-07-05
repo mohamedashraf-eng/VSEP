@@ -507,7 +507,7 @@ void vehicle_init(void) {
 void start_gp_procedure(void) {
     uss_work_flag = TRUE;
     ControlMotorSpeed(MOTOR_ALL, MOTORS_SPEED);
-    ControlFrontLeds(LED_ALL, 100); // Assuming 100 is the maximum intensity
+    ControlFrontLeds(LED_ALL, FRONT_LEDS_INTENSITY);
 }
 
 void stop_gp_procedure(void) {
