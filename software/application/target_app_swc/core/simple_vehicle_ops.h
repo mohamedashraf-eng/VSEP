@@ -89,6 +89,8 @@ void vehicle_init(void);
 
 void ControlFrontLeds(uint8 led, uint8 intensity);
 
+void app_main(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
