@@ -365,6 +365,8 @@ static uint32_t IcuCapturedVal1 = 0;
 static uint32_t IcuCapturedVal2 = 0;
 static uint32_t Diff = 0;
 
+#define ERROR_MARGIN (9)
+
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
     if (htim == &htim2 && htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3) {
         if (!IsFirstCaptured) {
@@ -412,7 +414,7 @@ boolean CheckIfDistanceInValidRange(uint8_t distance) {
     static volatile boolean vehicle_stopped = FALSE;
 
     if (TRUE == uss_work_flag) {
-        if (distance <= USS_THRESHOLD_DISTANCE_CM) {
+        if (distance <= (USS_THRESHOLD_DISTANCE_CM + ERROR_MARGIN)) {
             if (!vehicle_stopped) {
                 ControlMotorSpeed(MOTOR_ALL, 0u);
                 BUZZBUZZ(distance);
