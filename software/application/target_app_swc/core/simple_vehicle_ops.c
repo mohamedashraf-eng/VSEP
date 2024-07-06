@@ -45,7 +45,18 @@
 #include <stdarg.h>
 #include <string.h>
 /* ****************************************************************** */
+#define MOTOR_FR  ( (uint8) (1u) )
+#define MOTOR_FL  ( (uint8) (2u) )
+#define MOTOR_BR  ( (uint8) (3u) )
+#define MOTOR_BL  ( (uint8) (4u) )
+#define MOTOR_ALL ( (uint8) (5u) )
 
+#define LED_FR    ( (uint8) (0u) )
+#define LED_FL    ( (uint8) (1u) )
+#define LED_ALL   ( (uint8) (2u) )
+
+__FORCE_INLINE 
+__NORETURN CheckIfDistanceInValidRange(uint8 distance);
 /* ****************************************************************** */
 
 #define __BTL_COMM_ST_UART_HANDLE huart1
@@ -99,7 +110,7 @@ __STATIC __NORETURN __vJumpToBootloader(void) {
 #endif /* DIRECT_BOOTLOADER_JUMP */
 }
 
-static uint8 rx_data = 0;
+__STATIC uint8 rx_data = 0;
 
 __NORETURN start_gp_procedure(void);
 __NORETURN stop_gp_procedure(void);
@@ -122,8 +133,8 @@ __NORETURN HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 #define SEND_LOG(_fmt, ...) send_log(_fmt "\r\n", ##__VA_ARGS__)
 
-__NORETURN static send_log(const uint8* restrict pArg_u8StrFormat, ...) {
-    __STATIC uint8 local_u8DbgBuffer[DBG_BUFFER_MAX_SIZE];
+__NORETURN __STATIC send_log(const uint8* restrict pArg_u8StrFormat, ...) {
+    ____STATIC uint8 local_u8DbgBuffer[DBG_BUFFER_MAX_SIZE];
 
     va_list args;
     va_start(args, pArg_u8StrFormat);
@@ -274,9 +285,9 @@ __NORETURN ControlFrontLeds(uint8 led, uint8 intensity) {
  * @todo
  *
  */
-static uint8 uss_work_flag = FALSE;
+__STATIC uint8 uss_work_flag = FALSE;
 
-static __NORETURN delay_us(uint16 delay) {
+__STATIC __NORETURN delay_us(uint16 delay) {
     if (0 != delay) {
         __HAL_TIM_SET_COUNTER(&htim4, 0);
         while (__HAL_TIM_GET_COUNTER(&htim4) < delay);
@@ -295,7 +306,7 @@ static __NORETURN delay_us(uint16 delay) {
 #define USS_TRIGGER_PIN     (USS_TRIGGER_Pin)
 
 __FORCE_INLINE
-static __NORETURN uss_trigger(void) {
+__STATIC __NORETURN uss_trigger(void) {
     HAL_GPIO_WritePin(USS_TRIGGER_PORT, USS_TRIGGER_PIN, GPIO_PIN_RESET);
     DELAY_US(10);
     HAL_GPIO_WritePin(USS_TRIGGER_PORT, USS_TRIGGER_PIN, GPIO_PIN_SET);
@@ -305,11 +316,11 @@ static __NORETURN uss_trigger(void) {
     __HAL_TIM_ENABLE_IT(&htim2, TIM_IT_CC3);
 }
 
-static uint8 g_UssDistance = USS_THRESHOLD_DISTANCE_CM + 1u;
-static boolean IsFirstCaptured = FALSE;
-static uint32 IcuCapturedVal1 = 0;
-static uint32 IcuCapturedVal2 = 0;
-static uint32 Diff = 0;
+__STATIC uint8 g_UssDistance = USS_THRESHOLD_DISTANCE_CM + 1u;
+__STATIC boolean IsFirstCaptured = FALSE;
+__STATIC uint32 IcuCapturedVal1 = 0;
+__STATIC uint32 IcuCapturedVal2 = 0;
+__STATIC uint32 Diff = 0;
 
 #define USS_THRESHOLD_ERROR_MARGIN_CM (9)
 
@@ -348,7 +359,7 @@ __NORETURN HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
 }
 
 __FORCE_INLINE
-__NORETURN GetUltraSonicDistance(void) {
+__STATIC __NORETURN GetUltraSonicDistance(void) {
     uss_trigger();
 }
 
@@ -363,19 +374,33 @@ __NORETURN BUZZBUZZ(uint8 distance) {
  *      1. Forced Inline
  *      2. Less condition making
  *      3. Faster conditions (PParadox Technique)
- * 
+ * Benchmarking:
+ *      1. ControlMotorSpeed:   
+ *      2. CheckIfDistanceInValidRange:    
+ *      
  */
-__FORCE_INLINE
+__FORCE_INLINE 
 __NORETURN CheckIfDistanceInValidRange(uint8 distance) {
-    static volatile boolean vehicle_stopped = FALSE;
+    __STATIC volatile boolean vehicle_stopped = FALSE;
 
-    if (FALSE == uss_work_flag) {
+    if (!uss_work_flag) {
         BuzzerNO();
-        return TRUE;
+        return;
     }
 
-    boolean volatile is_within_threshold = \ 
-        (distance <= (USS_THRESHOLD_DISTANCE_CM + USS_THRESHOLD_ERROR_MARGIN_CM));
+    /* Precompute threshold distance based on motor speed */
+    uint8 threshold_distance = 
+#if (MOTORS_SPEED > 98)
+        USS_THRESHOLD_DISTANCE_CM + USS_THRESHOLD_ERROR_MARGIN_CM + 6u;
+#elif (MOTORS_SPEED > 90)
+        USS_THRESHOLD_DISTANCE_CM + USS_THRESHOLD_ERROR_MARGIN_CM + 5u;
+#elif (MOTORS_SPEED > 80)
+        USS_THRESHOLD_DISTANCE_CM + USS_THRESHOLD_ERROR_MARGIN_CM + 3u;
+#else
+        USS_THRESHOLD_DISTANCE_CM + USS_THRESHOLD_ERROR_MARGIN_CM;
+#endif
+
+    boolean is_within_threshold = (distance <= threshold_distance);
 
     if (is_within_threshold != vehicle_stopped) {
         if (is_within_threshold) {
@@ -395,7 +420,7 @@ typedef struct {
 } RingtoneStep;
 
 // Nokia ringtone sequence
-static RingtoneStep nokiaRingtone[] = {
+__STATIC RingtoneStep nokiaRingtone[] = {
     {2637, 200},
     {0, 100},
     {2637, 200},
@@ -413,7 +438,7 @@ static RingtoneStep nokiaRingtone[] = {
     {0, 500}
 };
 
-static __NORETURN buzzer_init(RingtoneStep *ringtone, uint16 steps) {
+__STATIC __NORETURN buzzer_init(RingtoneStep *ringtone, uint16 steps) {
     for (uint16 i = 0; i < steps; i++) {
         if (ringtone[i].tone == 0) {
             DELAY_MS(25);
@@ -456,6 +481,6 @@ __NORETURN stop_gp_procedure(void) {
 __NORETURN app_main(void) {
     while (1) {
         GetUltraSonicDistance();
-        DELAY_MS(50);
+        DELAY_MS(25);
     }
 }

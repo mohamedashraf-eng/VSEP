@@ -45,15 +45,6 @@ extern "c" {
 //#define DIRECT_BOOTLOADER_JUMP
 
 /* ****************************************************************** */
-#define MOTOR_FR  ( (uint8) (1u) )
-#define MOTOR_FL  ( (uint8) (2u) )
-#define MOTOR_BR  ( (uint8) (3u) )
-#define MOTOR_BL  ( (uint8) (4u) )
-#define MOTOR_ALL ( (uint8) (5u) )
-
-#define LED_FR    ( (uint8) (0u) )
-#define LED_FL    ( (uint8) (1u) )
-#define LED_ALL   ( (uint8) (2u) )
 
 /* ****************************************************************** */
 /* ****************************************************************** */
@@ -63,14 +54,18 @@ extern "c" {
 /* ****************************************************************** */
 //!                     Application Configurations
 /* ****************************************************************** */
-
+//
 /** //! MOTOR_SPEED: (45 - 100) */
-#define MOTORS_SPEED								( (uint8) (50) )
+//
+#define MOTORS_SPEED								(  (50) )
+//
 /** //! FRONT_LEDS_INTENSITY: (10 - 100) */
-#define FRONT_LEDS_INTENSITY						( (uint8) (80) )
+//
+#define FRONT_LEDS_INTENSITY						(  (80) )
 /** //! USS_THRESHOLD_DISTANCE_CM: (10 - 150) */
-#define USS_THRESHOLD_DISTANCE_CM					( (uint8) (15) )
-
+//
+#define USS_THRESHOLD_DISTANCE_CM					( (15) )
+//
 /* ****************************************************************** */
 /* ****************************************************************** */
 /* ****************************************************************** */
