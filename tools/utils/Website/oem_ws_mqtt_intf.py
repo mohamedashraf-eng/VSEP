@@ -641,8 +641,6 @@ class prj_foem_mqtt:
                                 self.__job_done = True
                                 self.__set_fotaRecord_status("completed", self.__last_active_job_id)
                                 self.__set_fotaRecord_minutesTaken(self.__uploadingTimeTaken, self.__last_active_job_id)
-                                self.__set_fotaRecord_startTime("X", self.__last_active_job_id)
-                                self.__set_fotaRecord_endTime("Y", self.__last_active_job_id)
                                 break
                             if self.__mqtt_unlock_flag:
                                 self.publish(f"{ e_v(oem_cmd.UPDATE_REQUEST) }")
