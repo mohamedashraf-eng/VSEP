@@ -359,9 +359,10 @@ __NORETURN BUZZBUZZ(uint8 distance) {
 
 /**
  * TODO(Wx): Optimize for speed
- * 1. Forced Inline
- * 2. Less condition making
- * 3. Faster Calls
+ * Applied:
+ *      1. Forced Inline
+ *      2. Less condition making
+ *      3. Faster conditions (PParadox Technique)
  * 
  */
 __FORCE_INLINE
@@ -373,7 +374,8 @@ __NORETURN CheckIfDistanceInValidRange(uint8 distance) {
         return TRUE;
     }
 
-    boolean is_within_threshold = (distance <= (USS_THRESHOLD_DISTANCE_CM + USS_THRESHOLD_ERROR_MARGIN_CM));
+    boolean volatile is_within_threshold = \ 
+        (distance <= (USS_THRESHOLD_DISTANCE_CM + USS_THRESHOLD_ERROR_MARGIN_CM));
 
     if (is_within_threshold != vehicle_stopped) {
         if (is_within_threshold) {
@@ -439,6 +441,7 @@ __NORETURN start_gp_procedure(void) {
     ControlFrontLeds(LED_ALL, FRONT_LEDS_INTENSITY);
     GetUltraSonicDistance();
 }
+
 __FORCE_INLINE
 __NORETURN stop_gp_procedure(void) {
     uss_work_flag = FALSE;
