@@ -52,19 +52,19 @@ extern "c" {
 /* ****************************************************************** */
 /* ****************************************************************** */
 /* ****************************************************************** */
-//!                     Application Configurations
+//!               Pre-Build Application Configurations
 /* ****************************************************************** */
 //
 /** //! MOTOR_SPEED: (45 - 100) */
 //
-#define MOTORS_SPEED								(  (50) )
+#define MOTORS_SPEED								(  (50)  )
 //
 /** //! FRONT_LEDS_INTENSITY: (10 - 100) */
 //
-#define FRONT_LEDS_INTENSITY						(  (80) )
+#define FRONT_LEDS_INTENSITY						(  (80)  )
 /** //! USS_THRESHOLD_DISTANCE_CM: (10 - 150) */
 //
-#define USS_THRESHOLD_DISTANCE_CM					( (15) )
+#define USS_THRESHOLD_DISTANCE_CM					(  (15)  )
 //
 /* ****************************************************************** */
 /* ****************************************************************** */

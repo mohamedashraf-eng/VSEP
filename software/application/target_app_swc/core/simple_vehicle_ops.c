@@ -398,7 +398,7 @@ __NORETURN CheckIfDistanceInValidRange(uint8 distance) {
 #endif
 
     boolean is_within_threshold = (distance <= threshold_distance);
-
+    
     if (is_within_threshold != vehicle_stopped) {
         if (is_within_threshold) {
             ControlMotorSpeed(MOTOR_ALL, 0u);
