@@ -45,6 +45,9 @@
 #include <stdarg.h>
 #include <string.h>
 /* ****************************************************************** */
+__FORCE_INLINE
+__NORETURN CheckIfDistanceInValidRange(uint8 distance);
+
 #define MOTOR_FR  ( (uint8) (1u) )
 #define MOTOR_FL  ( (uint8) (2u) )
 #define MOTOR_BR  ( (uint8) (3u) )
@@ -54,10 +57,6 @@
 #define LED_FR    ( (uint8) (0u) )
 #define LED_FL    ( (uint8) (1u) )
 #define LED_ALL   ( (uint8) (2u) )
-
-__FORCE_INLINE 
-__NORETURN CheckIfDistanceInValidRange(uint8 distance);
-/* ****************************************************************** */
 
 #define __BTL_COMM_ST_UART_HANDLE huart1
 #define __LOG_ST_UART_HANDLE huart2
@@ -116,7 +115,7 @@ __NORETURN start_gp_procedure(void);
 __NORETURN stop_gp_procedure(void);
 
 __NORETURN HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-    if( (&huart1 == huart) ) {
+    if (&huart1 == huart) {
         switch(rx_data) {
             case '#': __vJumpToBootloader(); break;
             case 's': start_gp_procedure();  break;
@@ -192,7 +191,7 @@ __NORETURN StopAllMotors(void) {
 
 __NORETURN ControlMotorSpeed(uint8 motor, uint8 speed) {
     uint16 cvtd_speed = (uint16)(speed * 553.85f);
-    if (speed >= 0 && speed <= 100) {
+    if (speed <= 100) {
         switch (motor) {
             case MOTOR_FR:
                 ControlMotorFR(cvtd_speed);
@@ -236,13 +235,11 @@ __NORETURN ControlMotorSpeed(uint8 motor, uint8 speed) {
 
 __FORCE_INLINE
 __NORETURN BuzzerUUUUUH(void) {
-    // SEND_LOG("Buzzer ON");
     HAL_GPIO_WritePin(BUZZER_PORT, BUZZER_PIN, GPIO_PIN_SET);
 }
 
 __FORCE_INLINE
 __NORETURN BuzzerNO(void) {
-    // SEND_LOG("Buzzer OFF");
     HAL_GPIO_WritePin(BUZZER_PORT, BUZZER_PIN, GPIO_PIN_RESET);
 }
 
@@ -265,7 +262,7 @@ __NORETURN ControlLedFL(uint16 intensity) {
 }
 
 __NORETURN ControlFrontLeds(uint8 led, uint8 intensity) {
-    if( ((intensity >= 0) && (intensity <= 100)) ) {
+    if (intensity <= 100) {
         uint16 cvtd_intensity = (uint16)(intensity * 553.85f);
         switch(led) {
             case LED_FR : ControlLedFR(cvtd_intensity); break;
@@ -288,7 +285,7 @@ __NORETURN ControlFrontLeds(uint8 led, uint8 intensity) {
 __STATIC uint8 uss_work_flag = FALSE;
 
 __STATIC __NORETURN delay_us(uint16 delay) {
-    if (0 != delay) {
+    if (delay != 0) {
         __HAL_TIM_SET_COUNTER(&htim4, 0);
         while (__HAL_TIM_GET_COUNTER(&htim4) < delay);
     }
@@ -296,7 +293,7 @@ __STATIC __NORETURN delay_us(uint16 delay) {
 
 #define DELAY_US(_D) delay_us(_D)
 #define DELAY_MS(_D) do {                                            \
-                        if (0 != _D) {                               \
+                        if (_D != 0) {                               \
                             for (uint16 i = 0; i < 1000u; ++i)     \
                                 delay_us(_D);                        \
                         }                                            \
