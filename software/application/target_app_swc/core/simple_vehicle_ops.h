@@ -39,11 +39,12 @@ extern "c" {
 #endif /* __cplusplus */
 
 #include "Std_Types.h"
+/* ****************************************************************** */
 
 //#define DBG
 //#define DIRECT_BOOTLOADER_JUMP
 
-
+/* ****************************************************************** */
 #define MOTOR_FR  ( (uint8) (1u) )
 #define MOTOR_FL  ( (uint8) (2u) )
 #define MOTOR_BR  ( (uint8) (3u) )
@@ -54,42 +55,32 @@ extern "c" {
 #define LED_FL    ( (uint8) (1u) )
 #define LED_ALL   ( (uint8) (2u) )
 
-/**
- * @defgroup App Cfgs
- *
-*/
-/* Motors 
- * MOTOR_SPEED: 45 - 100 
-*/
-#define MOTORS_SPEED								( (uint8) (45) )
-/* Leds 
- * FRONT_LEDS_INTENSITY: 10 - 100
-*/
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+//!                     Application Configurations
+/* ****************************************************************** */
+
+/** //! MOTOR_SPEED: (45 - 100) */
+#define MOTORS_SPEED								( (uint8) (50) )
+/** //! FRONT_LEDS_INTENSITY: (10 - 100) */
 #define FRONT_LEDS_INTENSITY						( (uint8) (80) )
-/* Ultrasonic 
- * USS_THRESHOLD_DISTANCE_CM: 10 - 200
-*/
+/** //! USS_THRESHOLD_DISTANCE_CM: (10 - 150) */
 #define USS_THRESHOLD_DISTANCE_CM					( (uint8) (15) )
 
-/**
- * @defgroup Movements
- *
- */
-
-void ControlLedFL(uint16 intensity);
-void ControlLedFR(uint16 intensity);
-
-uint8 GetUltraSonicDistance(void);
-
-boolean CheckIfDistanceInValidRange(uint8 distance);
-
-void ControlMotorSpeed(uint8 motor, uint8 speed);
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
+/* ****************************************************************** */
 
 void vehicle_init(void);
-
-void ControlFrontLeds(uint8 led, uint8 intensity);
-
 void app_main(void);
+/* ****************************************************************** */
 
 #ifdef __cplusplus
 }
